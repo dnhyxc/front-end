@@ -5,6 +5,8 @@
  * index.vue
 -->
 <template>
+  <div type="primary" @click="changeLanguage">切换语言</div>
+
   <div class="monaco-editor-wrap" ref="editorRef"></div>
 </template>
 
@@ -52,30 +54,31 @@ const editorInit = () => {
       allowNonTsExtensions: true,
     });
 
-    !editor
-      ? (editor = monaco.editor.create(editorRef.value, {
-          value: content.value, // 编辑器初始显示文字
-          language: "javascript", // 语言支持自行查阅demo
-          automaticLayout: true, // 自适应布局
-          theme: "vs-dark", // 官方自带三种主题vs, hc-black, or vs-dark
-          foldingStrategy: "indentation",
-          renderLineHighlight: "all", // 行亮
-          selectOnLineNumbers: true, // 显示行号
-          minimap: {
-            enabled: true, // 是否启用预览图
-          },
-          readOnly: false, // 只读
-          fontSize: 14, // 字体大小
-          scrollBeyondLastLine: false, // 取消代码后面一大段空白
-          overviewRulerBorder: false, // 不要滚动条的边框
-          tabSize: 2,
-          colorDecorators: true, // 呈现内联色彩装饰器和颜色选择器
-          codeLens: true,
-        }))
-      : editor.setValue("");
-    // console.log(editor)
+    if (!editor) {
+      editor = monaco.editor.create(editorRef.value, {
+        value: content.value, // 编辑器初始显示文字
+        language: "javascript", // 语言支持自行查阅demo
+        automaticLayout: true, // 自适应布局
+        theme: "vs", // 官方自带三种主题vs, hc-black, or vs-dark
+        foldingStrategy: "indentation",
+        renderLineHighlight: "all", // 行亮
+        selectOnLineNumbers: true, // 显示行号
+        minimap: {
+          enabled: false, // 是否启用预览图
+        },
+        readOnly: false, // 只读
+        fontSize: 14, // 字体大小
+        scrollBeyondLastLine: true, // 取消代码后面一大段空白
+        overviewRulerBorder: false, // 不要滚动条的边框
+        tabSize: 2,
+        colorDecorators: true, // 呈现内联色彩装饰器和颜色选择器
+      });
+    } else {
+      editor.setValue("");
+    }
+
     // 监听值的变化
-    editor.onDidChangeModelContent((val: any) => {
+    editor.onDidChangeModelContent(() => {
       console.log(editor.getValue(), "editor.getValue()");
       content.value = editor.getValue();
     });
@@ -86,13 +89,9 @@ onMounted(() => {
   editorInit();
 });
 
-// @ts-ignore
 //切换语言
 const changeLanguage = () => {
-  monaco.editor.setModelLanguage(editor.getModel(), language.value);
-  //  editor.updateOptions({
-  //           language: "objective-c"
-  //       });
+  monaco.editor.setModelLanguage(editor?.getModel()!, "html");
 };
 
 onUnmounted(() => {
