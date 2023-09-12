@@ -6,12 +6,13 @@
 -->
 <template>
   <div class="app">
-    <CodeEditer />
+    <MonacoEditor />
   </div>
 </template>
 
 <script setup lang="ts">
-import CodeEditer from "./components/CodeEditer/index.vue";
+// import CodeEditer from "./components/CodeEditer/index.vue";
+import MonacoEditor from "./components/MonacoEditor/index.vue";
 </script>
 
 <style scoped lang="less"></style>
