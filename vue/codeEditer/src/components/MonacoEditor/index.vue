@@ -43,6 +43,8 @@ self.MonacoEnvironment = {
   },
 };
 
+monaco.languages.typescript.typescriptDefaults.setEagerModelSync(true);
+
 const editorInit = () => {
   nextTick(() => {
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({

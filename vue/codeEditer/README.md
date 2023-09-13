@@ -89,6 +89,23 @@ onMounted(() => {
     ],
   });
 });
+
+// 获取body上定义的全局样式属性
+const getStyle = () => {
+  const computedStyle = getComputedStyle(document.body);
+  const color = computedStyle.getPropertyValue("--fff");
+  console.log(color); // 输出通过 --fff 定义的全局 CSS 样式属性的值
+  if (color !== "#1e1e20") {
+    return {
+      base: "vs",
+      background: { "editor.background": "#edf9fa" },
+    };
+  }
+  return {
+    base: "vs-dark",
+    background: {},
+  };
+};
 ```
 
 ### https://juejin.cn/post/7095994149753028615
