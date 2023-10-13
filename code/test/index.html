@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      body,
+      html {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .img-container {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        grid-template-rows: repeat(3, 1fr);
+        width: 300px;
+        height: 300px;
+      }
+
+      .img-item {
+        position: relative;
+        background-size: 300px 300px;
+        background: url("http://43.143.27.249/atlas/__ATLAS__08bc78af79944ae07e55ccc29c987031.png");
+        border-radius: 5px;
+        transition: 0.3s;
+      }
+
+      .img-item:nth-child(3n + 1) {
+        background-position-x: 0;
+        left: -20px;
+      }
+
+      .img-item:nth-child(3n + 2) {
+        background-position-x: -100%;
+        left: 0;
+      }
+
+      .img-item:nth-child(3n) {
+        background-position-x: -200%;
+        left: 20px;
+      }
+
+      .img-item:nth-child(n + 7) {
+        background-position-y: -200%;
+        top: 20px;
+      }
+
+      .img-item:nth-child(-n + 6) {
+        background-position-y: -100%;
+        top: 0;
+      }
+
+      .img-item:nth-child(-n + 3) {
+        background-position-y: 0;
+        top: -20px;
+      }
+
+      .img-container:hover .img-item {
+        left: 0;
+        top: 0;
+        border-radius: 0;
+      }
+
+      .img-container:hover .img-item:nth-child(1) {
+        border-top-left-radius: 5px;
+      }
+
+      .img-container:hover .img-item:nth-child(3) {
+        border-top-right-radius: 5px;
+      }
+
+      .img-container:hover .img-item:nth-child(7) {
+        border-bottom-left-radius: 5px;
+      }
+
+      .img-container:hover .img-item:nth-child(9) {
+        border-bottom-right-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="img-container">
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+      <div class="img-item"></div>
+    </div>
+  </body>
+</html>
