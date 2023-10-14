@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>瀑布流布局</title>
+    <style>
+      .container {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        grid-gap: 10px;
+        /* 只有火狐浏览器支持 */
+        grid-template-rows: masonry;
+      }
+
+      img {
+        width: 100%;
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <img
+        src="http://localhost:9112/atlas/__ATLAS__d2fb7868333fe0dbdba08932b0b76568.jpg"
+        alt=""
+      />
+      <img
+        src="http://localhost:9112/atlas/__ATLAS__e6b7f29d5b029429e2b03e503884e50a.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__5e84ba6d0f0d1c3ca0bd60b85ed1ebff.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__7cfbbaf744387101b660bdc9cf7fab07.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__06d85312255ad74ad0df9370f6d5a234.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__8e21141770621d28434fc44592edc766.png"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__670a08b43fb9e5ccf8291d1cb25c1232.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__1d483227e2eb7c7b38eab31b32495d69.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__35d0d194c0fafa8ed0de844762a180a5.jpg"
+        alt=""
+      /><img
+        src="http://localhost:9112/atlas/__ATLAS__982564d4467cbd3bfebc48abdacd4b09.jpg"
+        alt=""
+      />
+    </div>
+  </body>
+</html>
