@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>william</title>
+  </head>
+  <body>
+    <script>
+      function arrange(name) {
+        const tasks = [];
+        tasks.push(() => {
+          console.log(`${name} is notifed`);
+        });
+
+        function run(action) {
+          tasks.push(() => {
+            console.log(`start to ${action}`);
+          });
+          return this;
+        }
+
+        function wait(sec) {
+          tasks.push(
+            () =>
+              new Promise((resolve) => {
+                setTimeout(resolve, sec * 1000);
+              })
+          );
+          return this;
+        }
+
+        async function exexute() {
+          for (const i of tasks) {
+            await i();
+          }
+          return this;
+        }
+
+        function waitFirst(sec) {
+          tasks.unshift(
+            () =>
+              new Promise((resolve) => {
+                setTimeout(resolve, sec * 1000);
+              })
+          );
+          return this;
+        }
+
+        return {
+          run,
+          wait,
+          exexute,
+          waitFirst,
+        };
+      }
+
+      // arrange("william").exexute();
+      // arrange("william").run("commit").exexute();
+      arrange("william").wait(5).run("commit").exexute();
+      // arrange("william").waitFirst(5).run("push").exexute();
+    </script>
+  </body>
+</html>
