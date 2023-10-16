@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Copy</title>
+  </head>
+  <body>
+    <div id="copy">
+      <p>
+        秋起，有微风滑过的清香，有阳光照射的明媚，有树叶儿滑落的声响，还有，一抹抹微凉拂过心头的舒畅。微风，轻掀起衣角，轻吻着发丝，不经意间，那些春花夏梦的记忆，就感染这个多情的秋季。于是，心，慢慢的沉浸，轻轻的驻足，让心停歇，聆听风，倾听雨，原来，岁月处处都充满着暖意。
+      </p>
+      <p>
+        岁月轮转，时光静静的流逝，金秋的风，悄悄地拂过窗棂，轻轻地掀起清秋的面纱，听风，唱响时间的流淌，穿过，岁月沧桑的河岸，仿佛，经年就在眼前，那些消失在岁月长河里的人和事，还有一些一些的美丽，都化着点滴斑斓，飞散在这个季节深处。岁月，就是一轮维修机，有再多磨合都已不在重要，重要的是有一颗宽容，淡定，从容的心。守着一份份清淡，生活已不再那么烦躁，或许，生活就是要我们简单随和，就是最好。
+      </p>
+    </div>
+
+    <script>
+      copy.addEventListener("copy", (e) => {
+        e.preventDefault();
+        console.log("禁止复制");
+        e.clipboardData.setData("text/plain", "复制得加钱");
+        alert("复制得加钱");
+      });
+    </script>
+  </body>
+</html>
