@@ -16,6 +16,12 @@
 
 - 再执行一次 ctrl + c 即可
 
+### 停止启动端口
+
+lsof -i tcp:9000
+
+kill -9 23490
+
 ### [(#unwind 操作符](https://mongodb.net.cn/manual/reference/operator/aggregation/unwind/)
 
 该操作符用于从输入文档中解构一个数组字段，以输出每个元素的文档。
