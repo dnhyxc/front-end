@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      img {
+        width: 100%;
+        height: auto;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-fe1d05e548a85a02f1db57aacbc98da7_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://pic1.zhimg.com/80/v2-0365ddb53384364f3beb589303f2004c_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-bbea1c5ab7e26d14103ca25c02826b39_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-fd617349b418dec79c2686ee7fa8a69d_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-23e5167a3814a4c0267a0739150f6a38_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://pic1.zhimg.com/80/v2-0ead14091a6d1a667e4d47551fb22023_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-0cbbe367f50ac7bd107aab34dda68ecc_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://pic1.zhimg.com/80/v2-6e6ba0d8702cc8c7512505cced6887cc_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-629c841690645ee0c9f52c6faeaf0ad3_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-b58fcab4d7594d197356fd6391dc2eaf_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-a960f0328cacded2b84523b82943392b_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://pica.zhimg.com/80/v2-3518043c191b13a38efe3351a98da811_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://picx.zhimg.com/80/v2-d1f1c01a3e37034dc0df20d3401940f6_720w.webp?source=2c26e567"
+      />
+      <img
+        src="https://pic1.zhimg.com/v2-cc2d113c8d8795d6c4325f367aef2b04_r.jpg"
+        alt=""
+        data-src="https://pic1.zhimg.com/80/v2-ace1b0839d5196f9d7baf7b51703c121_720w.webp?source=2c26e567"
+      />
+    </div>
+
+    <script>
+      const ob = new IntersectionObserver(
+        (entries) => {
+          console.log(entries, "sssss");
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              console.log("交叉了");
+              const img = entry.target;
+              img.src = img.dataset.src;
+              ob.unobserve(img);
+            }
+          }
+        },
+        { threshold: 0.5 }
+      );
+
+      imgs = document.querySelectorAll("img[data-src]");
+
+      imgs.forEach((img) => {
+        ob.observe(img);
+      });
+    </script>
+  </body>
+</html>
