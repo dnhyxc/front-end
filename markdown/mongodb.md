@@ -18,9 +18,9 @@
 
 ### 停止启动端口
 
-lsof -i tcp:9000
+lsof -i tcp:9002
 
-kill -9 23490
+kill -9 30981
 
 ### [(#unwind 操作符](https://mongodb.net.cn/manual/reference/operator/aggregation/unwind/)
 
