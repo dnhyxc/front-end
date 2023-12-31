@@ -1,0 +1,46 @@
+<mxfile host="65bd71144e">
+    <diagram id="g4P8FIu4U1U_4mKE1P3K" name="第 1 页">
+        <mxGraphModel dx="648" dy="571" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" background="#FFFFE0" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="4" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#005700;fillColor=#66CC00;fontColor=#ffffff;sketch=1;curveFitting=1;jiggle=2;" vertex="1" parent="1">
+                    <mxGeometry x="121" y="107" width="420" height="37" as="geometry"/>
+                </mxCell>
+                <mxCell id="5" value="低位" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;sketch=1;curveFitting=1;jiggle=2;fontSize=20;fontColor=#FF8000;" vertex="1" parent="1">
+                    <mxGeometry x="129" y="154" width="58" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="6" value="高位" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;sketch=1;curveFitting=1;jiggle=2;fontSize=20;fontColor=#FF8000;" vertex="1" parent="1">
+                    <mxGeometry x="479" y="154" width="58" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="7" value="大端字节序存储" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="110" y="49" width="158" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="8" value="0x44332211(16进制的 150)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="283" y="49" width="261" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="9" value="11 22 33 44" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#FF0000;" vertex="1" parent="1">
+                    <mxGeometry x="149" y="108" width="122" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="16" value="" style="rounded=1;whiteSpace=wrap;html=1;strokeColor=#005700;fillColor=#66CC00;fontColor=#ffffff;sketch=1;curveFitting=1;jiggle=2;" vertex="1" parent="1">
+                    <mxGeometry x="118" y="319" width="420" height="37" as="geometry"/>
+                </mxCell>
+                <mxCell id="17" value="低位" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;sketch=1;curveFitting=1;jiggle=2;fontSize=20;fontColor=#FF8000;" vertex="1" parent="1">
+                    <mxGeometry x="126" y="366" width="58" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="18" value="高位" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;sketch=1;curveFitting=1;jiggle=2;fontSize=20;fontColor=#FF8000;" vertex="1" parent="1">
+                    <mxGeometry x="476" y="366" width="58" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="19" value="小端字节序存储" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="107" y="261" width="158" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="20" value="0x44332211(16进制的 150)" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#000000;" vertex="1" parent="1">
+                    <mxGeometry x="280" y="261" width="261" height="36" as="geometry"/>
+                </mxCell>
+                <mxCell id="21" value="44 33 22 11" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;fontSize=20;fontColor=#FF0000;" vertex="1" parent="1">
+                    <mxGeometry x="146" y="320" width="122" height="36" as="geometry"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
