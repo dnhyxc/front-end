@@ -16,6 +16,7 @@ const allTargets = fs.readdirSync("packages").filter((f) => {
 });
 
 const build = async function (target) {
+  const { execa } = await import('execa')
   const pkgDir = path.resolve(`packages/${target}`);
   const pkg = require(`${pkgDir}/package.json`);
 
@@ -31,18 +32,17 @@ const build = async function (target) {
   );
 };
 
-const targets = allTargets; // 上面的获取的子包
 const maxConcurrency = 4; // 并发编译个数
 
 const buildAll = async function () {
   const ret = [];
   const executing = [];
-  for (const item of targets) {
+  for (const item of allTargets) {
     // 依次对子包执行build()操作
     const p = Promise.resolve().then(() => build(item));
     ret.push(p);
 
-    if (maxConcurrency <= targets.length) {
+    if (maxConcurrency <= allTargets.length) {
       const e = p.then(() => executing.splice(executing.indexOf(e), 1));
       executing.push(e);
       if (executing.length >= maxConcurrency) {

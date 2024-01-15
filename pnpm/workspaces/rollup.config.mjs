@@ -49,7 +49,7 @@ function createConfig(format, output, plugins = []) {
   const minifyPlugin =
     format === "global" && format === "esm-browser" ? [terser()] : [];
   return {
-    input: resolve("src/index.ts"),
+    input: resolve("index.js"),
     // Global and Browser ESM builds inlines everything so that they can be
     // used alone.
     external: [
