@@ -35,12 +35,8 @@ const outputConfigs = {
   },
 };
 
-const packageFormats = ["esm-bundler", "cjs"];
-const packageConfigs = packageFormats.map((format) =>
-  createConfig(format, outputConfigs[format])
-);
-
-export default packageConfigs;
+const defaultFormats = ['esm-bundler', 'cjs']
+const packageFormats = packageOptions.formats || defaultFormats // 优先使用每个包里自定义的formats
 
 function createConfig(format, output, plugins = []) {
   // 是否输出声明文件
@@ -76,3 +72,8 @@ function createConfig(format, output, plugins = []) {
     },
   };
 }
+
+const packageConfigs = packageFormats.map(format => createConfig(format, outputConfigs[format]))
+
+
+export default packageConfigs;
