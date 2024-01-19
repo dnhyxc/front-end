@@ -15,11 +15,11 @@ import { add } from "@dnhyxc/core";
 import { getNameInfo } from "@dnhyxc/tools";
 
 const info = computed(() => {
-  return getNameInfo("dnhyxc");
+  return getNameInfo("yhyh dnhyxc xixi zczc");
 });
 
 const count = computed(() => {
-  return add(9, 12);
+  return add(2, 7);
 });
 </script>
 
