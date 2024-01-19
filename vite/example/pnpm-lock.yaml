@@ -5,12 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
-  '@dnhyxc/core':
-    specifier: ^2.0.12
-    version: 2.0.12
   '@dnhyxc/tools':
-    specifier: ^2.0.6
-    version: 2.0.6
+    specifier: ^2.0.9
+    version: 2.0.9
   vue:
     specifier: ^3.3.11
     version: 3.4.14(typescript@5.3.3)
@@ -57,12 +54,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.20
       to-fast-properties: 2.0.0
 
-  /@dnhyxc/core@2.0.12:
-    resolution: {integrity: sha512-IIyWUTy3yvsQwPAoV0RWSNK/DJsf/T1vScnKSMuwM1kspf5gU5ryWp1MVQnZ9tLRmKHLmCebIVgm3psDOKwQTA==}
-    dev: false
-
-  /@dnhyxc/tools@2.0.6:
-    resolution: {integrity: sha512-NoiOjtUN54gp2851CD7pvo+k8Gof41NZxtP5cP1LAdl0OX2et4+uHLzshNDblHFkFoVU+uwObBctsZOZZYqV1g==}
+  /@dnhyxc/tools@2.0.9:
+    resolution: {integrity: sha512-kEIIFAgRD5AGpqae1aNc9+TScfIS30OceZAY3b3FtleTAB4w1FUw2eI8miPS5FzQNe4+Jh3u4OaSrTXlLBHGFA==}
     dev: false
 
   /@esbuild/aix-ppc64@0.19.11:

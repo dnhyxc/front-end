@@ -15,7 +15,7 @@ import { add } from "@dnhyxc/core";
 import { getNameInfo } from "@dnhyxc/tools";
 
 const info = computed(() => {
-  return getNameInfo("yhyh dnhyxc xixi zczc");
+  return getNameInfo("yhyh dnhyxc xixi zczc!!!");
 });
 
 const count = computed(() => {

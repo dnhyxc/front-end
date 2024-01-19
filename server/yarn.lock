@@ -14,10 +14,10 @@
   resolved "https://registry.npmjs.org/@dnhyxc/core/-/core-2.0.12.tgz#c5c36f358b8bf535281047d4f6da09cf98191795"
   integrity sha512-IIyWUTy3yvsQwPAoV0RWSNK/DJsf/T1vScnKSMuwM1kspf5gU5ryWp1MVQnZ9tLRmKHLmCebIVgm3psDOKwQTA==
 
-"@dnhyxc/tools@^2.0.6":
-  version "2.0.6"
-  resolved "https://registry.npmjs.org/@dnhyxc/tools/-/tools-2.0.6.tgz#01c02d7ee35a52a17579d0529faae7af9089c1de"
-  integrity sha512-NoiOjtUN54gp2851CD7pvo+k8Gof41NZxtP5cP1LAdl0OX2et4+uHLzshNDblHFkFoVU+uwObBctsZOZZYqV1g==
+"@dnhyxc/tools@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.npmmirror.com/@dnhyxc/tools/-/tools-2.0.9.tgz#df5c8dca3d23a5329eb61b3cdd9881ec6105751b"
+  integrity sha512-kEIIFAgRD5AGpqae1aNc9+TScfIS30OceZAY3b3FtleTAB4w1FUw2eI8miPS5FzQNe4+Jh3u4OaSrTXlLBHGFA==
 
 "@jridgewell/resolve-uri@^3.0.3":
   version "3.1.0"
