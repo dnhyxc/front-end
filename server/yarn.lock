@@ -9,15 +9,15 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dnhyxc/core@^2.0.5":
-  version "2.0.5"
-  resolved "https://registry.npmmirror.com/@dnhyxc/core/-/core-2.0.5.tgz#e93f065ec42c50d4d39a742fdf2ab5fb42686323"
-  integrity sha512-gCAfic16+wWq94hOtEI4AUKcmTBSdbeZK99t9bvpCF0BlDF5RWaLMDPBWPNQOa6gqvu6lEhtNPFAurbGd+Jn6Q==
+"@dnhyxc/core@^2.0.16":
+  version "2.0.16"
+  resolved "https://registry.npmmirror.com/@dnhyxc/core/-/core-2.0.16.tgz#a536712dcbf63b90e65f49e21ef625f6f44fd58b"
+  integrity sha512-x6N6zhuSoSJSnuPEDoFO9+BhlLSxgNEJAs7UPYctt7QJ727pcZNKllwCblGMMo1z/IxfMRI7ma9mjvh55syriA==
 
-"@dnhyxc/tools@^2.0.4":
-  version "2.0.4"
-  resolved "https://registry.npmmirror.com/@dnhyxc/tools/-/tools-2.0.4.tgz#d5a8652f70d19faae9754b0b3b382fd4e039d2b1"
-  integrity sha512-XQpWJjREUbF4XjpoIJufnvJEob2qa1jIRwcLSzkAPuH2nloIwk7XfZn3r7ng2tnqObOuGTQNKgL4bFHBjmh4Yg==
+"@dnhyxc/tools@^2.0.10":
+  version "2.0.10"
+  resolved "https://registry.npmmirror.com/@dnhyxc/tools/-/tools-2.0.10.tgz#05b7012913f3646ca4ca4104e503847f46d272e4"
+  integrity sha512-++kcZDYvEdZKBL/uhZ7WZ4ZDgXtIFTLEvmYoiYB85KtXWRqGNB8t6NvFup4Xo4KO2TtfVLyvVFOH595716RrIQ==
 
 "@jridgewell/resolve-uri@^3.0.3":
   version "3.1.0"

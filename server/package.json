@@ -11,8 +11,8 @@
     "start:prod": "nodemon  ./src/main.js"
   },
   "dependencies": {
-    "@dnhyxc/core": "^2.0.5",
-    "@dnhyxc/tools": "^2.0.4",
+    "@dnhyxc/core": "^2.0.16",
+    "@dnhyxc/tools": "^2.0.10",
     "bcryptjs": "^2.4.3",
     "cross-env": "^7.0.3",
     "jsonwebtoken": "^8.5.1",

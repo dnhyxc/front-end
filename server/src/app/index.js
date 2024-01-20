@@ -2,16 +2,20 @@ const path = require("path");
 const Koa = require("koa");
 const koaBody = require("koa-body");
 const koaStatic = require("koa-static");
-const { add } = require("@dnhyxc/core")
-const { getNameInfo } = require("@dnhyxc/tools/dist/index.esm")
+const { add, coustomPlugin, createPlugin } = require("@dnhyxc/core");
+const { getNameInfo } = require("@dnhyxc/tools");
 const router = require("../router/web");
 const routerAdmin = require("../router/admin");
 const connectMongodb = require("../db");
 const { errorHandler } = require("../utils");
 const WS = require("../socket");
 
-console.log(add(12, 9))
-console.log(getNameInfo('dnhyxc'))
+console.log(add(12, 9));
+console.log(getNameInfo("dnhyxc"));
+
+createPlugin();
+
+console.log(coustomPlugin("dnhyxc babel plugin"));
 
 // 链接数据库
 connectMongodb();
