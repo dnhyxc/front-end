@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>transcribe</title>
+  </head>
+  <body>
+    <button id="openBtn">开启屏幕录制</button>
+    <button id="start">开始录制</button>
+    <button id="stopBtn">停止录制</button>
+    <video id="preview" width="500px" height="300px"></video>
+
+    <script>
+      let mediaRecorder = null;
+      const chunks = [];
+      let screenStream = null;
+
+      openBtn.addEventListener("click", () => {
+        navigator.mediaDevices
+          .getDisplayMedia({ video: true })
+          .then((stream) => {
+            screenStream = stream;
+            // 屏幕媒体流获取成功
+            console.log("111");
+            mediaRecorder = new MediaRecorder(stream, {
+              mimeType: "video/webm",
+            });
+
+            mediaRecorder.addEventListener("dataavailable", (event) => {
+              if (event.data.size > 0) {
+                chunks.push(event.data);
+              }
+            });
+
+            mediaRecorder.addEventListener("stop", () => {
+              const completeBlob = new Blob(chunks, {
+                type: mediaRecorder.mimeType,
+              });
+              console.log(completeBlob, "completeBlob");
+              const url = URL.createObjectURL(completeBlob);
+              console.log(preview, "preview", url);
+              preview.src = url;
+              preview.play();
+            });
+          })
+          .catch((error) => {
+            // 发生错误，处理错误情况
+          });
+      });
+
+      // 停止屏幕共享
+      function stopScreenSharing() {
+        if (screenStream) {
+          // 停止屏幕共享的流并关闭所有的轨道
+          screenStream.getTracks().forEach((track) => track.stop());
+          screenStream = null;
+        }
+      }
+
+      start.addEventListener("click", () => {
+        console.log(mediaRecorder, "mediaRecorder");
+        mediaRecorder.start(); // 开始录制
+      });
+
+      stopBtn.addEventListener("click", () => {
+        console.log(mediaRecorder, "stopstop");
+        mediaRecorder.stop(); // 开始录制
+        stopScreenSharing();
+      });
+    </script>
+  </body>
+</html>
