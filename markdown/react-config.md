@@ -208,7 +208,15 @@ module.exports = {
 
 ```js
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react"],
+  "presets": [
+    "@babel/preset-env",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic" // 不加上这行配置，如果不是通过 externals 引入 React，会报错：ReferenceError: React is not defined
+      }
+    ],
+  ],
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",
@@ -312,7 +320,16 @@ yarn add typescript
 
 ```js
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
+  "presets": [
+    "@babel/preset-env",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic" // 不加上这行配置会包 React is not defined
+      }
+    ],
+    "@babel/preset-typescript"
+  ],
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",
@@ -1204,7 +1221,19 @@ yarn add antd
 
 ```js
 {
-  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
+  "plugins": [
+    "@babel/plugin-transform-runtime",
+    "@babel/plugin-proposal-class-properties",
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        // 使用 lib 会增加打包时间及文件大小
+        "libraryDirectory": "es", // libraryDirectory 默认为 lib
+        "style": true
+      }
+    ]
+  ]
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",

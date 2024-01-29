@@ -7,7 +7,7 @@
   </head>
   <body>
     <button id="openBtn">开启屏幕录制</button>
-    <button id="start">开始录制</button>
+    <!-- <button id="start">开始录制</button> -->
     <button id="stopBtn">停止录制</button>
     <video id="preview" width="500px" height="300px"></video>
 
@@ -33,6 +33,8 @@
               }
             });
 
+            mediaRecorder.start(); // 开始录制
+
             mediaRecorder.addEventListener("stop", () => {
               const completeBlob = new Blob(chunks, {
                 type: mediaRecorder.mimeType,
@@ -50,13 +52,13 @@
       });
 
       // 停止屏幕共享
-      function stopScreenSharing() {
+      const stopScreenSharing = () => {
         if (screenStream) {
           // 停止屏幕共享的流并关闭所有的轨道
           screenStream.getTracks().forEach((track) => track.stop());
           screenStream = null;
         }
-      }
+      };
 
       start.addEventListener("click", () => {
         console.log(mediaRecorder, "mediaRecorder");
