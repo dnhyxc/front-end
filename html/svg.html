@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVG</title>
+  </head>
+  <body>
+    <svg width="300" height="300">
+      <line x1="30" y1="40" x2="200" y2="180" stroke="blue"></line>
+    </svg>
+
+    <svg width="300" height="300">
+      <path
+        class="line"
+        d="M30 90 Q160 41 200 90"
+        stroke="#000"
+        fill="none"
+      ></path>
+    </svg>
+    <script>
+      const getRadians = ({ dot1, dot2, angle }) => {
+        const x1 = dot1.left;
+        const y1 = dot1.top;
+        const x2 = dot2.left;
+        const y2 = dot2.top;
+        const PI = Math.PI;
+
+        // 两点间的x轴夹角弧度
+        let xAngle = Math.atan2(y2 - y1, x2 - x1);
+        // 转为角度
+        xAngle = (360 * xAngle) / (2 * PI);
+
+        // 两点间的长度
+        const L = Math.sqrt((y2 - y1) * (y2 - y1) + (x2 - x1) * (x2 - x1));
+        // 计算等腰三角形斜边长度
+        const L2 = L / 2 / Math.cos((angle * 2 * PI) / 360);
+
+        // 求第一个顶点坐标，位于下边
+        const val1 = {};
+        // 求第二个顶点坐标，位于上边
+        const val2 = {};
+
+        val1["x"] =
+          x1 + Math.round(L2 * Math.cos(((xAngle + angle) * 2 * PI) / 360));
+        val1["y"] =
+          y1 + Math.round(L2 * Math.sin(((xAngle + angle) * 2 * PI) / 360));
+        val2["x"] =
+          x1 + Math.round(L2 * Math.cos(((xAngle - angle) * 2 * PI) / 360));
+        val2["y"] =
+          y1 + Math.round(L2 * Math.sin(((xAngle - angle) * 2 * PI) / 360));
+
+        return [val1, val2];
+      };
+
+      const radians = getRadians({
+        dot1: { left: 30, top: 90 },
+        dot2: { left: 200, top: 180 },
+        angle: 45,
+      });
+
+      console.log(radians, "radians");
+    </script>
+  </body>
+</html>
