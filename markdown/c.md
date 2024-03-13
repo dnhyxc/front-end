@@ -24,8 +24,8 @@ unsigned char str = '123'; // 错误
 
 ```c
 // 用单引号引起单个字符正确，引起多个字符错误。
-unsigned char str = '1';  // 正确
-unsigned char str = '112'; // 错误
+signed char str = '1';  // 正确
+signed char str = '112'; // 错误
 ```
 
 > 因为字符的本质就是 ASCII 码值，而 ASCII 码值 就是整型，所以被划分为整型类别。
@@ -70,7 +70,7 @@ unsigned int a = 10;
 signed int a = 10;
 ```
 
-**long 长整型**：用 long 定义的变量是长整型变量，占 **4（32 位）/8（64 位）** 个字节，可以分别定义为：
+**long 长整型**：用 long 定义的变量是长整型变量，占 **4（32 位）/ 8（64 位）** 个字节，可以分别定义为：
 
 - long [int] 长整型：等价于 signed long [int] 有符号长整型。
 
@@ -91,7 +91,6 @@ signed long int a = 10;
 ```
 
 **long long 更长的整型**：用 long long 定义的变量是更长的整型变量，占 **8** 个字节，可以分别定义为：
-
 
 - long long [int] 更长整型：等价于 signed long long [int] 有符号更长整型。
 
@@ -131,13 +130,218 @@ double a = 3.6;
 
 #### 构造类型
 
+> 当前只是大概的介绍一下，在后续中将会详细介绍。
+
 构造类型是由若干个相同或不同类型数据构成的集合，这种数据类型被称为构造类型。如：数组类型、结构体类型、联合类型、枚举类型。
 
-**数组类型**：
+**数组类型（Array）**：由相同类型的元素组成的连续内存块。数组的定义包括以下几个关键要素：
+
+- 数据类型：指定数组中元素的数据类型，例如 int、float、char 等。
+
+- 数组名：给数组起一个标识符名称，用于在代码中引用该数组。
+
+- 元素个数：指定数组中元素的数量。
+
+- 初始化（可选）：可以选择性地初始化数组中的元素，即为数组赋初始值。
+
+```c
+// 整型数组
+int numbers[5]; // 定义包含 5 个整数元素的数组
+
+// 浮点型数组
+float grades[10]; // 定义包含 10 个浮点数元素的数组
+
+// 字符型数组（字符串）
+char name[30]; // 定义包含 50 个字符元素的数组，用于存储字符串
+
+// 初始化整型数组
+int numbers[3] = {1, 2, 3}; // 定义包含 3 个整数元素的数组，并初始化为 1、2、3
+
+// 初始化浮点型数组
+float grades[10] = {1.1, 1.2, 1.3, 1.4, 1.5};
+
+// 初始化字符型数组（字符串）
+char name[30] = "dnhyxcdnhyxcdnhyxcdnhyxcdnhyxc";
+```
+
+数组的索引是从 0 开始的，也就是说，数组的第一个元素索引为 0，第二个元素索引为 1，以此类推：
+
+```c
+#include <stdio.h>
+
+int main() {
+  int numbers[5] = {10, 20, 30, 40, 50};
+
+  // 访问数组元素并打印出来
+  printf("Element at index 0: %d\n", numbers[0]);
+  printf("Element at index 2: %d\n", numbers[2]);
+  printf("Element at index 4: %d\n", numbers[5]);
+
+  return 0;
+}
+```
+
+**结构体类型（Struct）**：通过 `struct` 关键字进行定义，由不同类型的成员变量组成的复合数据类型。它的定义包括以下几个关键要素：
+
+- 结构体名称：给结构体起一个标识符名称，用于在代码中引用该结构体。
+
+- 成员变量：指定结构体中的成员变量，每个成员变量都有自己的数据类型和名称。
+
+```c
+// 使用 struct 定义结构体
+struct Person {
+  char name[50];
+  int age;
+  float height;
+};
+
+// 声明并初始化一个结构体变量
+struct Person p1 = {"dnhyxc", 18, 1.85};
+
+// 访问结构体中的成员变量
+printf("Name: %s\n", p1.name); // dnhyxc
+printf("Age: %d\n", p1.age); // 18
+printf("Height: %.2f\n", p1.height); // 1.85
+```
+
+结构体中的成员变量都是独立的，可以单独访问和修改。如将年龄进行修改：
+
+```c
+#include <stdio.h>
+
+struct Person {
+  char name[50];
+  int age;
+  float height;
+};
+
+int main() {
+  // p1 是结构体变量名称
+  struct Person p1 = {"dnhyxc", 18, 1.85};
+
+  printf("Name: %s\n", p1.name); // dnhyxc
+  printf("Age: %d\n", p1.age); // 18
+  printf("Height: %.2f\n", p1.height); // 1.85
+
+  // 修改年龄
+  p1.age = 20;
+
+  printf("New age: %d\n", p1.age); // 20
+
+  return 0;
+}
+```
+
+**联合类型（Union）**：联合类型通过 `union` 关键字进行定义，用于存储不同类型的数据，但只能同时存储一个成员。联合体的大小等于其最大成员的大小，因为联合体的内存空间需要足够容纳最大成员。
+
+```c
+#include <stdio.h>
+
+// 定义联合类型
+union Value {
+    int i;
+    float f;
+    char c;
+};
+
+int main() {
+    union Value v;
+
+    v.i = 12;
+    printf("Value as integer: %d\n", v.i); // 12
+
+    v.f = 3.14;
+    printf("Value as float: %.2f\n", v.f); // 3.14
+
+    v.c = 'A';
+    printf("Value as character: %c\n", v.c); // A
+
+    return 0;
+}
+```
+
+> **注意**：因为联合体只能同时存储一个成员的值，当我们存储新的值时，原有成员的值会被覆盖。
+
+**枚举（Enum）**：通过 `enum` 关键字进行定义，用于定义一组可能的值的符号常量。它由一组枚举常量组成，每个枚举常量都有一个唯一的名称和一个对应的整数值。
+
+```c
+#include <stdio.h>
+
+// 定义一个表示星期的枚举类型
+enum Weekday {
+    MONDAY,
+    TUESDAY,
+    WEDNESDAY,
+    THURSDAY,
+    FRIDAY,
+    SATURDAY,
+    SUNDAY
+};
+
+int main() {
+  // 声明枚举变量 today，并赋值为 FRIDAY
+  enum Weekday today = FRIDAY;
+
+  if (today == FRIDAY) {
+    printf("Today is Friday\n");
+  } else {
+    printf("Today is not Friday\n");
+  }
+
+  return 0;
+}
+```
+
+说明：枚举常量默认的整数值从 0 开始递增，在上述示例中，MONDAY 的整数值为 0，TUESDAY 的整数值为 1，以此类推。但我们也可以显式地指定枚举常量的整数值，例如：
+
+```c
+enum Weekday {
+  MONDAY = 1,
+  TUESDAY = 2,
+  WEDNESDAY = 3,
+  THURSDAY = 4,
+  FRIDAY = 5,
+  SATURDAY = 6,
+  SUNDAY = 7
+};
+```
+
+> 在上述示例中，我们为每个枚举常量指定了特定的整数值。
 
 #### 指针类型
 
+> 当前只是大概的介绍一下，在后续中将会详细介绍。
 
+指针类型是一种特殊的数据类型，用于存储内存地址。使用指针可以实现对内存中的数据进行间接访问和操作。
+
+在 C 语言中，指针类型由基本数据类型加上一个 `*` 符号组成。例如，`int*` 表示指向整数的指针类型，`char*` 表示指向字符的指针类型，`float*` 表示指向浮点数的指针类型，依此类推。
+
+```c
+#include <stdio.h>
+
+int main() {
+	int num = 10;
+
+	int* ptr;  // 定义一个指向整数的指针变量
+
+	ptr = &num;  // 将指针指向变量num的地址
+
+	printf("Value of num: %d\n", num); // 10
+
+  // & 是取地址运算符，用于获取 num 的地址
+	printf("Address of num: %p\n", &num); // 00B3FC1C
+
+  // ptr 指向的就是 num 的地址
+	printf("Value stored in ptr: %p\n", ptr); // 00B3FC1C
+
+	// 使用 * 运算符来访问指针所指向的值，即所谓的"解引用"操作，即 *ptr 就指向变量 num 的值。
+	printf("Value pointed by ptr: %d\n", *ptr); // 10
+
+	return 0;
+}
+```
+
+> 说明：上述实例中，通过 `int*` 定义了一个指针变量，通过 `& 取地址运算符` 取出了 num 变量的地址，又通过 `*（解引操作符）ptr` 取出了 指针变量 ptr 中存储的 num 的地址。
 
 ### 数据存储
 
@@ -145,7 +349,7 @@ double a = 3.6;
 
 大小端模式之分的由来：
 
-- 因为在计算机系统中，我们死以字节为单位的，每个地址单元都对应一个字节，一个字节为 8 bit，但是在 C 语言中，除了 8 bit 的 `char` 之外，还有 16 bit 的 `shot` 型，32 bit 的 `long` 型(具体需要看编译器)，另外，对于位数大于 8 位的处理器，例如 16 位或者 32 位的处理器，由于寄存器宽度大于一个字节，那么必然存在着一个如何将多个字节安排的问题。这就产生了大端存储模式和小端存储模式。
+- 因为在计算机系统中，我们是以字节为单位的，每个地址单元都对应一个字节，一个字节为 8 bit，但是在 C 语言中，除了 8 bit 的 `char` 之外，还有 16 bit 的 `shot` 型，32 bit 的 `long` 型(具体需要看编译器)，另外，对于位数大于 8 位的处理器，例如 16 位或者 32 位的处理器，由于寄存器宽度大于一个字节，那么必然存在着一个如何将多个字节安排的问题。这就产生了大端存储模式和小端存储模式。
 
 - 例如
 
@@ -153,9 +357,149 @@ double a = 3.6;
 
 ![image.png](http://43.143.27.249/image/d66e5798f56f6d10f8e63f263c9d8c78.png){{{width="100%" height="auto"}}}
 
-小端**字节序**存储：把一个数据的高位字节序的内容存放在高地址处，把低位字节序的内容放在低地址粗，就是小端字节序存储。
+小端**字节序**存储：把一个数据的高位字节序的内容存放在高地址处，把低位字节序的内容放在低地址处，就是小端字节序存储。
 
 ![image.png](http://43.143.27.249/image/20bd0fee80a9951d8a1389eb6058d680.png){{{width="100%" height="auto"}}}
+
+#### 浮点数存储规则
+
+根据国际标准 IEEE（电气和电子工程协会）754 规定，任意一个二进制浮点数 V 可以表示成 `(-1) ^ S * M * 2 ^ E` 的形式：
+
+- (-1) ^ S 表示符号位，当 S = 0 时，V 为正数，当 S = 1 时，V 为负数。
+
+- M 表示有效数字，大于等于 1，小于 2。
+
+- 2 ^ E 表示指数位。
+
+对于上述说法，举个例子来说：
+
+- 十进制的 5.0，写成二进制就是 101.0，相当于 `1.01 * 2 ^ 2`，那么按照上述 V 的格式可以得出：S = 0，M = 1.01，E = 2（就是 2 ^ 2 的指数 2）。
+
+- 十进制的 -5.0，写成二进制就是 -101.0，相当于 `-1.01 * 2 ^ 2`。即得出 S = 1，M = 1.01，E = 2。
+
+- 十进制的 9.5，写成二进制就是 1001.1，相当于 `1.0011 * 2 ^ 3`。即得出 S = 0，M = 1.0011，E = 3。
+
+IEEE 754 规定：
+
+- **对于 32 位的浮点数，最高位是符号位，接着的 8 位是指数 E，剩下的 23 位为有效数字 M**。
+
+![image.png](http://43.143.27.249/image/2ba9bdbcec9ccb77e0dbb45bd37f6c10.png){{{width="100%" height="auto"}}}
+
+- **对于 64 位的浮点数，最高的 1 位是符号位，接着的 11 位是指数 E，剩下的 52 位为有效数字 M**。
+
+![image.png](http://43.143.27.249/image/8fe043904dc56a3300f7ed231edc41f7.png){{{width="100%" height="auto"}}}
+
+##### 有效数字 M 的存储说明
+
+前面说过，M 需要满足大于等于 1，小于 2（1 <= M < 2），也就是说，M 可以写成 1.xxxxxx 的形式，其中 xxxxxx 表示小数部分。
+
+在计算机内部保存 M 时，默认这个数的第一位总是 1（浮点数的第一位都是 1），因此可以被舍弃，只保存后面的 xxxxxx 部分，比如保存 1.01 时，只保存 01，等到读取的时候，再把第一位的 1 加上去，这样做的目的是为了节省 1 位有效数字。以 32 位浮点数为例，留给 M 的位数只有 23 位。而将第一位舍去以后，等于可以保存 24 位有效数字。
+
+##### 指数 E 的存储说明
+
+对于指数 E，情况要复杂的多，首先，E 是一个无符号整数（unsigned int），这意味着，如果 E 为 8 位，它的取值范围位 0 ～ 255；如果 E 为 11 位，它的取值范围为 0 ～ 2047，但是科学计数法中的 E 是可以出现负数的，（如：V = 0.5 时，写成二进制为 0.1，相当于 `1.0 * 2 ^ -1`，即 `V = (-1) ^ 0 * ^ 1.0 * 2 ^ (-1)`，此时 S = 0，M = 1.0，E = -1），所以 IEEE 754 规定，存入内存时，E 的真实值必须再加上一个中间数，**对于 8 位的 E，这个中间数是 127；对于 11 位的 E，这个中间数是 1023**。比如：2 ^ 10 的 E 是 10，所以保存成 32 位浮点数时，必须保存成 `10 + 127 = 137`，即 10001001。
+
+以存储浮点数 `5.5` 为例：
+
+```c
+#include <stdio.h>
+
+int main() {
+  // 5.5f 表明为单精度浮点数，如果不写成 5.5f，默认是双精度的，即 double f = 5.5；
+  float f = 5.5f;
+  /*
+    5.5 写成二进制为：101.1
+    写成科学计数法为：1.011 * 2 ^ 2
+    即：S = 0，M = 1.011，E 为 2
+    存储时，由于 S 为 0 表示正数，所以最高位的符号位为 0，指数位 E 为 2 + 127（float 为单精度，所以中间值为 127），写成 2 进制为 10000001，有效数字 M 为 1.001，存储时，把第一位 1 舍去，留下 001，由于 001 不够 23 位，因此需要补 20 个 0 达到 23 位。最终得出：
+      0 10000001 00100000000000000000000 => 01000000100100000000000000000000
+    将上述 2 进制转成 16 进制为：
+      0100 0000 1011 0000 0000 0000 0000 0000
+    其中 0100 表示 4，0000 表示 0，1011 表示 b0，后面 0000 都表示 0，最终得出内存中存储的就是：
+      0x40b0000
+  */
+
+  return 0;
+}
+```
+
+##### 指数 E 从内存中取出说明
+
+指数 E 从内存中取出分为三种情况：
+
+1. E 不全为 0 或不全为 1 时：
+
+- 这种情况下，浮点数就采用如下规则表示，即指数 E 的计算值减去 127（或 1023），得到真实值，再将有效数字 M 前加上存储时舍弃的第一位 1 如：
+
+> 0.5 (1 / 2) 的二进制形式为 0.1，由于规定正整数部分必须为 1，即将小数点往右边移动一位，即得到：`1.0 * 2 ^ (-1)`，其中：
+>
+> - 最高位符号位 S 为 0，因为 0.5 为整数，所以 S 为 0。
+> - 指数 E 存储时为：-1 + 127 = 126。用二进制表示为：01111110。
+> - 有效数字 M 在存储时，将 1.0 的第一位 1 去除，得到 0，不满 23 位，需要在后面补齐 22 个 0，得到 23 位。
+>   即：00000000000000000000000。
+>
+> 将上述得出的 S、E 和 M 合并得到二进制：0 01111110 00000000000000000000000。
+>
+> 由于指数 01111110 中不全为 0 也不全为 1，因此将 0 01111110 00000000000000000000000 取出时，需要还原为：
+>
+> - 符号位 S 还是 0。
+>
+> - 指数 E 126（01111110） 减去 127（01111111） 得到 -1。
+>
+> - 有效数字 M 加上舍弃的第一位 1 得到 1.00000000000000000000000。
+>
+> - 最终还原得到 `(-1) ^ 0 * 1.00000000000000000000000 * 2 ^ (-1)`，即：`1.0 * 2 ^ (-1)`。
+
+2. E 为 全 0 时：
+
+- 浮点数的指数 E 直接就等于 1 - 127 或者 1 - 1023，得到的就是真实值。
+
+- 有效数字 M 不再加上舍弃的第一位 1，而是还原为 0.xxxxxx 的小数。这样做是为了表示正负零，以及接近于 0 的很小的数字。
+
+3. E 全为 1 时：
+
+- 这种情况下，如果有效数字 M 全为 0，表示正负无穷大（正负取决于符号位 S）。
+
+##### 浮点数存储规则相关思考实例
+
+```c
+#include <stdio.h>
+
+int main() {
+  int n = 9;
+  // 整型 9 的二进制 00000000000000000000000000001001
+  /*
+    作为浮点数存储时为：
+      0 00000000 00000000000000000001001
+    E = -126，因为 E 全为 0，所以直接就是 1 - 127 = -126
+    M = 0.00000000000000000001001
+    S = 0，最终得到：
+      + 0.00000000000000000001001 * 2 ^ (-126) 是一个无限接近于 0 的数
+  */
+  float* pFloat = (float*)&n;
+
+  printf("n 的值为：%d\n", n); // 9
+  printf("*pFloat 的值为：%f\n", *pFloat); // 0.000000
+
+  *pFloat = 9.0;
+  /*
+    当 n 已浮点数的格式存储时：
+    9.0 写成二进制为：1001.0，最终换算得到：(-1) ^ 0 * 1.001 * 2 ^ 3，
+    此时：
+      S = 0。
+      E = 3（3 + 127 转为二进制为：10000010）。
+      M = 1.001（舍弃第一位 1，得到二进制 00100000000000000000000）。
+    S、E、M 结合得到二进制：01000001000100000000000000000000，即 1091567616。
+  */
+
+  // 01000001000100000000000000000000 为正数，所以原码即等于补码
+  printf("num 的值为：%d\n", n); // 1091567616
+
+  printf("*pFloat 的值为：%f\n", *pFloat); // 9.0
+
+  return 0;
+}
+```
 
 ### 数组
 
@@ -242,6 +586,7 @@ signed int result = x >> 2;  // 右移2位，带符号右移，结果为 1111 11
 ```
 
 > **警告**：
+>
 > 1. 移位操作符只能针对整数进行操作，无法对浮点数进行操作。
 > 2. 不要移动负数位，这个是标准未定义的。
 
@@ -280,25 +625,25 @@ unsigned int result = a ^ b;  // 结果为 0011 0001 (49)
 > 两个数的二进制对应位不相同为 1，相同则为 0。
 
 > **说明**：
-> 
+>
 > - **两个相同的数按位异或为 0**。
-> 
+>
 > - **0 和任何一个整数按位异或为该整数**。
-> 
+>
 > ```c
 > #include <stdio.h>
-> 
+>
 > int main() {
 > 	int a = 12;
 >   int b = 12;
 >   int c = a ^ b;
 >   printf("%d\n", c); // 0
->   
+>
 >   int _a = 0;
 >   int _b = 12;
 >   int _c = _a ^ _b;
 >   printf("%d\n", _c); // 12
-> 
+>
 > 	return 0;
 > }
 > ```
@@ -382,7 +727,7 @@ int main() {
 }
 ```
 
-4. 乘等于（*=）：将右侧表达式的值乘以左侧变量的值：
+4. 乘等于（\*=）：将右侧表达式的值乘以左侧变量的值：
 
 ```c
 #include <stdio.h>
@@ -603,7 +948,7 @@ int main() {
 }
 ```
 
-5. 解引用（*）运算符：用于访问指针所指向的内存地址中的值：
+5. 解引用（\*）运算符：用于访问指针所指向的内存地址中的值：
 
 ```c
 #include <stdio.h>
@@ -739,7 +1084,7 @@ int main() {
 
 #### 关系操作符
 
-在 C 语言中，关系操作符用于比较两个值之间的关系，并返回一个布尔值（0或1），对于关系操作符具体有以下一些类型：
+在 C 语言中，关系操作符用于比较两个值之间的关系，并返回一个布尔值（0 或 1），对于关系操作符具体有以下一些类型：
 
 1. 大于关系（>）：用于检查左操作数是否大于右操作数。如果是，则返回 1，否则返回 0。
 
@@ -823,7 +1168,7 @@ void test4() {
 	printf("a = %d b = %d c = %d d = %d\n", a, b, c, d);
 }
 
-int main() { 
+int main() {
 	test1();
 	test2();
 	test3();
@@ -893,7 +1238,7 @@ expression1, expression2, expression3, ..., expressionn
 int test1() {
 	int a = 1;
 	int b = 2;
-	int c = (a > b, a = b + 10, a, b = a + 1); // 12 => 13 
+	int c = (a > b, a = b + 10, a, b = a + 1); // 12 => 13
 	printf("%d\n", c); // 13
 }
 
@@ -988,7 +1333,7 @@ int main() {
 	};
 
 	struct Person person1 = { 0 };
-  /* 
+  /*
     person1.name = "dnhyxc"; 该写法是错误的，
     因为 .name 指向的是一个地址，因此无法将 "dnhyxc" 复制给一个地址。
     因此需要使用 strcpy 进行赋值。
@@ -1197,7 +1542,7 @@ int main () {
   int a = 12;
   int b = 9;
   int sum = ADD(a, b)
-  
+
   printf("%d\n", sum);
 
   return 0;
@@ -1258,6 +1603,14 @@ char s = 'n';
 char *ps; // 定义一个指向字符型的指针 ps
 
 ps = &s; // 将指针 ps 指向变量 s 的地址
+
+/*
+  注意：
+    这并不是表示将字符 abcedef 赋值给指针变量 p，
+    而是将字符 abcdef 中第一个字符 a 的地址赋值给了指针变量 p。
+    因此，指针变量 p 本质上还是存的地址。
+*/
+const char p* = "abcdef";
 ```
 
 上述 `*` 符号表示 `p` 和 `ps` 是一个指针变量，用于存放变量的地址。 `int *p` 表示指向整型数据的指针地址，`char *ps` 表示指向字符型数据的指针地址。
@@ -1289,7 +1642,7 @@ int main() {
 
 #### 指针类型的意义
 
-指针类型决定了指针在解引用的时候访问几个字节，如果是 `int*` 指针，解引用时访问**4个字节**，如果是 `char*` 的指针，解引用时访问**1个字节**，而对于 `double*` 的指针类型，解引用时访问**8个字节**。
+指针类型决定了指针在解引用的时候访问几个字节，如果是 `int*` 指针，解引用时访问**4 个字节**，如果是 `char*` 的指针，解引用时访问**1 个字节**，而对于 `double*` 的指针类型，解引用时访问**8 个字节**。
 
 指针类型同时还决定了指针 `+（加）、-（减）`操作的时候跳过几个字节（指针的步长），如下：
 
@@ -1353,7 +1706,7 @@ int* test() {
 }
 
 int main() {
-	/* 
+	/*
 		由于 test 方法调用完成之后，变量 a 就会销毁，而 p 还记录了已经销毁的 a 的地址，
 		这就会导致出现野指针。因为在 a 销毁之后，指针 p 保存的指针地址就不再是指向原来的 a 了。
 	*/
@@ -1381,7 +1734,7 @@ int main() {
 
 使用指针与整数进行加减运算，这种运算通常用于指针的偏移操作，可以使指针指向数组中的不同元素或者在内存中移动到其他位置。
 
-具体来说，当一个指针与一个整数相加时，意味着将指针向后移动了若干个元素，每个元素占据的字节取决于指针所指向的类型。例如，对于一个指向int类型的指针，每移动一个单位就会跨过一个int大小的字节。
+具体来说，当一个指针与一个整数相加时，意味着将指针向后移动了若干个元素，每个元素占据的字节取决于指针所指向的类型。例如，对于一个指向 int 类型的指针，每移动一个单位就会跨过一个 int 大小的字节。
 
 当一个指针与一个整数相减时，意味着将指针向前移动了若干个元素，如：
 
@@ -1425,7 +1778,7 @@ int main() {
   int j = 0;
 
   for(j = 0; j < sz; j++) {
-    printf("%d ", arr[j]); // 1 1 1 1 1 1 1 1 1 1 
+    printf("%d ", arr[j]); // 1 1 1 1 1 1 1 1 1 1
   }
 
   return 0;
@@ -1515,6 +1868,44 @@ if (p1 == p2) {
 }
 ```
 
+相等性比较示例：
+
+```c
+#include <stdio.h>
+
+int main() {
+	const char* p1 = "dnhyxc";
+	const char* p2 = "dnhyxc";
+
+	char arr1[] = "dnhyxc";
+	char arr2[] = "dnhyxc";
+
+  /*
+    说明：
+      因为 p1 和 p2 存储的都是一个常量字符串，而常量是不允许重新赋值的，
+      所以，p1 和 p2 存储的是同一份内存空间。
+  */
+	if (p1 == p2) {
+		printf("p1 == p2\n");
+	} else {
+		printf("p1 != p2\n");
+	}
+
+  /*
+    说明：
+      因为 arr1 和 arr2 声明时都会开辟一份独立的内存空间，因此，即使它们存储的内容是一样的，
+      但由于数组名存放的是各自首元素的地址，因此 arr1 和 arr2 所指向的指针地址是有区别的。
+  */
+	if (arr1 == arr2) {
+		printf("arr1 == arr2\n"); // p1 == p2
+	} else {
+		printf("arr1 != arr2\n"); // arr1 != arr2
+	}
+
+	return 0;
+}
+```
+
 2. **关系比较**：使用 <、>、<=、>= 运算符来比较两个指针所指向的内存地址的大小关系。指针比较的结果基于其指向的内存地址在内存中的排列顺序。
 
 ```c
@@ -1551,7 +1942,7 @@ for (int i = 0; i < 5; i++) {
 }
 ```
 
-> 在上面的例子中，我们定义了一个整型数组 arr，并将其首地址赋值给指针 p。然后，我们使用指针 p 来访问数组中的元素，注意到 *(p+i) 和 p[i] 是等价的。
+> 在上面的例子中，我们定义了一个整型数组 arr，并将其首地址赋值给指针 p。然后，我们使用指针 p 来访问数组中的元素，注意到 \*(p+i) 和 p[i] 是等价的。
 
 2. 数组名作为指针使用：
 
@@ -1595,7 +1986,9 @@ int main() {
 指针数组的定义：
 
 ```c
-int *ptrArray[5];  // 定义一个指针数组，包含 5 个指针元素
+int *ptrArray[3];  // 定义一个指针数组，包含 5 个指针元素，表示一个存放整型指针的数组
+
+char *strArray[3]; // 定义一个指针数组，包含 5 个指针元素，表示一个存放字符指针的数组
 ```
 
 初始化指针数组：
@@ -1603,6 +1996,9 @@ int *ptrArray[5];  // 定义一个指针数组，包含 5 个指针元素
 ```c
 int a = 10, b = 20, c = 30;
 int *ptrArray[3] = {&a, &b, &c};  // 初始化指针数组
+
+char str1 = "abc", str2 = "def", str3 = "ghi";
+char *strArray[3] = {&str1, &str2, &str3};  // 初始化指针数组
 ```
 
 使用指针数组：
@@ -1644,15 +2040,15 @@ int main() {
     // parr[i] 得到的就是 arr1、arr2、arr3
     // parr[i][j] 得到的就是 arr2、arr2、arr3 之中的每个元素
     for(j = 0; j < 4; j++) {
-      printf("%d ", parr[i][j]);
+      printf("%d ", parr[i][j]); // 等价于 printf("%d ", *(*(parr + i) + j))
     }
     printf("\n");
   }
   /*
     循环结束最终输出：
       1 2 3 4
-      2 3 4 5 
-      3 4 5 6 
+      2 3 4 5
+      3 4 5 6
   */
 
   return 0;
@@ -1660,6 +2056,245 @@ int main() {
 ```
 
 > 上述代码中之所以能直接通过 `parr[i][j]` 得到指针所指向的变量，是因为 `parr[i][j]` 就等价于 `*(*(parr + i) + j)`，即这里的 `[]` 就等价于解引用。
+
+#### 数组指针
+
+前面我们已经了解了整型指针（能够指向整型数据的指针），浮点数指针（能够指向浮点型数据的指针），字符指针（能够指向字符类型的指针）等等，那么数组指针就是能够指向数组类型的指针。即数组指针本质上还是一个指针，只是这个指针指向的类型是数组类型。
+
+##### 数组指针与指针数组的区别
+
+- 数组指针是指一个指向数组的指针，本质是一个指针，可以用来访问数组中的元素。例如：
+
+```c
+int arr[5] = { 1, 2, 3, 4, 5 };
+// 声明一个指向数组 arr 的指针，ptr 指向 arr 的第一个元素的地址，也就是 1 的地址
+int (*ptr)[5] = arr;
+// 使用指针运算符来访问数组中的其他元素
+int x = *(*ptr + 2); // 获取 arr[2] 的值 3，等价于 int x = arr[2]
+
+// arr2 表示的是一个指针数组，其中存放的是 5 个指针类型的值
+char* arr2[5];
+// 通过 &arr2 获取到指针数组 arr2 的地址，并将其地址赋值给数组指针 pa，pa 的类型为 char (*)[5]
+char* (*pa[5])[5] = &arr2;
+```
+
+- 指针数组是指一个数组，本质就是一个数组，其中的每个元素都是一个指针。例如：
+
+```c
+int x = 1, y = 2, z = 3;
+// 声明一个指针数组 arr，其中 arr 是一个包含 3 个元素的数组，每个元素都是一个指向 int 类型变量的指针
+int *arr[3] = {&x, &y, &z};
+// arr[1] 获取到的是数组 arr 的第一项，也就是 y 的地址，通过 *(arr[1]) 解引操作得到 y 的值 2
+int a = *(arr[1]); // 获取 y 的值，等价于 y
+```
+
+> **说明**：上述代码 `int (*ptr)[5]`，其中 ptr 先和 `*` 结合，说明 ptr 是一个指针变量，指向的是一个大小为 5 的，即包含 5 个整型类型值的数组。所以 ptr 是一个指针，指向一个数组，因此 ptr 被称为数组指针。
+>
+> 需要注意的是：`[]` 的优先级要高于 `*` 号，所以必须加上 `()` 来保证 ptr 先和 `*` 结合。
+
+##### &数组名和数组名的区别
+
+对于数组 `int arr[10]`，其中 `arr` 和 `&arr` 分别表示的是什么？我们都知道，arr 是一个数组名，它表示的就是该数组的首元素的地址。那么 &arr 到底是啥呢？和 arr 又有什么区别呢？具体看如下代码：
+
+```c
+#include <stdio.h>
+
+int main() {
+	int arr[10] = { 0 };
+	/*
+		arr + 1 地址从 006FFA60 变成了 006FFA64，相当于跳过了 4 个字节，即一个字符的长度
+	*/
+	printf("%p\n", arr); // 006FFA60
+	printf("%p\n", arr + 1); // 006FFA64
+	/*
+		&arr[0] + 1 地址从 006FFA60 变成了 006FFA64，相当于跳过了 4 个字节，即一个字符的长度
+	*/
+	printf("%p\n", &arr[0]); // 006FFA60
+	printf("%p\n", &arr[0] + 1); // 006FFA64
+	/*
+		&arr + 1 地址从 006FFA60 变成了 006FFA88，也就是说地址相差了 0x28 位，
+		换算成十进制为：2 * 16 ^ 1 + 8 * 16 ^ 0 = 40，即 40 个字节。
+		也就是说 &arr + 1 跳过了 arr[10] 这个数组的长度。
+	*/
+	printf("%p\n", &arr); // 006FFA60
+	printf("%p\n", &arr + 1); // 006FFA88
+
+	int sz = sizeof(arr);
+	printf("%d\n", sz); // 40
+
+	return 0;
+}
+```
+
+由上述代码可以看出，数组名通常表示的都是数组首元素的地址，但是有两个例外，分别是：
+
+1. `sizeof(数组名)`，这里的数组名表示的是整个数组，计算的是整个数组的大小。
+
+2. `&数组名`，这里的数组名表示的依然是整个数组，所以 `&数组名` 取出的是整个数组的地址。
+
+##### 数组指针的实际使用
+
+数组指针通常是用于二维数组或者二维数组以上的数组类型中，如下：
+
+```c
+#include <stdio.h>
+
+void print1(int arr[3][5], int r, int c) {
+  int i = 0;
+  for (i = 0; i < r; i++) {
+    int j = 0;
+    for (j = 0; j < c; j++) {
+      printf("%d ", arr[i][j]);
+    }
+    printf("\n");
+  }
+}
+
+void print2(int (*p)[5], int r, int c) {
+  int i = 0;
+  for (i = 0; i < r; i++) {
+    int j = 0;
+    for (j = 0; j < c; j++) {
+      printf("%d ", *(*(p + i) + j)); // 等价于 printf("%d ", arr[i][j]);
+    }
+    printf("\n");
+  }
+}
+
+int main() {
+  int arr[3][5] = { 1, 2, 3, 4, 5, 2, 3, 4, 5, 6, 3, 4, 5, 6, 7 };
+
+  print1(arr, 3, 5);
+  /*
+    输出为：
+      1 2 3 4 5
+      2 3 4 5 6
+      3 4 5 6 7
+  */
+
+  printf("\n");
+
+  print2(arr, 3, 5);
+  /*
+    输出为：
+      1 2 3 4 5
+      2 3 4 5 6
+      3 4 5 6 7
+  */
+
+  return 0;
+}
+```
+
+> **说明**：上述代码中，`print2(int (*p)[5], int r, int c)` 的参数 `int (*p)[5]` 表示的是 arr 二维数组首元素的地址，即表示指向 `[1, 2, 3, 4, 5]` 这个一维数组的地址，那么 `(*p + 1)` 表示的就是 arr 二维数组第二个元素的地址，即表示指向 `[2, 3, 4, 5, 6]` 这个一维数组的地址，以此类推。
+
+#### 函数指针
+
+函数指针是指向函数的指针变量。它可以用来存储函数的地址，并且可以像函数一样调用被指向的函数。函数指针在 C 语言中具有很多用途，例如作为回调函数、实现函数指针数组等。
+
+声明函数指针的语法：
+
+```c
+return_type (*ptr_name)(parameter_list);
+```
+
+> 上述代码中，`return_type` 是函数的返回类型，`ptr_name` 是指针变量的名称，`parameter_list` 是函数的参数列表。
+
+函数指针的基本用法如下：
+
+```c
+#include <stdio.h>
+
+int sum(int a, int b) {
+	return a + b;
+}
+
+// 函数指针作为函数参数传递，使得在调用函数时可以动态指定需要执行的函数
+void print_result(int (*func_ptr)(int, int), int a, int b) {
+	int result = (*func_ptr)(a, b);
+	printf("返回结果是: %d\n", result); // 12
+}
+
+int main() {
+	// 声明一个函数指针 func_ptr，并将 sum 函数的地址赋值给函数指针变量。
+	int (*func_ptr)(int, int) = sum; // sum 和 &sum 都是函数的地址
+
+	// 使用函数指针来调用被指向的函数 sum
+	int result = (*func_ptr)(3, 9); // 相当于 sum(3, 9)
+	printf("result = %d\n", result); // 12
+
+	// (*func_ptr)(3, 9) 前面的 * 号可以省略，直接写成 func_ptr
+	int result1 = func_ptr(3, 9);
+	printf("result1 = %d\n", result1); // 12
+
+	// 通过函数指针调用 sum 函数并打印结果
+	print_result(sum, 3, 9);
+
+  return 0;
+}
+```
+
+> **提示**：通过函数指针调用函数时，函数指针前面的 `*` 可以省略，如 `(*func_ptr)(3, 9)` 可以省略为 `func_ptr(3, 9)`。
+
+函数指针实际使用示例如下：
+
+```c
+#include <stdio.h>
+#include <ctype.h>
+
+void menu() {
+  printf("***********************************\n");
+  printf("******    1. add   2. sub    ******\n");
+  printf("******    3. mul   4. div    ******\n");
+  printf("******    0. exit            ******\n");
+  printf("***********************************\n");
+}
+
+int Add(int x, int y) {
+  return x + y;
+}
+
+int Sub(int x, int y) {
+  return x - y;
+}
+
+int Mul(int x, int y) {
+  return x * y;
+}
+
+int Div(int x, int y) {
+  return x / y;
+}
+
+int main() {
+  int input = 0;
+  int x = 0;
+  int y = 0;
+  int ret = 0;
+
+  int (*pfArr[])(int, int) = {0, Add, Sub, Mul, Div};
+
+  do {
+    menu();
+    printf("请选择：>");
+    scanf("%d", &input);
+    // 判断输入的字符是否是数字
+    if (isalpha(getchar()) != 0) break;
+    if (input == 0) {
+      printf("退出计算器\n");
+    } else if (input >= 1 && input <= 4) {
+      printf("请输入2个操作数：>");
+      scanf("%d %d", &x, &y);
+      ret = pfArr[input](x, y);
+      printf("%d\n", ret);
+    } else {
+      printf("选择错误\n");
+    }
+  } while (input);
+
+  return 0;
+}
+```
 
 ### 结构体
 
@@ -1891,7 +2526,7 @@ switch (expression) {
 #include "stdio.h"
 
 int main() {
-  
+
   int day = 1;
 
   switch (day) {
@@ -1969,9 +2604,9 @@ int main() {
       n++;
     case 3:
       switch (n) {
-        case 1: 
+        case 1:
           n++;
-        case 2: 
+        case 2:
           m++;
           n++;
           break; // 跳出嵌套的 switch
@@ -1989,7 +2624,7 @@ int main() {
 }
 ```
 
-####  while 循环语句
+#### while 循环语句
 
 C 语言中的 while 循环是一种常用的循环结构，它会**重复执行**一段代码，直到给定的条件为假为止。其基本语法结构如下：
 
@@ -2160,7 +2795,7 @@ int main() {
 }
 ```
 
-> 答案是 *（如果不太肯定，放编辑器跑一下吧），原因是因为其中控制语句为 `k = 0`，是一个赋值语句，k 等于 0，条件为假，因此条件始终不成立（for 循环条件不等于 0 时，条件为真，等于 0 时，条件为假），因此该循环的循环结果是：循环 0 次。
+> 答案是 \*（如果不太肯定，放编辑器跑一下吧），原因是因为其中控制语句为 `k = 0`，是一个赋值语句，k 等于 0，条件为假，因此条件始终不成立（for 循环条件不等于 0 时，条件为真，等于 0 时，条件为假），因此该循环的循环结果是：循环 0 次。
 
 #### do while 循环语句
 
@@ -2218,17 +2853,17 @@ C 语言库函数官方文档：
 
 #### <stdio.h>
 
-|函数原型|功能|
-|-|-|
-|[int printf(char *format...)](https://www.runoob.com/cprogramming/c-function-printf.html)|产生格式化输出的函数|
-|[int getchar(void)](https://www.runoob.com/cprogramming/c-function-getchar.html)|从键盘上读取一个键，并返回该键的键值|
-|[int putchar(int char)](https://www.runoob.com/cprogramming/c-function-putchar.html)|把参数 char 指定的字符（一个无符号字符）写入到标准输出 stdout 中。|
-|[FILE *fopen(const char *filename, const char *mode)](https://www.runoob.com/cprogramming/c-function-fopen.html)|使用给定的模式 mode 打开 filename 所指向的文件。|
-|[FILE *freopen(const char *filename, const char *mode, FILE *stream)](https://www.runoob.com/cprogramming/c-function-freopen.html)|把一个新的文件名 filename 与给定的打开的流 stream 关联，同时关闭流中的旧文件。|
-|[int fflush(FILE *stream)](https://www.runoob.com/cprogramming/c-function-fflush.html)|刷新流 stream 的输出缓冲区。|
-|[int fclose(FILE *stream)](https://www.runoob.com/cprogramming/c-function-fclose.html)|关闭流 stream。刷新所有的缓冲区。|
-|[void clearerr(FILE *stream)](https://www.runoob.com/cprogramming/c-function-clearerr.html)|清除给定流 stream 的文件结束和错误标识符。|
-|[int feof(FILE *stream)](https://zh.cppreference.com/w/c/io/feof)|检查给定流 stream 的文件结束标识符。|
+| 函数原型                                                                                                                           | 功能                                                                           |
+| ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| [int printf(char \*format...)](https://www.runoob.com/cprogramming/c-function-printf.html)                                         | 产生格式化输出的函数                                                           |
+| [int getchar(void)](https://www.runoob.com/cprogramming/c-function-getchar.html)                                                   | 从键盘上读取一个键，并返回该键的键值                                           |
+| [int putchar(int char)](https://www.runoob.com/cprogramming/c-function-putchar.html)                                               | 把参数 char 指定的字符（一个无符号字符）写入到标准输出 stdout 中。             |
+| [FILE *fopen(const char *filename, const char \*mode)](https://www.runoob.com/cprogramming/c-function-fopen.html)                  | 使用给定的模式 mode 打开 filename 所指向的文件。                               |
+| [FILE *freopen(const char *filename, const char *mode, FILE *stream)](https://www.runoob.com/cprogramming/c-function-freopen.html) | 把一个新的文件名 filename 与给定的打开的流 stream 关联，同时关闭流中的旧文件。 |
+| [int fflush(FILE \*stream)](https://www.runoob.com/cprogramming/c-function-fflush.html)                                            | 刷新流 stream 的输出缓冲区。                                                   |
+| [int fclose(FILE \*stream)](https://www.runoob.com/cprogramming/c-function-fclose.html)                                            | 关闭流 stream。刷新所有的缓冲区。                                              |
+| [void clearerr(FILE \*stream)](https://www.runoob.com/cprogramming/c-function-clearerr.html)                                       | 清除给定流 stream 的文件结束和错误标识符。                                     |
+| [int feof(FILE \*stream)](https://zh.cppreference.com/w/c/io/feof)                                                                 | 检查给定流 stream 的文件结束标识符。                                           |
 
 ### 自定义函数
 
@@ -2296,12 +2931,11 @@ int main() {
 
 - 这种传参方式可以让函数和函数外的变量（可以理解为形参和实参）建立真正的联系，也就是函数内部可以直接操作函数外部的变量。
 
-
 #### 函数的声明和定义
 
 函数的声明：
 
-- 函数的声明可以告诉编译器，函数叫什么，参数是什么，返回类型是什么，防止在调用函数时编译器报“xxx函数未定义”的警告。
+- 函数的声明可以告诉编译器，函数叫什么，参数是什么，返回类型是什么，防止在调用函数时编译器报“xxx 函数未定义”的警告。
 
 - 函数是不是存在，通过函数声明无法决定。
 
@@ -2488,25 +3122,25 @@ int main() {
 ```
 
 > **说明**：
-> 
+>
 > 1. 两个相同的数按位异或为 0。
-> 
+>
 > 2. 0 和任何一个整数按位异或为该整数。
-> 
+>
 > ```c
 > #include <stdio.h>
-> 
+>
 > int main() {
 > 	int a = 12;
 >   int b = 12;
 >   int c = a ^ b;
 >   printf("%d\n", c); // 0
->   
+>
 >   int _a = 0;
 >   int _b = 12;
 >   int _c = _a ^ _b;
 >   printf("%d\n", _c); // 12
-> 
+>
 > 	return 0;
 > }
 > ```
@@ -2539,7 +3173,7 @@ void compute() {
 	c = add(a, b);
 	d = multiply(a, b);
 
-	printf("%d + %d = %d\n", a, b, c); // 12 + 9 = 21 
+	printf("%d + %d = %d\n", a, b, c); // 12 + 9 = 21
 	printf("%d * %d = %d\n", a, b, d); // 12 * 9 = 108
 }
 
@@ -2584,6 +3218,9 @@ int main() {
 }
 ```
 
+### 回调函数
+
+回调函数就是一个通过函数指针调用的函数。如果把函数的指针（地址）作为参数传递给另一个函数，当这个指针被用来调用其所指向的函数时，该函数就是回调函数。回调函数不是由该函数的实现方直接调用的，而是在特定的事件或条件发生时由另外的一方调用的，用于对该事件或条件进行响应。
 
 ### 函数递归
 
@@ -2750,7 +3387,7 @@ int main() {
 
 #### 整型提升
 
-当一个较小的整型类型与较大的整型类型混合运算时，较小的整型类型会被自动提升为较大的整型类型。例如，int 类型和short 类型进行运算时，short 类型会被提升为 int 类型。
+当一个较小的整型类型与较大的整型类型混合运算时，较小的整型类型会被自动提升为较大的整型类型。例如，int 类型和 short 类型进行运算时，short 类型会被提升为 int 类型。
 
 1. 为什么会进行整型提升？
 
@@ -2933,7 +3570,7 @@ int main() {
 
 int main() {
 	int a;
-	// 5.8 后面加 f 代表 5.8 是 float 类型，不加的话，认为是 double 类型 
+	// 5.8 后面加 f 代表 5.8 是 float 类型，不加的话，认为是 double 类型
 	float b = 5.8f;
 	a = b;
 	printf("a=%d\n", a); // a = 5
@@ -2960,7 +3597,7 @@ int main() {
 ```
 
 > **总结**：
-> 
+>
 > - 当进行类型提升时，总是将小类型提升为大类型，即小变大。
 >
 > - 当进行类型转换时，总是将大类型转换为小类型，即大转小。
@@ -2986,54 +3623,52 @@ int num = f; // 这里会触发隐式类型转换，会导致精度丢失
 
 > 两个相邻的操作符先执行哪个，取决于它们的优先级，如果两者的优先级相同，则看两者的结合性。
 
-|顺序|操作符|描述|用法示例|结果类型|结合性|是否控制求值顺序|
-|-|-|-|-|-|-|-|
-|1|()|数组|(表达式)|与表达式同|N/A|否|
-|2|()|函数调用|rexp(rexp, ...rexp)|rexp|L-R|否|
-|3|[]|下标引用|rexp[rexp]|lexp|L-R|否|
-|4|.|访问结构成员|lexp.memner_name|lexp|L-R|否|
-|5|->|访问结构指针成员|lexp->memner_name|lexp|L-R|否|
-|6|++|后缀自增|lexp++|rexp|L-R|否|
-|7|- -|后缀自减|lexp- -|rexp|L-R|否|
-|8|!|逻辑取反|!rexp|rexp|R-L|否|
-|9|~|按位取反|~rexp|rexp|R-L|否|
-|10|+|单目，表示正值|+rexp|rexp|R-L|否|
-|11|-|单目，表示负值|-rexp|rexp|R-L|否|
-|12|++|前缀自增|++rexp|rexp|R-L|否|
-|13|- -|前缀自减|- -rexp|rexp|R-L|否|
-|14|*|间接访问|*rexp|lexp|R-L|否|
-|15|&|取地址|&lexp|rexp|R-L|否|
-|16|sizeof|计算数据类型或变量占用的字节数|sizeof(rexp) 或 sizeof(类型)|rexp|R-L|否|
-|17|（类型）|类型转换|(类型)rexp|rexp|R-L|否|
-|18|*|乘法|rexp * rexp|rexp|L-R|否|
-|19|/|除法|rexp / rexp|rexp|L-R|否|
-|20|%|整数取余|rexp % rexp|rexp|L-R|否|
-|21|+|加法|rexp + rexp|rexp|L-R|否|
-|22|-|减法|rexp - rexp|rexp|L-R|否|
-|23|<<|左移位|rexp << rexp|rexp|L-R|否|
-|24|>>|右移位|rexp >> rexp|rexp|L-R|否|
-|25|>|大于|rexp > rexp|rexp|L-R|否|
-|26|>=|大于等于|rexp >= rexp|rexp|L-R|否|
-|27|<=|小于等于|rexp <= rexp|rexp|L-R|否|
-|28|==|等于|rexp == rexp|rexp|L-R|否|
-|29|!=|不等于|rexp != rexp|rexp|L-R|否|
-|30|&|按位与|rexp & rexp|rexp|L-R|否|
-|31|^|按位异或|rexp ^ rexp|rexp|L-R|否|
-|32|l|按位或|rexp l rexp|rexp|L-R|否|
-|33|&&|逻辑与|rexp && rexp|rexp|L-R|是|
-|34|ll|逻辑或|rexp ll rexp|rexp|L-R|是|
-|35|?:|条件操作符|rexp ? rexp : rexp|rexp|N/A|是|
-|36|=|赋值|lexp = rexp|rexp|R-L|否|
-|37|+=|以...加|lexp += rexp|rexp|R-L|否|
-|38|-=|以...减|lexp -= rexp|rexp|R-L|否|
-|39|*=|以...乘|lexp *= rexp|rexp|R-L|否|
-|40|/=|以...除|lexp /= rexp|rexp|R-L|否|
-|41|%=|以...取模|lexp %= rexp|rexp|R-L|否|
-|42|<<=|以...左移|lexp <<= rexp|rexp|R-L|否|
-|43|>>=|以...右移|lexp >>= rexp|rexp|R-L|否|
-|44|&=|以...与|lexp &= rexp|rexp|R-L|否|
-|45|^=|以...异或|lexp ^= rexp|rexp|R-L|否|
-|46|l=|以...或|lexp l= rexp|rexp|R-L|否|
-|47|,|逗号|lexp, rexp|rexp|R-L|是|
-
-#### 测试数据
+| 顺序 | 操作符   | 描述                           | 用法示例                     | 结果类型   | 结合性 | 是否控制求值顺序 |
+| ---- | -------- | ------------------------------ | ---------------------------- | ---------- | ------ | ---------------- |
+| 1    | ()       | 数组                           | (表达式)                     | 与表达式同 | N/A    | 否               |
+| 2    | ()       | 函数调用                       | rexp(rexp, ...rexp)          | rexp       | L-R    | 否               |
+| 3    | []       | 下标引用                       | rexp[rexp]                   | lexp       | L-R    | 否               |
+| 4    | .        | 访问结构成员                   | lexp.memner_name             | lexp       | L-R    | 否               |
+| 5    | ->       | 访问结构指针成员               | lexp->memner_name            | lexp       | L-R    | 否               |
+| 6    | ++       | 后缀自增                       | lexp++                       | rexp       | L-R    | 否               |
+| 7    | - -      | 后缀自减                       | lexp- -                      | rexp       | L-R    | 否               |
+| 8    | !        | 逻辑取反                       | !rexp                        | rexp       | R-L    | 否               |
+| 9    | ~        | 按位取反                       | ~rexp                        | rexp       | R-L    | 否               |
+| 10   | +        | 单目，表示正值                 | +rexp                        | rexp       | R-L    | 否               |
+| 11   | -        | 单目，表示负值                 | -rexp                        | rexp       | R-L    | 否               |
+| 12   | ++       | 前缀自增                       | ++rexp                       | rexp       | R-L    | 否               |
+| 13   | - -      | 前缀自减                       | - -rexp                      | rexp       | R-L    | 否               |
+| 14   | \*       | 间接访问                       | \*rexp                       | lexp       | R-L    | 否               |
+| 15   | &        | 取地址                         | &lexp                        | rexp       | R-L    | 否               |
+| 16   | sizeof   | 计算数据类型或变量占用的字节数 | sizeof(rexp) 或 sizeof(类型) | rexp       | R-L    | 否               |
+| 17   | （类型） | 类型转换                       | (类型)rexp                   | rexp       | R-L    | 否               |
+| 18   | \*       | 乘法                           | rexp \* rexp                 | rexp       | L-R    | 否               |
+| 19   | /        | 除法                           | rexp / rexp                  | rexp       | L-R    | 否               |
+| 20   | %        | 整数取余                       | rexp % rexp                  | rexp       | L-R    | 否               |
+| 21   | +        | 加法                           | rexp + rexp                  | rexp       | L-R    | 否               |
+| 22   | -        | 减法                           | rexp - rexp                  | rexp       | L-R    | 否               |
+| 23   | <<       | 左移位                         | rexp << rexp                 | rexp       | L-R    | 否               |
+| 24   | >>       | 右移位                         | rexp >> rexp                 | rexp       | L-R    | 否               |
+| 25   | >        | 大于                           | rexp > rexp                  | rexp       | L-R    | 否               |
+| 26   | >=       | 大于等于                       | rexp >= rexp                 | rexp       | L-R    | 否               |
+| 27   | <=       | 小于等于                       | rexp <= rexp                 | rexp       | L-R    | 否               |
+| 28   | ==       | 等于                           | rexp == rexp                 | rexp       | L-R    | 否               |
+| 29   | !=       | 不等于                         | rexp != rexp                 | rexp       | L-R    | 否               |
+| 30   | &        | 按位与                         | rexp & rexp                  | rexp       | L-R    | 否               |
+| 31   | ^        | 按位异或                       | rexp ^ rexp                  | rexp       | L-R    | 否               |
+| 32   | l        | 按位或                         | rexp l rexp                  | rexp       | L-R    | 否               |
+| 33   | &&       | 逻辑与                         | rexp && rexp                 | rexp       | L-R    | 是               |
+| 34   | ll       | 逻辑或                         | rexp ll rexp                 | rexp       | L-R    | 是               |
+| 35   | ?:       | 条件操作符                     | rexp ? rexp : rexp           | rexp       | N/A    | 是               |
+| 36   | =        | 赋值                           | lexp = rexp                  | rexp       | R-L    | 否               |
+| 37   | +=       | 以...加                        | lexp += rexp                 | rexp       | R-L    | 否               |
+| 38   | -=       | 以...减                        | lexp -= rexp                 | rexp       | R-L    | 否               |
+| 39   | \*=      | 以...乘                        | lexp \*= rexp                | rexp       | R-L    | 否               |
+| 40   | /=       | 以...除                        | lexp /= rexp                 | rexp       | R-L    | 否               |
+| 41   | %=       | 以...取模                      | lexp %= rexp                 | rexp       | R-L    | 否               |
+| 42   | <<=      | 以...左移                      | lexp <<= rexp                | rexp       | R-L    | 否               |
+| 43   | >>=      | 以...右移                      | lexp >>= rexp                | rexp       | R-L    | 否               |
+| 44   | &=       | 以...与                        | lexp &= rexp                 | rexp       | R-L    | 否               |
+| 45   | ^=       | 以...异或                      | lexp ^= rexp                 | rexp       | R-L    | 否               |
+| 46   | l=       | 以...或                        | lexp l= rexp                 | rexp       | R-L    | 否               |
+| 47   | ,        | 逗号                           | lexp, rexp                   | rexp       | R-L    | 是               |
