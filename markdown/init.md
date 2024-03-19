@@ -1,8 +1,8 @@
-#### vpn
+#### Cloudflare WARP
 
 [https://1.1.1.1/zh-Hans/](https://1.1.1.1/zh-Hans/)
 
-#### vpn 密钥生成
+#### Cloudflare WARP 密钥生成
 
 [https://blog.upx8.com/warp.html](https://blog.upx8.com/warp.html)
 
