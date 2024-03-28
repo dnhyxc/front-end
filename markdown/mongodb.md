@@ -16,6 +16,24 @@
 
 - 再执行一次 ctrl + c 即可
 
+### 在黑盒中操作 mongodb
+
+```yaml
+cd mongodb/bin
+
+./mongo
+
+show dbs
+
+use blog_web
+
+show collections
+
+db.adminusers.find()
+
+db.adminusers.update({ "username": "super" }, { $set: { auth: 1 } })
+```
+
 ### 停止启动端口
 
 lsof -i tcp:9002

@@ -200,7 +200,7 @@ cd nginx
 
 rz
 
-tar -vxf nginx-1.22.0
+tar -vxf nginx-1.22.1.tar
 ```
 
 ### 执行 configure 等命令
@@ -208,6 +208,8 @@ tar -vxf nginx-1.22.0
 进入 `/usr/local/nginx/nginx-1.22.1` 文件目录中，依次按如下命令执行：
 
 ```js
+cd /usr/local/nginx/nginx-1.22.1
+
 ./configure
 
 make
@@ -226,6 +228,14 @@ http {
 ```
 
 上述设置设置完成之后， 在 nginx 下的 sbin 目录下执行 `./nginx -s reload` 重启 nginx 服务即可。
+
+#### nginx 常见报错处理
+
+解决 nginx: [error] open() ＂/usr/local/nginx/logs/nginx.pid＂ failed 错误：
+
+```js
+[root@localhost nginx]# /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+```
 
 ### 部署前端项目
 
