@@ -1,5 +1,7 @@
 ### 初始化项目
 
+desc: 本篇文章主要讲解如何从零开始搭建一个 React + Webpack5 + Antd + TypeScript + Eslint 的项目，其中涉及到了 antd 按需加载、自定义主题、husky 代码提交检测等等。
+
 使用 `npm init -y` 生成 package.json 文件。
 
 ### 安装 webpack
@@ -208,15 +210,7 @@ module.exports = {
 
 ```js
 {
-  "presets": [
-    "@babel/preset-env",
-    [
-      "@babel/preset-react",
-      {
-        "runtime": "automatic" // 不加上这行配置，如果不是通过 externals 引入 React，会报错：ReferenceError: React is not defined
-      }
-    ],
-  ],
+  "presets": ["@babel/preset-env", "@babel/preset-react"],
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",
@@ -320,16 +314,7 @@ yarn add typescript
 
 ```js
 {
-  "presets": [
-    "@babel/preset-env",
-    [
-      "@babel/preset-react",
-      {
-        "runtime": "automatic" // 不加上这行配置会包 React is not defined
-      }
-    ],
-    "@babel/preset-typescript"
-  ],
+  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",
@@ -1221,19 +1206,7 @@ yarn add antd
 
 ```js
 {
-  "plugins": [
-    "@babel/plugin-transform-runtime",
-    "@babel/plugin-proposal-class-properties",
-    [
-      "import",
-      {
-        "libraryName": "antd",
-        // 使用 lib 会增加打包时间及文件大小
-        "libraryDirectory": "es", // libraryDirectory 默认为 lib
-        "style": true
-      }
-    ]
-  ]
+  "presets": ["@babel/preset-env", "@babel/preset-react", "@babel/preset-typescript"],
   "plugins": [
     "@babel/plugin-transform-runtime",
     "@babel/plugin-proposal-class-properties",

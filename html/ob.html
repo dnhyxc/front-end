@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <style>
+    .skin_img {
+      margin-bottom: 20px;
+      width: auto;
+      height: 500px;
+      overflow: hidden;
+      position: relative;
+    }
+  </style>
+
+  <body>
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__5526010cd3bf67ff0b7eacdf7d868b46.jpg"
+        alt="灵魂莲华 锤石"
+      />
+    </div>
+
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__08bc78af79944ae07e55ccc29c987031.png"
+        alt="奥德赛 崔斯特"
+      />
+    </div>
+
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__8830f4e73627eee3dcc875387017ee72.png"
+        alt="神龙尊者 圣龙李青"
+      />
+    </div>
+
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__f8c4792259ee6edbb810a856ca5d4335.png"
+        alt="K/DA ALL OUT 伊芙琳"
+      />
+    </div>
+
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__5d8a15c747d69dab5b4a76dac2d82010.jpeg"
+        alt="真实伤害 奇亚娜"
+      />
+    </div>
+
+    <div class="skin_img">
+      <img
+        class="lazyload"
+        data-src="http://43.143.27.249/atlas/__ATLAS__decb889b36d3c1bbb88106a6e5c16417.jpeg"
+        alt="黯晶巨兽 雷克塞"
+      />
+    </div>
+
+    <script>
+      const imgList = [...document.querySelectorAll("img")];
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((item) => {
+            // isIntersecting是一个Boolean值，判断目标元素当前是否可见
+            if (item.isIntersecting) {
+              console.log(item.target.dataset.src);
+              item.target.src = item.target.dataset.src;
+              // 图片加载后即停止监听该元素
+              observer.unobserve(item.target);
+            }
+          });
+        },
+        {
+          root: document.querySelector(".root"),
+        }
+      );
+
+      // observe遍历监听所有img节点
+      imgList.forEach((img) => observer.observe(img));
+    </script>
+  </body>
+</html>

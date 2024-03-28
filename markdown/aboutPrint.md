@@ -1,6 +1,6 @@
-### 关于 window.print 打印引发的问题
-
 #### 需求说明
+
+desc: 本文将详细的介绍如何完整的打印有横向滚动条的表格内容。
 
 需求是这样的，当页面有几个很宽很宽的表格，它可以左右滚动，并且表格字段是根据每个表单配置来的，也就是说表格字段数量是未知的，因此，表格宽度就是未知的，在理想状态下，表格可以无限宽，只要表格字段够多的话。此时通过 `window.print()` 需要将表单内容通过 A4 纸完全打印出来。
 
@@ -257,7 +257,7 @@ export default PrintPage;
 
 写完上述代码，怀着必胜的信念，通过 Ctrl + P 开启打印，表格成功拆分，内容完美展现，OK 大功告成。
 
-![ctrl + p 打印](image-1.png)
+![ctrl + p](http://101.43.50.15/image/e3b4277853f8caad9d2576d0be8b7d11_64a7d84afc7e33b5fc378324.png)
 
 接着页面中加入打印按钮，通过 `window.print()` 事件触发打印：
 
@@ -303,7 +303,7 @@ export default PrintPage;
 
 点击打印按钮进行打印，发现打印预览中的内容是这样的，并没有在打印时拆分表格：
 
-![window.print 打印](image.png)
+![window.print 打印](http://101.43.50.15/image/24fddcf5b67a33710b7172a2ffe6d0e4_64a7d84afc7e33b5fc378324.png)
 
 之所以通过 `window.print()` 打印未生效，这是因为 `window.print` 触发时，打印状态未改变，导致表格在打印时未进行拆分。既然这样，那就将 `window.print` 放到定时器中执行，看是否生效：
 
@@ -538,7 +538,7 @@ export default PrintPage;
 
 2. 在我真实的项目中，在 `beforeprint` 事件中，通过 `setPrint(true)` 更改 `isPrint` 打印状态，会导致页面出现卡死，这是因为 `setPrint(true)` 之后会导致页面重新渲染，而 `window.print()` 方法会阻止页面渲染，从而导致页面出现卡死。但是和上述 demo 一样，直接通过 `Ctrl + P` 触发打印，是能成功拆分表格进行打印的，但是通过 `window.print()` 就不行，具体原因目前我还没有找到准确的答案，各位如果想知道具体原因，可以自行查证。
 
-![window.print()](image-2.png)
+![window.print](http://101.43.50.15/image/fce300e7c9fdaa37e4e816dca9e196cf_64a7d84afc7e33b5fc378324.png)
 
 #### 最终实现方案
 
@@ -812,7 +812,7 @@ export default PrintPage;
 
 - index.less 内容如下：
 
-```less
+```css
 .PrintPage {
   position: relative;
   width: 100vw;

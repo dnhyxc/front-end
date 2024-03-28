@@ -1,5 +1,7 @@
 ### @babel/types
 
+desc: 读完本文，你将清楚的了解 @babel/types、@babel/parser 的作用以及其常用 API 的使用。
+
 #### @babel/types 的作用
 
 [@babel/types](https://babel.nodejs.cn/docs/babel-types/#numericliteral) 是 Babel 中的一个模块，用于创建、操作和检查 AST（抽象语法树）节点。它提供了一系列的方法和类型定义，用于构建和处理 JavaScript 代码的 AST。

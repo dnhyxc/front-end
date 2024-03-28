@@ -47,7 +47,7 @@ http {
        	root  /usr/local/nginx/dnhyxc/dist; #设置前端资源包的路径
       index   index.html  index.htm;  #设置前端资源入口html文件
       try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
-
+       
         }
 
 location /api/ {
@@ -198,16 +198,16 @@ server {
       root  /usr/local/nginx/web/dist;
       index   index.html  index.htm;
       try_files   $uri  $uri/ /index.html;
-    }
-
+    } 
+      
     location /api/ {
       proxy_set_header  Host  $http_host;
       proxy_set_header  X-Real-IP $remote_addr;
       proxy_set_header  REMOTE-HOST $remote_addr;
       proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_pass  http://localhost:9112;
-    }
-
+    } 
+      
     location /image/ {
       root  /usr/local/server/src/upload/image;
       rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
@@ -344,7 +344,7 @@ http {
       proxy_pass  http://localhost:9112;
     }
 
-    #代理访问上传到服务器 /upload/image 文件夹下的资源，如 http://43.143.27.249/image/b259b0afde3506761cda3dc953f17f6a.jpg
+    #代理访问上传到服务器 /upload/image 文件夹下的资源，如 http://101.43.50.15/image/b259b0afde3506761cda3dc953f17f6a.jpg
     #如果不设置这个代理，图片资源就会作为项目路由进行访问，则无法正确访问到图片资源
     location /image/ {
       root  /usr/local/server/src/upload/image;
