@@ -1,5 +1,7 @@
 ### 概念类
 
+desc: 本文主要针对前端面试中所包含的一些理论进行详细的讲解以及针对一些有代表性的笔试题进行实现
+
 #### 事件队列是 V8 引擎创建的还是浏览器创建的
 
 浏览器中的事件队列（Event Queue）是由浏览器引擎创建和管理的。浏览器引擎包括了渲染引擎和 JavaScript 引擎（如 V8 引擎）。这两个引擎通常是紧密集成在一起的。
@@ -594,6 +596,16 @@ console.log(testArr, "testArr");
 实现方式二：
 
 ```js
+const testObj = {
+  name: "dnhyxc",
+  info: {
+    age: 18,
+    hobby: ["basketball", "coding", "reading"],
+  },
+};
+
+const testArr = [0, 1, [2, 3], 4, [5, 6, 7, [8, 9, 10]]];
+
 function deepCloneWithWeekMap(origin, hashMap = new WeakMap()) {
   // 说明是基本数据类型
   if (origin === undefined || typeof origin !== "object") {
@@ -608,6 +620,7 @@ function deepCloneWithWeekMap(origin, hashMap = new WeakMap()) {
     return new RegExp(origin);
   }
 
+  // 判断是否已经拷贝过，防止出现死循环
   const hashKey = hashMap.get(origin);
 
   if (hashKey) return hashKey;
@@ -618,7 +631,7 @@ function deepCloneWithWeekMap(origin, hashMap = new WeakMap()) {
 
   for (let k in origin) {
     if (origin.hasOwnProperty(k)) {
-      target[k] = deepClone(origin[k], hashMap);
+      target[k] = deepCloneWithWeekMap(origin[k], hashMap);
     }
   }
 
@@ -631,7 +644,20 @@ let test2 = {};
 test2.test1 = test1;
 test1.test2 = test2;
 
-console.log(deepClone(test2));
+console.log(deepCloneWithWeekMap(test2));
+
+const cloneObjWithWeekMap = deepCloneWithWeekMap(testObj);
+const cloneArrWithWeekMap = deepCloneWithWeekMap(testArr);
+
+cloneObjWithWeekMap.info.age = 20;
+
+console.log(cloneObjWithWeekMap, "cloneObjWithWeekMap");
+console.log(testObj, "testObj");
+
+cloneArrWithWeekMap[2] = [222, 333];
+
+console.log(cloneArrWithWeekMap, "cloneArrWithWeekMap");
+console.log(testArr, "testArr");
 ```
 
 ### Vue 面试相关

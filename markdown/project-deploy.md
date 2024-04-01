@@ -1,0 +1,472 @@
+#### 服务器准备
+
+服务器选择看个人喜好，可以在腾讯云、阿里云、华为云等上购买轻量服务器。目前本人选择的是腾讯云的轻量服务器。因此以下所有设置都是针对腾讯云服务器进行的。但是其它的服务器也大差不差，配置方式基本是一样的。
+
+#### node、mongodb、nginx 压缩包准备
+
+node 安装包下载：[v14.9.0](https://nodejs.org/dist/v14.9.0/)。
+
+mongodb 安装包下载：[CentOS 7.0 x64-5.0.14 tgz 压缩包](https://www.mongodb.com/try/download/community)。
+
+nginx 安装包下载：[nginx-1.22.1 pgp](https://nginx.org/en/download.html)。
+
+> 以上安装包的版本，官网可能会不存在，如果没有找到上述对应的版本，最好选择与之相近的版本，防止出现不兼容的情况。
+
+#### 安装 node、pm2、yarn
+
+输入命令 `cd /usr/local` 进入到 local 文件夹中。进入到 local 文件夹中后，输入命令 `mkdir node` 创建一个 node 文件夹。之后 `cd node` 到 node 目录下，在 node 目录下输入命令 `rz` 将下载的 node 包上传到 `/usr/local/node` 文件夹中，紧接着在当前 node 目录下输入如下命令：
+
+- `tar -vxf node-v14.9.0-linux-x64.tar.xz` 命令将 node 进行解压。解压完成之后，`cd node-v14.9.0-linux-x64/bin` 到 node-v14.9.0-linux-x64 下的 bin 目录下，接着输入命令：
+
+  - `ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/node /usr/local/bin/node` 设置 node 环境变量。
+
+  - `ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/npm /usr/local/bin/npm` 设置 node 环境变量。
+
+  - `npm i yarn -g` 安装 yarn，同时输入：`ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/yarn /usr/local/bin/yarn` 设置 node 环境变量。
+
+  - `npm i pm2 -g` 安装 pm2，同时输入：`ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/pm2 /usr/local/bin/pm2` 设置 node 环境变量。
+
+具体命令总结如下，依次执行即可：
+
+```yaml
+cd /usr/local
+
+mkdir node
+
+cd node
+
+rz  #选择node-v14.9.0-linux-x64.tar.xz
+
+tar -vxf node-v14.9.0-linux-x64.tar.xz
+
+cd node-v14.9.0-linux-x64/bin
+
+ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/node /usr/local/bin/node
+
+ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/npm /usr/local/bin/npm
+
+npm i yarn -g
+
+ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/yarn /usr/local/bin/yarn
+
+npm i pm2 -g
+
+ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/pm2 /usr/local/bin/pm2
+```
+
+#### 安装及启动 mongodb
+
+`cd /usr/local` 目录下，使用 `mkdir mongodb` 创建 mongodb 文件夹。
+
+`cd /` 到根目录，使用命令 `mkdir -p /data/db` 创建 db 文件夹。再使用 `mkdir -p /data/log` 创建 log 文件夹，用于存储数据及日志。
+
+`cd /usr/local/mongodb` 文件夹下，使用 `rz` 命令将下载好的压缩包通过了 `tar -vxf mongodb-linux-x86_64-rhel70-5.0.14.tgz` 进行解压。
+
+`cd mongodb-linux-x86_64-rhel70-5.0.14/bin` 目录，再使用 `./mongod --dbpath=/data  --logpath=/data/log/mongod.log --fork` 在后台启动 mongodb。
+
+具体命令总结如下，依次执行即可：
+
+```yaml
+cd /usr/local
+
+mkdir mongodb
+
+cd /
+
+mkdir -p /data/db
+
+mkdir -p /data/log
+
+cd /usr/local/mongodb
+
+rz  #选择下载好的 mongodb-linux-x86_64-rhel70-5.0.14.tgz 压缩包
+
+tar -vxf mongodb-linux-x86_64-rhel70-5.0.14.tgz
+
+cd mongodb-linux-x86_64-rhel70-5.0.14/bin
+
+./mongod --dbpath=/data  --logpath=/data/log/mongod.log --fork
+```
+
+#### 连接数据库
+
+```yaml
+cd /usr/local/mongodb/mongodb-linux-x86_64-rhel70-5.0.14/bin
+
+./mongo
+```
+
+#### 安装 nginx
+
+首先 `cd /usr/local` 到 local 文件目录下，在 local 文件夹中通过命令 `mkdir nginx` 创建 nginx 文件夹，接着 `cd nginx` 进入 nginx 文件夹，使用 `rz nginx-1.22.1.tar.gz` 命令将下载好的 nginx 压缩包上传到 nginx 文件夹中。接着在 nginx 文件夹中通过 `tar -vxf nginx-1.22.1.tar` 解压该 tar 包。具体命令依次如下：
+
+```yaml
+cd /usr/local
+
+mkdir nginx
+
+cd nginx
+
+rz  #选择 nginx-1.22.1.tar.gz
+
+tar -vxf nginx-1.22.1.tar
+```
+
+#### 执行 configure 等命令
+
+进入 `/usr/local/nginx/nginx-1.22.1` 文件目录中，依次按如下命令执行：
+
+```yaml
+cd /usr/local/nginx/nginx-1.22.1
+
+./configure  #配置软件的编译参数和环境设置
+
+make  #使用 make 命令来编译软件
+
+make install  #将编译好的软件安装到系统中
+
+/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf  #指定其配置文件的路径
+```
+
+#### nginx.conf 配置
+
+```yaml
+#user  nobody;
+worker_processes  1;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+events {
+  worker_connections  1024;
+}
+
+http {
+  include       mime.types;
+  default_type  application/octet-stream;
+  sendfile  on;
+  keepalive_timeout   65;
+  client_max_body_size  100m;  #上传size改为20m，防止文件过大无法上传
+
+  #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+  #'$status $body_bytes_sent "$http_referer" '
+  #'"$http_user_agent" "$http_x_forwarded_for"';
+  #access_log  logs/access.log  main;
+  #tcp_nopush     on;
+  #keepalive_timeout  0;
+
+  gzip  on;
+
+  server {
+    listen       80;
+    server_name  localhost;
+    #charset koi8-r;
+    #access_log  logs/host.access.log  main;
+    location / {
+    root  /usr/local/nginx/dnhyxc/dist; #设置前端资源包的路径
+    index   index.html  index.htm;  #设置前端资源入口html文件
+    try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
+  }
+
+  location /api/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /admin/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /image/ {
+    root  /usr/local/server/src/upload/image;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+
+  location /atlas/ {
+    root  /usr/local/server/src/upload/atlas;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /files/ {
+    root  /usr/local/server/src/upload/files;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  #error_page  404  /404.html;
+  # redirect server error pages to the static page /50x.html
+  #
+  error_page   500 502 503 504  /50x.html;
+  location = /50x.html {
+      root   html;
+  }
+  # proxy the PHP scripts to Apache listening on 127.0.0.1:80
+  #
+  #location ~ \.php$ {
+  #    proxy_pass   http://127.0.0.1;
+  #}
+  # pass the PHP scripts to FastCGI server listening on 127.0.0.1:9000
+  #
+  #location ~ \.php$ {
+  #    root           html;
+  #    fastcgi_pass   127.0.0.1:9000;
+  #    fastcgi_index  index.php;
+  #    fastcgi_param  SCRIPT_FILENAME  /scripts$fastcgi_script_name;
+  #    include        fastcgi_params;
+  #}
+  # deny access to .htaccess files, if Apache's document root
+  # concurs with nginx's one
+  #
+  #location ~ /\.ht {
+  #    deny  all;
+  #}
+}
+
+server {
+  listen  9216;
+  server_name  localhost;
+
+  location / {
+    root  /usr/local/nginx/html/dist;
+    index   index.html  index.htm;
+    try_files   $uri  $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /image/ {
+    root  /usr/local/server/src/upload/image;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /files/ {
+    root  /usr/local/server/src/upload/files;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  error_page  500 502 503 504 /50x.html;
+  location = /50x.html {
+    root  html;
+  }
+}
+
+server {
+  listen  9116;
+  server_name  localhost;
+
+  location / {
+    root  /usr/local/nginx/html_web/dist;
+    index   index.html  index.htm;
+    try_files   $uri  $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /image/ {
+    root  /usr/local/server/src/upload/image;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /files/ {
+    root  /usr/local/server/src/upload/files;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  error_page  500 502 503 504 /50x.html;
+  location = /50x.html {
+    root  html;
+  }
+}
+
+server {
+  listen  9612;
+  server_name  localhost;
+  location / {
+    root  /usr/local/nginx/web/dist;
+    index   index.html  index.htm;
+    try_files   $uri  $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /image/ {
+    root  /usr/local/server/src/upload/image;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /files/ {
+    root  /usr/local/server/src/upload/files;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  error_page  500 502 503 504 /50x.html;
+  location = /50x.html {
+    root  html;
+  }
+}
+
+server {
+    listen  8090;
+    server_name  wwww.dnhyxc.cn;
+
+    location / {
+      root  /usr/local/nginx/html_admin/dist;
+      index   index.html  index.htm;
+      try_files   $uri  $uri/ /index.html;
+    }
+
+    location /admin/ {
+      proxy_set_header  Host  $http_host;
+      proxy_set_header  X-Real-IP $remote_addr;
+      proxy_set_header  REMOTE-HOST $remote_addr;
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_pass  http://localhost:9112;
+    }
+  }
+}
+```
+
+#### 部署前端资源
+
+进入 `/usr/local/nginx/html`，之后将打包好的前端资源包 dist.zip 使用 `rz` 命令上传到 html 文件夹中，接着使用 `unzip dist.zip` 将 dist.zip 解压。
+
+由于 nginx 的配置是资源路径是 `/usr/local/nginx/dnhyxc/dist`，所以需要将 html 文件夹中的原本的 `index.html` 文件删除。
+
+html 文件夹内容如下：
+
+![alt text](http://101.43.50.15/image/59c9b18cea0d13b73e9b608e61c7acd7_66055fcdcfd5e134cd001cef.png)
+
+dist 文件夹下内容如下：
+
+![alt text](http://101.43.50.15/image/99ae2740c46a89319c2657488bc98e22_66055fcdcfd5e134cd001cef.png)
+
+文件解压完成之后，输入如下命令启动 nginx 服务器：
+
+```yaml
+cd /usr/local/nginx/sbin
+
+./nginx -s reload #启动 nginx
+```
+
+执行完上述命令，如果没有报错，那恭喜你，前台项目部署成功了。
+
+#### 部署后端资源
+
+`cd /usr/local` 到 local 文件夹中，接着输入 `mkdir server` 创建一个 server 文件夹。
+
+`cd server` 进入到 server 目录下，接着输入命令 `rz` 上传压缩好的后端项目压缩包，我的后端服务是使用 koa 写的，所以这个压缩包中就包含了：`package.json`，`src`，`yarn.lock` 文件。上传完成后，输入 `unzip server.zip` 将项目解压到 server 目录下，解压完成后运行 `yarn 或者 npm install` 安装项目所需安装包。安装完成后，server 文件夹中包含如下文件：
+
+![server](http://101.43.50.15/image/f1258d8bb9bd03a7e70a6bb132c1356c_66055fcdcfd5e134cd001cef.png)
+
+接着运行 `pm2 start ./src/main.js` 启动项目。
+
+具体命令如下，依次执行即可：
+
+```yaml
+cd /usr/local
+
+mkdir server
+
+cd server
+
+rz # 选择压缩好的后台服务压缩包
+
+unzip server.zip
+
+yarn install
+
+pm2 start ./src/main.js  #项目入口文件
+
+pm2 list  #查看服务是否稳定运行，可以多执行几遍，防止服务启动后又挂了的情况
+```
+
+以上命令执行完成之后，如果没有报错，那恭喜你，后台服务也部署成功了，可以通过购买服务器的公网 ip 访问自己的网站了。
+
+#### 解决 pm2 启动项目时 status 一直为 error 的情况
+
+在服务器中依次执行下列命令即可：
+
+```yaml
+ps aux | grep pm2
+
+kill -9  pm2项目对应的进程
+
+pm2 update
+```
+
+#### 重启 nginx
+
+前端资源部署完成之后，需要重启 nginx 使部署的资源生效。进入 `/usr/local/nginx/sbin` 目录下，执行 `./nginx -s reload` 即可重启项目。
+
+#### 重启服务
+
+使用 `pm2 list` 查看项目是否在启动状态，如果在启动状态的化，使用 `pm2 delete 项目启动id（id一般是 0）` 关闭原本启动的项目。接着使用 `pm2 ./src/main.js` 重新启动项目。
+
+#### pm2 常用命令
+
+`pm2 start ./src/main.js`：启动项目。
+
+`pm2 list`：显示所有进程信息。
+
+`pm2 info 进程 id（如：0）`：显示 id 为 0 的进程详细信息。
+
+`pm2 monit`：进入监视页面，监视每个 node 进程的 CPU 和内存的使用情况。
+
+`pm2 stop/delete 0`：停止/删除 id 为 0 的进程。
+
+`pm2 stop/delete all`：停止/删除所有进程。
+
+`pm2 restart 0`：0 秒停机重载 id 为 11 进程（用于 NETWORKED 进程）。
+
+`pm2 reload 0`：重启 id 为 0 的进程。
+
+`pm2 restart all`：重启所有进程。
+
+`pm2 restart all`：重载所有进程。
+
+`pm2 logs`：显示所有进程的日志。
+
+`pm2 logs 0`：显示进程 id 为 0 的日志。
+
+`pm2 flush`：清空所有日志文件。
+
+`pm2 reloadLogs`：重载所有日志。
+
+`pm2 startup`：产生 init 脚本，保持进程活着。
