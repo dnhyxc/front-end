@@ -2,6 +2,28 @@
 
 首先输入 `ssh root@47.97.107.28`，47.97.107.28 为服务器公网 IP。接着输入密码即可完成连接。
 
+### [mac 上传文件到服务器](https://blog.csdn.net/liaowenxiong/article/details/115498469)
+
+在本地终端中输入：
+
+```yaml
+#将本地桌面上的 dnhyxc-mac.zip 上传到远程服务器的 /usr/local/server/src/upload/files/ 目录下
+dnhyxc@dnhyxcdeMacBook-Pro: scp /Users/dnhyxc/Desktop/dnhyxc-mac.zip root@101.43.50.15:/usr/local/server/src/upload/files/
+```
+
+> 注意：不是在服务器上的终端中输入。
+
+### [将远程服务器上的某个文件下载到本地](https://blog.csdn.net/liaowenxiong/article/details/115498469)
+
+在本地终端中输入：
+
+```yaml
+#将远程服务器上 /usr/local/server/src/upload.tar 目录下的 upload.tar 文件下载到本地桌面上
+dnhyxc@dnhyxcdeMacBook-Pro: scp root@43.143.27.249:/usr/local/server/src/upload.tar /Users/dnhyxc/Desktop
+```
+
+> 注意：不是在服务器上的终端中输入。
+
 ### 安装 lrzsz
 
 lrzsz 安装之后，就能使用 `rz` 命令上传本地文件到服务器上了。
