@@ -16,8 +16,6 @@ npm init -y
 npm i webpack webpack-cli webpack-dev-server -D
 ```
 
-<!-- more -->
-
 #### entry 配置
 
 1、entry 用于配置打包时的入口，其属性及配置如下：
