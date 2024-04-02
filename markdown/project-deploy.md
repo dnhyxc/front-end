@@ -158,7 +158,13 @@ http {
   #tcp_nopush     on;
   #keepalive_timeout  0;
 
-  gzip  on;
+  gzip  on; #开启 gizp 压缩
+  gzip_min_length 1k; #指定启用 Gzip 压缩的最小文件大小。这里表示文件大小至少为 1KB 时才会被压缩。
+  gzip_buffers 4 16k; #指定用于压缩的内存缓冲区大小。这里的含义是每个缓冲区大小为 16KB，一共分配 4 个缓冲区。
+  gzip_http_version 1.0; #指定启用 Gzip 压缩的 HTTP 协议版本。在这个示例中，仅对 HTTP 1.0 及以上版本的请求启用 Gzip 压缩。
+  gzip_comp_level 5;  #指定 Gzip 压缩的压缩级别。级别越高，压缩比越大，但同时也会消耗更多的 CPU 资源。这里的值为 5，表示中等压缩级别。
+  gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;  #指定要进行 Gzip 压缩的 MIME 类型。只有在这些 MIME 类型匹配的响应数据才会被压缩。
+  gzip_vary on; #指定是否在响应头中添加 Vary 头。Vary 头的作用是告诉缓存服务器根据不同的请求头来缓存不同的响应，从而避免缓存混乱。这里的值为 on，表示启用 Vary 头。
 
   server {
     listen       80;
