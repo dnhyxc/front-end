@@ -9,7 +9,7 @@ desc: 本文将手摸手实现一个基于 pnpm + rollup + typescript + eslint +
   "name": "monorepo-template",
   "version": "0.0.1",
   "description": "dnhyxc monorepo template",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,7 +42,7 @@ packages:
   "version": "0.0.1",
   "main": "dist/index.cjs", // CommonJS 模块语法导入的入口文件
   "module": "dist/index.esm.js", // ES6 模块语法导入的入口文件
-  "browser": "dist/index.js", // umd 格式通过 scripts 标签导入的入口文件
+  "browser": "dist/main.js", // umd 格式通过 scripts 标签导入的入口文件
   "typings": "dist/index.d.ts", // ts 文件的类型导出文件
   "scripts": {
     "dev": "rollup -c rollup.config.js -w",
@@ -143,7 +143,7 @@ export const buildConfig = ({ packageName }) => {
         { file: "dist/index.cjs", format: "cjs" },
         {
           format: "umd",
-          file: "dist/index.js",
+          file: "dist/main.js",
           name: packageName,
         },
       ],

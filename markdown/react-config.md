@@ -65,7 +65,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
   },
   output: {
     // 设置打包出来的 js 文件放置在 js 目录下
@@ -97,7 +97,7 @@ module.exports = {
 };
 ```
 
-- 在根目录中创建 src 文件夹，并在其中创建 `index.js` 文件：
+- 在根目录中创建 src 文件夹，并在其中创建 `main.js` 文件：
 
 ```js
 const root = document.getElementById("root");
@@ -241,9 +241,9 @@ module.exports = {
 yarn add react react-dom
 ```
 
-#### 修改 src/index.js
+#### 修改 src/main.js
 
-在 src/index.js 文件中加入 react 相关内容：
+在 src/main.js 文件中加入 react 相关内容：
 
 ```js
 import React from "react";
@@ -322,9 +322,9 @@ yarn add typescript
 }
 ```
 
-#### 修改 src/index.js 文件
+#### 修改 src/main.js 文件
 
-将 src/index.js 文件改为 `src/index.tsx` 文件，同时将 webpack.common.config.js 文件中的 `entry` 入口改为：`./src/index.tsx`。
+将 src/main.js 文件改为 `src/index.tsx` 文件，同时将 webpack.common.config.js 文件中的 `entry` 入口改为：`./src/index.tsx`。
 
 - src/index.tsx：
 

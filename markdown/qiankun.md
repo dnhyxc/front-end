@@ -130,7 +130,7 @@ export const importHtml = async (url) => {
 
 #### 完整代码
 
-1. index.js：
+1. main.js：
 
 ```js
 import { rewriteRouter } from "./rewriteRouter";

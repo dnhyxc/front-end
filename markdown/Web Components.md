@@ -190,7 +190,7 @@ index.html 内容：
 </html>
 ```
 
-index.js 内容：
+main.js 内容：
 
 ```js
 class CompanyCard extends HTMLElement {

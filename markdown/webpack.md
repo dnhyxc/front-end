@@ -22,7 +22,7 @@ npm i webpack webpack-cli webpack-dev-server -D
 
 ```js
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
 };
 ```
 
@@ -977,7 +977,7 @@ module: {
 // ...
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
     another: "./src/another-module.js",
   },
 
@@ -989,11 +989,11 @@ module.exports = {
 };
 ```
 
-> 上述配置会将 index.js 及 another-module.js 分别输出到 dist 文件中，及将会在 dist 文件中同时生成 index.bundle.js 及 another.bundle.js 文件。而在输出的 index.html 文件中也会同时引入这两个 js 文件。
+> 上述配置会将 main.js 及 another-module.js 分别输出到 dist 文件中，及将会在 dist 文件中同时生成 index.bundle.js 及 another.bundle.js 文件。而在输出的 index.html 文件中也会同时引入这两个 js 文件。
 
 3、使用 entry 配置多入口分离代码会存在一个致命的缺点，就是如果在入口的 chunk 之间，包含一些重复的代码，这些重复的代码就会被引入到各自的 bundle 中。
 
-- 如果在 index.js 中以及 another-module.js 中同时使用 lodash 的话，将会将 lodash 分别打包进入这两个 js 文件中，导致 lodash 重复打包。
+- 如果在 main.js 中以及 another-module.js 中同时使用 lodash 的话，将会将 lodash 分别打包进入这两个 js 文件中，导致 lodash 重复打包。
 
 #### 防止重复打包
 
@@ -1003,7 +1003,7 @@ module.exports = {
 module.exports = {
   entry: {
     index: {
-      import: "./src/index.js",
+      import: "./src/main.js",
       dependOn: "shared",
     },
 
@@ -1023,7 +1023,7 @@ module.exports = {
 };
 ```
 
-> 上述配置就实现了将 lodash 单独打包到 shared.bundle.js 文件中，而在 打包输出的文件中，会同时引入 index.bundle.js、another.bundle.js 及 shared.bundle.js。这样就让 index.js 及 another-module.js 能够共享 lodash。而不需要将 lodash 打包到自己的文件中。
+> 上述配置就实现了将 lodash 单独打包到 shared.bundle.js 文件中，而在 打包输出的文件中，会同时引入 index.bundle.js、another.bundle.js 及 shared.bundle.js。这样就让 main.js 及 another-module.js 能够共享 lodash。而不需要将 lodash 打包到自己的文件中。
 
 2、除了上述方法之外，还可以使用 webpack 内置的插件 **[split-chunks-plugin](https://webpack.docschina.org/plugins/split-chunks-plugin/)** 来实现防止代码的重复打包：
 
@@ -1036,7 +1036,7 @@ module.exports = {
 ```js
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
     another: "./src/another-module.js",
   },
 
@@ -1068,7 +1068,7 @@ module.exports = {
 ```js
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
   },
 
   output: {
@@ -1095,18 +1095,18 @@ getComponent().then((element) => {
 });
 ```
 
-4、在入口 index.js 文件中引用 async-module.js：
+4、在入口 main.js 文件中引用 async-module.js：
 
 ```js
 import "async-module.js";
 ```
 
-5、如果在入口 index.js 文件中即引入了使用 import() 动态导入的 lodash，同时也使用了静态导入的 lodash 时，为了使这两种方式都生效，就需要在 webpack.config.js 中开启 splitChunks 的配置。
+5、如果在入口 main.js 文件中即引入了使用 import() 动态导入的 lodash，同时也使用了静态导入的 lodash 时，为了使这两种方式都生效，就需要在 webpack.config.js 中开启 splitChunks 的配置。
 
 ```js
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
     another: "./src/another-module.js",
   },
 
@@ -1124,7 +1124,7 @@ module.exports = {
 };
 ```
 
-- 入口 index.js 文件内容如下：
+- 入口 main.js 文件内容如下：
 
 ```js
 import _ from "lodash";
@@ -1133,7 +1133,7 @@ import "async-module.js";
 console.log(_.join(["hello", "world", "-index"], " "));
 ```
 
-> 使用上述配置，即可将 import() 动态导入的 lodash 和 index.js 中静态导入的 lodash 及 another.module.js 中导入的 lodash 共同打包到同一个 bundle 文件中。实现 lodash 的多方共享，同时也避免了重复打包。
+> 使用上述配置，即可将 import() 动态导入的 lodash 和 main.js 中静态导入的 lodash 及 another.module.js 中导入的 lodash 共同打包到同一个 bundle 文件中。实现 lodash 的多方共享，同时也避免了重复打包。
 
 #### 使用动态导入实现懒加载
 
@@ -1151,7 +1151,7 @@ export const minus = () => {
 };
 ```
 
-3、编辑 index.js 文件：
+3、编辑 main.js 文件：
 
 ```js
 const button = document.createElement("button");
@@ -1174,7 +1174,7 @@ document.body.appendChild(button);
 
 - preload（预加载）：当前导航下可能需要的资源。
 
-2、prefetch 的简单使用方式如下，编辑 index.js 文件：
+2、prefetch 的简单使用方式如下，编辑 main.js 文件：
 
 ```js
 const button = document.createElement("button");
@@ -1295,7 +1295,7 @@ const json5 = require("json5");
 
 module.exports = {
   entry: {
-    index: "./src/index.js",
+    index: "./src/main.js",
   },
 
   output: {
@@ -1686,7 +1686,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const WorkboxPlugin = require("workbox-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
@@ -1708,7 +1708,7 @@ module.exports = {
 
 4、注册 Service Worker：
 
-- 在 index.js 文件中通过如下代码进行注册 Service Worker：
+- 在 main.js 文件中通过如下代码进行注册 Service Worker：
 
 ```js
 if ("serviceWorker" in navigator) {
@@ -1733,7 +1733,7 @@ if ("serviceWorker" in navigator) {
 
 2、要实现预置全局变量，需要使用 **ProvidePlugin** 插件（该插件不需要安装），使用 ProvidePlugin 后，能够在 webpack 编译的每个模块中，通过访问一个变量来获取一个 package。如果 webpack 看到模块中用到这个变量，它将在最终 bundle 中引入给定的 package。具体使用如下：
 
-- src/index.js：
+- src/main.js：
 
 ```js
 console.log(_.join("hello", "word"), " ");
@@ -1746,7 +1746,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     filename: "[name].js",
     clean: true,
@@ -1765,7 +1765,7 @@ module.exports = {
 
 #### 细粒度 Shimming
 
-1、在一些遗留模块依赖中，this 指向的是 window 对象，我们可以调整 index.js 文件内容进行测试：
+1、在一些遗留模块依赖中，this 指向的是 window 对象，我们可以调整 main.js 文件内容进行测试：
 
 ```js
 this.alert("hello webpack");
@@ -1773,7 +1773,7 @@ this.alert("hello webpack");
 
 > 如果不进行任何配置，使用 npx webpack serve 运行该模块时，将会报错。
 
-2、之所以上述 index.js 模块运行报错，是因为它运行在 CommonJS 上下文中时，此时的 this 指向的是 module.exports。因此运行代码时，就会出现 `this.alert is not a function` 的报错。在这种情况下，我们可以通过 **imports-loader** 覆盖 this 指向，注意：需要安装 imports-loader 这个插件：
+2、之所以上述 main.js 模块运行报错，是因为它运行在 CommonJS 上下文中时，此时的 this 指向的是 module.exports。因此运行代码时，就会出现 `this.alert is not a function` 的报错。在这种情况下，我们可以通过 **imports-loader** 覆盖 this 指向，注意：需要安装 imports-loader 这个插件：
 
 ```
 npm i imports-loader -D
@@ -1786,11 +1786,11 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   module: {
     rules: [
       {
-        test: require.resolve("./src/index.js"),
+        test: require.resolve("./src/main.js"),
         use: "imports-loader?wrapper=window",
       },
     ],
@@ -1801,7 +1801,7 @@ module.exports = {
 };
 ```
 
-> 通过上述配置之后就可以正常的访问 index.js 文件内容了。
+> 通过上述配置之后就可以正常的访问 main.js 文件内容了。
 
 #### 全局 Exports
 
@@ -1833,7 +1833,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   module: {
     rules: [
       {
@@ -1892,7 +1892,7 @@ npm i babel-loader @babel/core @babel/preset-env core-js@3 -D
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   module: {
     rules: [
       {
@@ -1926,7 +1926,7 @@ module.exports = {
 
 1、library 可以用于打包一个 JavaScript 库（如 lodash 就是一个函数库）。打包好的库可以发布到 npm 上作为一个通用的库，具体配置如下：
 
-- src/index.js 内容如下：
+- src/main.js 内容如下：
 
 ```js
 export const add = (x, y) => {
@@ -1941,7 +1941,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "mylib.js",
@@ -2029,7 +2029,7 @@ require(["mylib"], function (webpackNumbers) {
 const path = require("path");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "mylib.js",
@@ -2082,7 +2082,7 @@ npm publish // 登录成功后即可运行publish进行发布了
 console.log(mylib.add(222, 999), "使用全局变量引入");
 ```
 
-- src/index.js：
+- src/main.js：
 
 ```js
 import { add } from "mylib_math_test";
@@ -2099,7 +2099,7 @@ const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     path: path.resolve(__dirname, "dist"),
     filename: "[name].js",
@@ -2131,7 +2131,7 @@ module.exports = {
   "name": "mylib_test",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
     "start": "webpack serve",
     "build": "rimraf dist && webpack"
@@ -2227,7 +2227,7 @@ const webpack = require("webpack");
 const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     filename: "[name][contenthash].js",
     path: path.resolve(__dirname, "dist"),
@@ -2295,7 +2295,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const AddAssetHtmlPlugin = require("add-asset-html-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   output: {
     filename: "[name][contenthash].js",
     path: path.resolve(__dirname, "dist"),
@@ -2361,7 +2361,7 @@ const Header = () => {
 export default Header;
 ```
 
-- nav/src/index.js：
+- nav/src/main.js：
 
 ```js
 import Header from "./Header";
@@ -2378,7 +2378,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
 
   plugins: [
     new HtmlWebpackPlugin(),
@@ -2417,7 +2417,7 @@ const HomeList = (num) => {
 export default HomeList;
 ```
 
-- home/index.js：
+- home/main.js：
 
 ```js
 import HomeList from "./HomeList";
@@ -2437,7 +2437,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   plugins: [
     new HtmlWebpackPlugin(),
     new ModuleFederationPlugin({
@@ -2461,7 +2461,7 @@ module.exports = {
 
 3、search 应用：
 
-- search/src/index.js：
+- search/src/main.js：
 
 ```js
 Promise.all([import("nav/Header"), import("home/HomeList")]).then(
@@ -2479,7 +2479,7 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const { ModuleFederationPlugin } = require("webpack").container;
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: "./src/main.js",
   plugins: [
     new HtmlWebpackPlugin(),
     new ModuleFederationPlugin({

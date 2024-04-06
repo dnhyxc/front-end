@@ -363,7 +363,7 @@ start();
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>元素碰撞检测</title>
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./main.js"></script>
     <style>
       body {
         margin: 0;
@@ -852,7 +852,7 @@ export const computed = (callback) => {
 };
 ```
 
-source/index.js 用于统一导出 reactive, watchEffect, watch, computed：
+source/main.js 用于统一导出 reactive, watchEffect, watch, computed：
 
 ```js
 import { reactive } from "./reactive";
@@ -875,12 +875,12 @@ index.html 页面渲染模板：
   <body>
     <button id="aBtn">100</button>
     <button id="bBtn">200</button>
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
 ```
 
-在 index.js 中使用实现的 reactive, watchEffect, watch, computed 这些方法：
+在 main.js 中使用实现的 reactive, watchEffect, watch, computed 这些方法：
 
 ```js
 import { reactive, watchEffect, watch, computed } from "./source";
@@ -966,12 +966,12 @@ index.html 页面渲染模板：
       <button @click="reset">重置</button>
     </div>
 
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./main.js"></script>
   </body>
 </html>
 ```
 
-index.js 是 js 入口文件：
+main.js 是 js 入口文件：
 
 ```js
 import { createApp } from "./source/collect";

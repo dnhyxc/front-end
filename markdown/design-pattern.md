@@ -1747,7 +1747,7 @@ rootMenu.render();
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>组合模式</title>
-    <script type="module" src="./index.js"></script>
+    <script type="module" src="./main.js"></script>
   </head>
   <body>
     <div id="root"></div>
@@ -1755,7 +1755,7 @@ rootMenu.render();
 </html>
 ```
 
-- index.js 文件内容：
+- main.js 文件内容：
 
 ```js
 // 第一级类
