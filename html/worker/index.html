@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Worker Demo</title>
+  </head>
+  <body>
+    <h1>Web Worker Demo</h1>
+    <button onclick="startWorker()">Start Worker</button>
+    <div id="output"></div>
+
+    <!-- 导入 worker 脚本 -->
+    <script src="worker.js"></script>
+    <script>
+      function startWorker() {
+        const worker = new Worker("worker.js");
+
+        console.log(worker, "worker");
+
+        // 监听从 worker 发来的消息
+        worker.onmessage = function (event) {
+          console.log(event, "event");
+          document.getElementById("output").textContent = event.data;
+        };
+
+        // 向 worker 发送消息
+        worker.postMessage("Hello from main thread!");
+      }
+    </script>
+  </body>
+</html>

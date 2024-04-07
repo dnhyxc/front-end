@@ -1,18 +1,96 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>文件上传</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport"
-    content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>文件上传</title>
-</head>
+  <body>
+    <input type="file" />
+    <script src="./spark-md5.js"></script>
+    <script src="worker.js"></script>
+    <script>
+      const inpFile = document.querySelector('input[type="file"]');
 
-<body>
-  <input type="file">
-  <script src="https://cdn.bootcdn.net/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
-  <script type="module" src="./main.js"></script>
-</body>
+      inpFile.onchange = async (e) => {
+        const file = e.target.files[0];
+        console.time("cutFile");
+        const chunks = await cutFile(file);
+        console.time("curFile");
+        console.log(chunks);
+      };
 
+      // 切片的大小为 5M
+      const CHUNK_SIZE = 1024 * 1024 * 5;
+
+      // 进程数量
+      const THREAD_COUNT = navigator.hardwareConcurrency || 4;
+
+      const createChunk = (file, index, chunkSize) => {
+        return new Promise((resolve) => {
+          const start = index + chunkSize;
+          const end = start + chunkSize;
+          const spark = new SparkMD5.ArrayBuffer();
+          const fileRender = new FileReader();
+          const blob = file.slice(start, end);
+          fileRender.onload = (e) => {
+            spark.append(e.target.result);
+            resolve({ start, end, index, hash: spark.end(), blob });
+          };
+          fileRender.readAsArrayBuffer(blob);
+        });
+      };
+
+      const cutFile = async (file) => {
+        console.log(file, "file");
+        return new Promise((resolve) => {
+          const chunkCount = Math.ceil(file.size / CHUNK_SIZE);
+          const threadChunkCount = Math.ceil(chunkCount / THREAD_COUNT);
+          // 所有拆分的分片
+          const result = [];
+          // 用于判断所有的线程是否结束
+          let finishCount = 0;
+          for (let i = 0; i < THREAD_COUNT; i++) {
+            // 创建线程，并分配任务
+            const worker = new Worker("worker.js", {
+              type: "module",
+            });
+            console.log(worker, "worker");
+
+            const start = i * threadChunkCount;
+            let end = (i + 1) * threadChunkCount;
+            if (end > chunkCount) {
+              end = chunkCount;
+            }
+            worker.postMessage({
+              file,
+              CHUNK_SIZE,
+              startChunkIndex: start,
+              endChunkIndex: end,
+              createChunk,
+            });
+            worker.onmessage((e) => {
+              for (let j = 0; j < end; j++) {
+                result[i] = e.data[i - start];
+              }
+              // 结束线程
+              worker.terminate();
+              finishCount++;
+              if (finishCount === THREAD_COUNT) {
+                console.log(result, "result111");
+                result.sort((a, b) => a.index - b.index);
+                console.log(result, "result222");
+                resolve(result);
+              }
+            });
+          }
+        });
+      };
+    </script>
+  </body>
 </html>
