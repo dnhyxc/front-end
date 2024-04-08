@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hand Gesture Control Animation</title>
+  <!-- 引入p5.js库 -->
+  <script src="p5.js"></script>
+  <!-- 引入ml5.js库 -->
+  <script src="ml5.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+<script>
+  let capture;
+  let handpose;
+  let predictions = [];
+
+  function setup() {
+    createCanvas(640, 480);
+
+    // 创建摄像头捕捉对象
+    capture = createCapture(VIDEO);
+    capture.hide();
+
+    // 加载手势模型
+    handpose = ml5.handpose(capture, modelReady);
+    handpose.on('predict', gotHandPoses);
+  }
+
+  function modelReady() {
+    console.log('Model Loaded');
+  }
+
+  function gotHandPoses(results) {
+    predictions = results;
+  }
+
+  function draw() {
+    background(0);
+
+    // 绘制摄像头捕捉的图像
+    image(capture, 0, 0, width, height);
+
+    // 遍历手势预测结果
+    for (let i = 0; i < predictions.length; i++) {
+      let hand = predictions[i];
+
+      // 获取手指的坐标
+      let index = hand.annotations.indexFinger[3];
+      let thumb = hand.annotations.thumb[3];
+      let indexX = index[0];
+      let indexY = index[1];
+      let thumbX = thumb[0];
+      let thumbY = thumb[1];
+
+      // 根据手指坐标绘制图形
+      fill(255, 0, 0);
+      ellipse(indexX, indexY, 50, 50);
+
+      fill(0, 255, 0);
+      ellipse(thumbX, thumbY, 50, 50);
+    }
+  }
+</script>
+</body>
+</html>
