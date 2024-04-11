@@ -20,12 +20,12 @@ const hook = new SyncHook(["name", "age", "hobby"]);
 //2、通过 tap 注册事件，在这里，因为 SyncHook 是同步 hook，所以用 tap 注册事件
 //该事件的回调函数接受的参数个数就是 初始化时 定义的数组长度
 // event1 实际并没有什么意义，只是一个标识位，不要和 eventMitter 里面自定义事件的事件名混淆，它只是一个标识位！！
-hook.tap("event1", (name, age, gender) => {
-  console.log('event1被执行', name, age, gender); // dnhyxc 18 coding
+hook.tap("event1", (arg1, arg2, arg3) => {
+  console.log('event1被执行', arg1, arg2, arg3); // dnhyxc 18 coding
 })
 
-hook.tap("event2", (name, age, gender) => {
-  console.log('event2被执行', name, age, gender); // dnhyxc 18 coding
+hook.tap("event2", (arg1, arg2, arg3) => {
+  console.log('event2被执行', arg1, arg2, arg3); // dnhyxc 18 coding
 })
 
 //3、触发注册的事件，同步 hook 通过 call 触发
@@ -37,24 +37,24 @@ hook.call('dnhyxc', 18, 'coding')
 * 当前一个事件有不为 undefined 的返回值 result 时，
 * 会把 result 传给下一个事件的第一个参数，如果 result 是 undefined，那么就不管
 */
-const syncWaterfallHook = new SyncWaterfallHook(["name", "age", "gender"]);
+const syncWaterfallHook = new SyncWaterfallHook(["arg1", "arg2", "arg3"]);
 
-syncWaterfallHook.tap("syncWaterfallHook-event1", (name, age, gender) => {
-  console.log("syncWaterfallHook-event1被执行了", name, age, gender); // snsn 23 gender
+syncWaterfallHook.tap("syncWaterfallHook-event1", (arg1, arg2, arg3) => {
+  console.log("syncWaterfallHook-event1被执行了", arg1, arg2, arg3); // snsn 23 gender
   return "dnhyxc";
 });
 
-syncWaterfallHook.tap("event2", (name, age, gender) => {
-  console.log("syncWaterfallHook-event2被执行了", name, age, gender); // dnhyxc 23 gender
+syncWaterfallHook.tap("event2", (arg1, arg2, arg3) => {
+  console.log("syncWaterfallHook-event2被执行了", arg1, arg2, arg3); // dnhyxc 23 gender
 });
 
-syncWaterfallHook.tap("event3", (name, age, gender) => {
-  console.log("syncWaterfallHook-event3被执行了", name, age, gender); // dnhyxc 23 gender
+syncWaterfallHook.tap("event3", (arg1, arg2, arg3) => {
+  console.log("syncWaterfallHook-event3被执行了", arg1, arg2, arg3); // dnhyxc 23 gender
   return ["hmhm", "snsn"];
 });
 
-syncWaterfallHook.tap("event4", (name, age, gender) => {
-  console.log("syncWaterfallHook-event4被执行了", name, age, gender); // [ 'hmhm', 'snsn' ] 23 gender
+syncWaterfallHook.tap("event4", (arg1, arg2, arg3) => {
+  console.log("syncWaterfallHook-event4被执行了", arg1, arg2, arg3); // [ 'hmhm', 'snsn' ] 23 gender
 });
 
 syncWaterfallHook.call("snsn", 23, "gender");
@@ -67,20 +67,20 @@ syncWaterfallHook.call("snsn", 23, "gender");
 */
 const syncBailHook = new SyncBailHook(['name', 'age', 'gender'])
 
-syncBailHook.tap('event1', (name, age, gender) => {
-  console.log('syncBailHook-event1被执行了', name, age, gender);  // dnhyxc 18 male
+syncBailHook.tap('event1', (arg1, arg2, arg3) => {
+  console.log('syncBailHook-event1被执行了', arg1, arg2, arg3);  // dnhyxc 18 male
 })
 
-syncBailHook.tap('event2', (name, age, gender) => {
-  console.log('syncBailHook-event2被执行了', name, age, gender);  // dnhyxc 18 male
+syncBailHook.tap('event2', (arg1, arg2, arg3) => {
+  console.log('syncBailHook-event2被执行了', arg1, arg2, arg3);  // dnhyxc 18 male
   // 因为是同步的，所以按照 event1、event2、event3 的顺序执行，当执行到 event2 发现有不为 undefined 的返回值
   // 又因为是 保险的，所以结束后续事件的调用
   return 'event2的返回值'
 })
 
 // 会被 event2 中断执行，即 event3 不会被执行，因为 event2 返回值不为 undefined
-syncBailHook.tap('event3', (name, age, gender) => {
-  console.log('syncBailHook-evnet3被执行了', name, age, gender);  // 不会被执行
+syncBailHook.tap('event3', (arg1, arg2, arg3) => {
+  console.log('syncBailHook-event3被执行了', arg1, arg2, arg3);  // 不会被执行
 })
 
 syncBailHook.call('dnhyxc', 18, 'male')
@@ -95,7 +95,7 @@ syncBailHook.call('dnhyxc', 18, 'male')
 const syncLoopHook = new SyncLoopHook(['name', 'age', 'gender'])
 let count = 1;
 let num = 5;
-syncLoopHook.tap('event1', (name, age, gender) => {
+syncLoopHook.tap('event1', (arg1, arg2, arg3) => {
   console.log('syncLoopHook-event1-count ', count);
   if (count !== 5) {
     return count++
@@ -104,7 +104,7 @@ syncLoopHook.tap('event1', (name, age, gender) => {
   }
 })
 
-syncLoopHook.tap('event2', (name, age, gender) => {
+syncLoopHook.tap('event2', (arg1, arg2, arg3) => {
   console.log('syncLoopHook-event2-num ', num);
   if (num !== 1) {
     return num--
@@ -153,39 +153,39 @@ const asyncSeriesHook = new AsyncSeriesHook(['name', 'age', 'gender'])
 console.time('timer');
 
 //可以通过 tapAsync 注册事件
-asyncSeriesHook.tapAsync('event1', (name, age, gender, callback) => {
-  console.log('asyncSeriesHook-event1', name, age, gender);
+asyncSeriesHook.tapAsync('event1', (arg1, arg2, arg3, callback) => {
+  console.log('asyncSeriesHook-event1', arg1, arg2, arg3);
   // 如果 callback 的第一参数不为 undefined，则相当于抛出错误，event2不会执行
   callback(undefined, '123')
 })
 
-asyncSeriesHook.tapPromise('event2', (name, age, gender) => {
+asyncSeriesHook.tapPromise('event2', (arg1, arg2, arg3) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      console.log('asyncSeriesHook-event2', name, age, gender);
+      console.log('asyncSeriesHook-event2', arg1, arg2, arg3);
       resolve("hmhm")
     }, 1000);
   })
 })
 
-asyncSeriesHook.tapAsync('event4', (name, age, gender, callback) => {
-  console.log('asyncSeriesHook-event4', name, age, gender);
+asyncSeriesHook.tapAsync('event4', (arg1, arg2, arg3, callback) => {
+  console.log('asyncSeriesHook-event4', arg1, arg2, arg3);
   // 如果 callback 的第一参数不为 undefined，则相当于抛出错误，event2不会执行
   callback(undefined, 'snsn')
 })
 
 // 通过 tapPromise 注册事件
-asyncSeriesHook.tapPromise('event3', (name, age, gender) => {
+asyncSeriesHook.tapPromise('event3', (arg1, arg2, arg3) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      console.log('asyncSeriesHook-event3', name, age, gender);
+      console.log('asyncSeriesHook-event3', arg1, arg2, arg3);
       reject("hmhm-error")
     }, 1000);
   })
 })
 
-asyncSeriesHook.tapAsync('event4', (name, age, gender, callback) => {
-  console.log('asyncSeriesHook-event4', name, age, gender);
+asyncSeriesHook.tapAsync('event4', (arg1, arg2, arg3, callback) => {
+  console.log('asyncSeriesHook-event4', arg1, arg2, arg3);
   // 如果 callback 的第一参数不为 undefined，则相当于抛出错误，event2不会执行
   callback(undefined, 'snsn')
 })
@@ -201,18 +201,18 @@ asyncSeriesHook.callAsync('dnhyxc', 18, '男', (err, res) => {
 */
 const asyncSeriesHook2 = new AsyncSeriesHook(['name', 'age', 'gender'])
 
-asyncSeriesHook2.tapAsync('event1', (name, age, gender, callback) => {
-  console.log('asyncSeriesHook2-event1 ', name, age, gender);
+asyncSeriesHook2.tapAsync('event1', (arg1, arg2, arg3, callback) => {
+  console.log('asyncSeriesHook2-event1 ', arg1, arg2, arg3);
   callback(undefined, '123')
 
   //如果传递的第一个参数不是 undefined，相当于抛出了错误，后续的事件不会执行
   // callback(123)
 })
 
-asyncSeriesHook2.tapPromise('event2', (name, age, gender) => {
+asyncSeriesHook2.tapPromise('event2', (arg1, arg2, arg3) => {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
-      console.log('asyncSeriesHook2-event2 ', name, age, gender);
+      console.log('asyncSeriesHook2-event2 ', arg1, arg2, arg3);
       // resolve("snsn")
       // 抛出错误
       reject("snsn")
@@ -234,10 +234,10 @@ asyncSeriesHook2.promise("dnhyxc", 18, 'male').then((res) => {
 * AsyncSeriesBailHook 是异步的、串行的、保险的钩子，跟同步保险钩子类似，
 * 区别仅在于注册的事件函数是异步函数，同样，如果有不为 undefined 的返回值 result，直接中断后续事件的执行
 */
-const asyncSeriesBailHook = new AsyncSeriesBailHook(["name", "age", "gender"]);
+const asyncSeriesBailHook = new AsyncSeriesBailHook(["arg1", "arg2", "arg3"]);
 
-asyncSeriesBailHook.tapPromise("event1", (name, age, gender) => {
-  console.log("asyncSeriesBailHook-event1:", name, age, gender); // my name is dnhyxc 18 male
+asyncSeriesBailHook.tapPromise("event1", (arg1, arg2, arg3) => {
+  console.log("asyncSeriesBailHook-event1:", arg1, arg2, arg3); // my name is dnhyxc 18 male
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve()
@@ -245,8 +245,8 @@ asyncSeriesBailHook.tapPromise("event1", (name, age, gender) => {
   });
 });
 
-asyncSeriesBailHook.tapAsync("event2", (name, age, gender, callback) => {
-  console.log("asyncSeriesBailHook-event2:", name, age, gender); // my name is dnhyxc 18 male
+asyncSeriesBailHook.tapAsync("event2", (arg1, arg2, arg3, callback) => {
+  console.log("asyncSeriesBailHook-event2:", arg1, arg2, arg3); // my name is dnhyxc 18 male
   setTimeout(() => {
     // callback() 传递的第一个参数如果不是 undefined，则相当于抛出了错误，也会中断后续的事件
     callback(undefined, "hmhm");
@@ -254,8 +254,8 @@ asyncSeriesBailHook.tapAsync("event2", (name, age, gender, callback) => {
 });
 
 // 不再执行，因为 event2 有返回值，会直接中断执行
-asyncSeriesBailHook.tapAsync("event3", (name, age, gender, callback) => {
-  console.log("asyncSeriesBailHook-event3:", name, age, gender);
+asyncSeriesBailHook.tapAsync("event3", (arg1, arg2, arg3, callback) => {
+  console.log("asyncSeriesBailHook-event3:", arg1, arg2, arg3);
   setTimeout(() => {
     callback();
   }, 2000);
@@ -271,26 +271,26 @@ asyncSeriesBailHook.callAsync("my name is dnhyxc", 18, "male", (err, res) => {
 * AsyncSeriesWaterfallHook 是 异步的、串行的、瀑布式的钩子，
 * 如果前一个钩子有不为 undefined 的返回值 result，则将 result 作为下一个钩子的第一个入参。
 */
-const asyncSeriesWaterfallHook = new AsyncSeriesWaterfallHook(["name", "age", "gender"]);
+const asyncSeriesWaterfallHook = new AsyncSeriesWaterfallHook(["arg1", "arg2", "arg3"]);
 
-asyncSeriesWaterfallHook.tapAsync("event1", (name, age, gender, callback) => {
-  console.log("asyncSeriesWaterfallHook-event1:", name, age, gender); // my name is asyncSeriesWaterfallHook 18 male
+asyncSeriesWaterfallHook.tapAsync("event1", (arg1, arg2, arg3, callback) => {
+  console.log("asyncSeriesWaterfallHook-event1:", arg1, arg2, arg3); // my name is asyncSeriesWaterfallHook 18 male
   setTimeout(() => {
     // callback 的第一个参数如果不是 undefined || null 时，相当于会抛出错误
     callback(undefined, 'my name is the return value of event1');
   }, 1000);
 });
 
-asyncSeriesWaterfallHook.tapAsync("event2", (name, age, gender, callback) => {
-  console.log("asyncSeriesWaterfallHook-event1:", name, age, gender); // my name is asyncSeriesWaterfallHook 18 male
+asyncSeriesWaterfallHook.tapAsync("event2", (arg1, arg2, arg3, callback) => {
+  console.log("asyncSeriesWaterfallHook-event1:", arg1, arg2, arg3); // my name is asyncSeriesWaterfallHook 18 male
   setTimeout(() => {
     // callback 的第一个参数如果不是 undefined || null 时，相当于会抛出错误
     callback(undefined, 'my name is the return value of event2');
   }, 1000);
 });
 
-asyncSeriesWaterfallHook.tapAsync("event3", (name, age, gender, callback) => {
-  console.log("asyncSeriesWaterfallHook-event2:", name, age, gender); // my name is the return value of event2 18 male
+asyncSeriesWaterfallHook.tapAsync("event3", (arg1, arg2, arg3, callback) => {
+  console.log("asyncSeriesWaterfallHook-event2:", arg1, arg2, arg3); // my name is the return value of event2 18 male
   setTimeout(() => {
     callback();
   }, 1000);
@@ -306,13 +306,13 @@ asyncSeriesWaterfallHook.callAsync("my name is asyncSeriesWaterfallHook", 18, "m
 /*
 * AsyncParallelHook 是 异步的、并行的钩子，会并发执行所有事件
 */
-const asyncParallelHook = new AsyncParallelHook(["name", "age", "male"]);
+const asyncParallelHook = new AsyncParallelHook(["arg1", "arg2", "arg3"]);
 
 console.time('timer2');
 
 // 注册事件
-asyncParallelHook.tapPromise("event1", (name, age, male) => {
-  console.log("asyncParallelHook-event1:", name, age, male); // asyncParallelHook dnhyxc 18 male
+asyncParallelHook.tapPromise("event1", (arg1, arg2, arg3) => {
+  console.log("asyncParallelHook-event1:", arg1, arg2, arg3); // asyncParallelHook dnhyxc 18 male
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve("event1"); // 无法通过 resolve 传递参数
@@ -320,13 +320,13 @@ asyncParallelHook.tapPromise("event1", (name, age, male) => {
   });
 });
 
-asyncParallelHook.tapAsync("event2", (name, age, male, callback) => {
-  console.log("asyncParallelHook-event2:", name, age, male); // asyncParallelHook dnhyxc 18 male
+asyncParallelHook.tapAsync("event2", (arg1, arg2, arg3, callback) => {
+  console.log("asyncParallelHook-event2:", arg1, arg2, arg3); // asyncParallelHook dnhyxc 18 male
   callback(undefined, 'event2的返回值');
 });
 
-asyncParallelHook.tapAsync("event3", (name, age, male, callback) => {
-  console.log("asyncParallelHook-event3:", name, age, male); // asyncParallelHook dnhyxc 18 male
+asyncParallelHook.tapAsync("event3", (arg1, arg2, arg3, callback) => {
+  console.log("asyncParallelHook-event3:", arg1, arg2, arg3); // asyncParallelHook dnhyxc 18 male
   setTimeout(() => {
     // callback 的第一个参数不为 undefined 时，相当于报错
     // 通过 promise 执行事件的话这个参数值就传给了 catch(err) 的 err
@@ -361,8 +361,8 @@ asyncParallelBailHook.tapPromise('flag1', (arg1, arg2, arg3) => {
   });
 });
 
-asyncParallelBailHook.tapAsync("flag2", (name, age, gender, callback) => {
-  console.log("asyncParallelBailHook-flag2 done:", name, age, gender); // dnhyxc hmhm snsn
+asyncParallelBailHook.tapAsync("flag2", (arg1, arg2, arg3, callback) => {
+  console.log("asyncParallelBailHook-flag2 done:", arg1, arg2, arg3); // dnhyxc hmhm snsn
   setTimeout(() => {
     callback(undefined, "flag2 的返回值"); // 此时相当于返回了不为 undefined 的返回值，直接中断后续事件
   }, 2000);
