@@ -427,13 +427,19 @@ pnpm i husky -Dw
 
 如果代码还没通过 git 进行管理，需要先使用 `git init` 命令创建 `.git` 文件，将代码进行托管，否则执行下述命令将会报错。
 
-之后运行 `pnpm run prepare`，自动在根目录下生成 `.husky` 文件夹，紧接着运行 `npx husky add .husky/pre-commit "npm test"` 在 `.husky` 文件夹中生成 `pre-commit` 文件，生成的 `pre-commit` 文件内容如下：
+之后运行 `pnpm run prepare`，自动在根目录下生成 `.husky` 文件夹，并在 `.husky` 文件夹下创建 `pre-commit` 文件，内容如下：
 
 ```yaml
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
 npm test
+```
+
+设置完 pre-commit 之后，为了确保该文件具有可执行权限，可以使用以下命令来授予执行权限：
+
+```yaml
+chmod +x .husky/pre-commit
 ```
 
 ### 配置 commitlint 约定式提交

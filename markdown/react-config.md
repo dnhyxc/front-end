@@ -1632,14 +1632,23 @@ yarn add husky -D
 
 > 注意：`npx eslint ./src` 命令之后必须加上 `--ext ts,tsx,js,jsx` 配置，否则运行脚本时会出现找不到 src 的情况。
 
-执行如下命令生成 `.husky` 文件，并在该文件夹下生成 `pre-commit` 文件：
+执行如下命令生成 `.husky` 文件，并在 `.husky` 文件目录下创建 `pre-commit` 文件，内容如下：
+
+```yaml
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run npm test before committing
+npm test
+```
 
 > 注意：执行下述命令之前，必须要先使用 git init 创建 .git 文件，否则将会执行失败。
 
 ```json
 npm run prepare
 
-npx husky add .husky/pre-commit "npm test"
+// 设置执行权限
+chmod +x .husky/pre-commit
 ```
 
 自动修复部分 eslint 报错，只需要在上述脚本的末尾加上 `--fix` 即可：
