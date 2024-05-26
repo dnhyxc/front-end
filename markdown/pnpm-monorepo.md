@@ -1,7 +1,5 @@
 ### 初始化项目
 
-desc: 本文将手摸手实现一个基于 pnpm + rollup + typescript + eslint + husky + commitizen + vitest + changesets 的 monorepo 多包管理工具库
-
 在根目录下使用 `pnpm init` 生成 `package.json` 文件：
 
 ```json
@@ -9,7 +7,7 @@ desc: 本文将手摸手实现一个基于 pnpm + rollup + typescript + eslint +
   "name": "monorepo-template",
   "version": "0.0.1",
   "description": "dnhyxc monorepo template",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -42,7 +40,7 @@ packages:
   "version": "0.0.1",
   "main": "dist/index.cjs", // CommonJS 模块语法导入的入口文件
   "module": "dist/index.esm.js", // ES6 模块语法导入的入口文件
-  "browser": "dist/main.js", // umd 格式通过 scripts 标签导入的入口文件
+  "browser": "dist/index.js", // umd 格式通过 scripts 标签导入的入口文件
   "typings": "dist/index.d.ts", // ts 文件的类型导出文件
   "scripts": {
     "dev": "rollup -c rollup.config.js -w",
@@ -143,7 +141,7 @@ export const buildConfig = ({ packageName }) => {
         { file: "dist/index.cjs", format: "cjs" },
         {
           format: "umd",
-          file: "dist/main.js",
+          file: "dist/index.js",
           name: packageName,
         },
       ],
@@ -427,7 +425,7 @@ pnpm i husky -Dw
 
 如果代码还没通过 git 进行管理，需要先使用 `git init` 命令创建 `.git` 文件，将代码进行托管，否则执行下述命令将会报错。
 
-之后运行 `pnpm run prepare`，自动在根目录下生成 `.husky` 文件夹，并在 `.husky` 文件夹下创建 `pre-commit` 文件，内容如下：
+之后运行 `pnpm run prepare`，自动在根目录下生成 `.husky` 文件夹，紧接着运行 `npx husky add .husky/pre-commit "npm test"` 在 `.husky` 文件夹中生成 `pre-commit` 文件，生成的 `pre-commit` 文件内容如下：
 
 ```yaml
 #!/usr/bin/env sh
@@ -447,7 +445,7 @@ chmod +x .husky/pre-commit
 安装如下插件：
 
 ```yaml
-pnpm add commitizen cz-customizable @commitlint/cli @commitlint/config-conventional -Dw
+pnpm i commitizen cz-customizable @commitlint/cli @commitlint/config-conventional -Dw
 ```
 
 在根目录下新建 `commitlint.config.js` 文件及 `.cz-config.js` 文件：
@@ -564,9 +562,9 @@ module.exports = {
 
 ```yaml
 # 在根目录下通过 -F（--filter 的缩写）安装
-pnpm add vitest -F @dnhyxc/core # 为 core 子包安装 vitest 工具函数库
+pnpm i vitest -F @dnhyxc/core # 为 core 子包安装 vitest 工具函数库
 
-pnpm add vitest -F @dnhyxc/tools # 为 tools 子包安装 vitest 工具函数库
+pnpm i vitest -F @dnhyxc/tools # 为 tools 子包安装 vitest 工具函数库
 
 # 或 cd 进入到对应的子包中安装
 pnpm i vitest
@@ -664,15 +662,15 @@ pnpm install @changeset/cli -Dw
 
 - **pnpm changeset**：该命令会根据 monorepo 下的项目来生成一个 changeset 文件，里面会包含前面提到的 changeset 文件信息（更新包名称、版本层级、CHANGELOG 信息）
 
-![image.png](http://43.143.27.249/image/24e4144beaa01bafeb3c29bc6b0b8aa2.png)
+![image.png](http://101.43.50.15/image/24e4144beaa01bafeb3c29bc6b0b8aa2_66055fcdcfd5e134cd001cef.png)
 
 > 通过上下方向键选择对应的包，空格选中。
 
-![image.png](http://43.143.27.249/image/01c6cd00e90956eb7a8315f296c42699.png)
+![image.png](http://101.43.50.15/image/01c6cd00e90956eb7a8315f296c42699_66055fcdcfd5e134cd001cef.png)
 
 - 通过回车键（enter 键）切换需要更改的包版本 `major、minor、patch` 。
 
-![image.png](http://43.143.27.249/image/fbd0740757d0af13fdf703b97f9f8e89.png)
+![image.png](http://101.43.50.15/image/fbd0740757d0af13fdf703b97f9f8e89_66055fcdcfd5e134cd001cef.png)
 
 > 这里选择改动的包版本为 `patch`。
 
@@ -681,6 +679,173 @@ pnpm install @changeset/cli -Dw
 - **pnpm changeset publish**：该命令最终会将所有改动的包发布到 npm 仓库。
 
 > 注意：发布时，要遵循 `npm` 的发布规则，如 npm 源必须用官方源，并且必须先执行 `npm login` 登录 npm，否则发布会失败。
+
+### 实现自动创建子包脚本
+
+在没有自动创建子包脚本的情况下，每次增加一个子包都要手动在 packages 文件夹下创建对应的文件夹及文件，还需要更改更目录下的 `tsconfig.json` 文件、scripts 中的 `build-config.mjs` 文件、子包中的 `rollup.config.js` 文件，以及 `vitest.config.json` 文件。因此，为了减少重复的操作，避免出错，就需要实现一个自动创建子包脚本。
+
+首先需要在项目根目录下创建一个 `templates` 文件夹，该文件夹中包含的就是子包的模板文件，如下：
+
+```
+template
+├─ src
+│  └─ demo.ts
+├─ test
+│  └─ index.test.ts
+├─ index.ts
+├─ package.json
+├─ README.md
+├─ rollup.config.js
+├─ tsconfig.json
+└─ vitest.config.js
+```
+
+同时在 scripts 文件夹中增加 `create-config.mjs` 文件，具体内容如下：
+
+```js
+import path from "path";
+import fs from "fs";
+import { getPath } from "../utils/index.mjs";
+
+const [, , ...args] = process.argv;
+
+const packagesPath = getPath("../packages");
+const templatePath = getPath("../template");
+const buildConfigPath = getPath("../scripts/build-config.mjs");
+const tsConfigPath = getPath("../tsconfig.json");
+
+const checkProjectName = (projectName) => {
+  const res = /^(?:@[a-z0-9-*~][a-z0-9-*._~]*\/)?[a-z0-9-~][a-z0-9-._~]*$/.test(
+    projectName
+  );
+  return res;
+};
+
+// 复制模板文件
+const copyFileSync = ({ templatePath, projectPath, projectName }) => {
+  const stats = fs.statSync(templatePath);
+
+  // 判断是否是文件夹
+  if (stats.isDirectory()) {
+    // 递归创建 packagesPath 的子目录和文件
+    fs.mkdirSync(projectPath, { recursive: true });
+    for (const file of fs.readdirSync(templatePath)) {
+      copyFileSync({
+        templatePath: path.resolve(templatePath, file),
+        projectPath: path.resolve(projectPath, file),
+        projectName,
+      });
+    }
+    return;
+  }
+
+  if (path.basename(templatePath) === "package.json") {
+    const pkg = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
+    pkg.name = `dnhyxc-${projectName}`;
+    fs.writeFileSync(projectPath, JSON.stringify(pkg, null, 2) + "\n");
+    return;
+  }
+
+  if (path.basename(templatePath) === "tsconfig.json") {
+    const tsconfig = JSON.parse(fs.readFileSync(templatePath, "utf-8"));
+    tsconfig.extends = "../../tsconfig.json";
+    fs.writeFileSync(projectPath, JSON.stringify(tsconfig, null, 2) + "\n");
+    return;
+  }
+
+  fs.copyFileSync(templatePath, projectPath);
+};
+
+// 更新 build-config.mjs
+const updateBuildConfig = (buildConfigPath, projectName) => {
+  const config = fs.readFileSync(buildConfigPath, "utf-8");
+  const modifiedConfig = config.replace(
+    /alias\(\{([\s\S]*?)entries:\s*\[([\s\S]*?)\]\s*\}\)/,
+    (match, p1, p2) => {
+      const entries = `\n            { find: '@', replacement: '../packages/${projectName}/src' }, ${p2}`;
+      return `alias({${p1}entries: [${entries}]})`;
+    }
+  );
+  fs.writeFileSync(buildConfigPath, modifiedConfig);
+};
+
+// 更新 rollup.config.js
+const updateRollupConfig = (projectName) => {
+  const rollupConfigPath = getPath(
+    `../packages/${projectName}/rollup.config.js`
+  );
+  const config = fs.readFileSync(rollupConfigPath, "utf-8");
+  const modifiedConfig = config.replace("dnhyxc-demo", `dnhyxc-${projectName}`);
+  fs.writeFileSync(rollupConfigPath, modifiedConfig);
+};
+
+// 更新 vitest.config.js
+const updateVitestConfig = (projectName) => {
+  const vitestConfigPath = getPath(
+    `../packages/${projectName}/vitest.config.js`
+  );
+  const config = fs.readFileSync(vitestConfigPath, "utf-8");
+  const modifiedConfig = config.replace("demo", `${projectName}`);
+  fs.writeFileSync(vitestConfigPath, modifiedConfig);
+};
+
+// 更新 tsconfig.json
+const updateTsConfig = (tsConfigPath, projectName) => {
+  let config = fs.readFileSync(tsConfigPath, "utf-8");
+  const includeRegex = /"include":\s*\[([\s\S]*?)\]/;
+  const includeMatch = includeRegex.exec(config);
+  if (includeMatch) {
+    const includeValue = includeMatch[1];
+    const modifiedIncludeValue = `"./packages/${projectName}/src/*", 
+    "./packages/${projectName}/index.ts", ${includeValue}`;
+    const modifiedConfig = config.replace(
+      includeRegex,
+      `"include": [${modifiedIncludeValue}]`
+    );
+    const atPathsRegex = /"@\/\*": \[\s*(.*?)\]/s;
+    const atPathsMatch = atPathsRegex.exec(modifiedConfig);
+    if (atPathsMatch) {
+      const atPathsValue = atPathsMatch[1];
+      const modifiedAtPathsValue = `"./packages/${projectName}/src/*", ${atPathsValue}`;
+      const modifiedConfigString = modifiedConfig.replace(
+        atPathsRegex,
+        `"@/*": [${modifiedAtPathsValue}]`
+      );
+      fs.writeFileSync(tsConfigPath, modifiedConfigString);
+    }
+  }
+};
+
+const create = async ({ templatePath, packagesPath, projectName }) => {
+  const projectPath = getPath(`${packagesPath}/${projectName}`);
+  if (!checkProjectName(projectName)) {
+    console.log("项目名称存在非法字符，请重新输入");
+    return;
+  }
+  if (fs.existsSync(projectPath)) {
+    console.log(`已有 ${projectName} 项目，请勿重复创建！`);
+    return;
+  }
+  copyFileSync({ templatePath, projectPath, projectName });
+  updateBuildConfig(buildConfigPath, projectName);
+  updateTsConfig(tsConfigPath, projectName);
+  updateRollupConfig(projectName);
+  updateVitestConfig(projectName);
+  console.log(`创建 ${projectName} 项目成功！`);
+};
+
+create({ templatePath, packagesPath, projectName: args[0] });
+```
+
+最后，在 `package.json` 中增加 `create` 命令，这样，就可以通过 `npm create <项目名称>` 命令来自动创建子包了。
+
+```json
+{
+  "scripts": {
+    "create": "node scripts/create-config.mjs"
+  }
+}
+```
 
 ### 根目录 package.json 最终配置
 
@@ -692,6 +857,7 @@ pnpm install @changeset/cli -Dw
   "version": "1.0.0",
   "description": "dnhyxc monorepo template",
   "scripts": {
+    "create": "node scripts/create-config.mjs",
     "build": "pnpm -r --filter=./packages/* run build",
     "release": "pnpm changeset publish",
     "publish": "pnpm --filter=./packages/* run build && pnpm changeset && pnpm changeset version && pnpm changeset publish",

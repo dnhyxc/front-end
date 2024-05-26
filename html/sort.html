@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+<body>
+<script>
+  // function mergeSort(arr) {
+  //   if (arr.length <= 1) {
+  //     return arr;
+  //   }
+  //   const middle = Math.floor(arr.length / 2);
+  //   const left = arr.slice(0, middle);
+  //   const right = arr.slice(middle);
+  //   return merge(mergeSort(left), mergeSort(right));
+  // }
+  // function merge(left, right) {
+  //   let result = [];
+  //   let leftIndex = 0;
+  //   let rightIndex = 0;
+  //   while (leftIndex < left.length && rightIndex < right.length) {
+  //     if (left[leftIndex] < right[rightIndex]) {
+  //       result.push(left[leftIndex]);
+  //       leftIndex++;
+  //     } else {
+  //       result.push(right[rightIndex]);
+  //       rightIndex++;
+  //     }
+  //   }
+  //   return result.concat(left.slice(leftIndex)).concat(right.slice(rightIndex));
+  // }
+  // // 示例
+  // const arr = [8, 3, 1, 7, 0, 10, 2];
+  // const sortedArr = mergeSort(arr);
+  // console.log(sortedArr); // 输出 [0, 1, 2, 3, 7, 8, 10]
+
+  function mergeSum(arr, L, R) {
+    debugger
+    if (L === R) return;
+    const mid = L + ((R - L) >> 1);
+    mergeSum(arr, L, mid);
+    mergeSum(arr, mid + 1, R);
+    return mergeAdd(arr, L, mid, R);
+  }
+
+  function mergeAdd(arr, L, M, R) {
+    const result = new Array(R - L + 1);
+    let i = 0;
+    let p1 = L;
+    let p2 = M + 1;
+    while (p1 <= M && p2 <= R) {
+      result[i++] = arr[p1] > arr[p2] ? arr[p2++] : arr[p1++];
+    }
+    while (p1 <= M) {
+      result[i++] = arr[p1++];
+    }
+    while (p2 <= R) {
+      result[i++] = arr[p2++];
+    }
+    for (let i = 0; i < result.length; i++) {
+      arr[L + i] = result[i];
+    }
+    return result;
+  }
+
+  const arrs = [1, 4, 2, 8, 6, 3, 9, 5, 7, 10]; // 1+1+1+4+2=12
+  console.log(mergeSum(arrs, 0, arrs.length - 1));
+</script>
+</body>
+</html>

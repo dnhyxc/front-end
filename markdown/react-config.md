@@ -1647,7 +1647,7 @@ npm test
 ```json
 npm run prepare
 
-// 设置执行权限
+// 为了确保该文件具有可执行权限，可以使用以下命令来授予执行权限
 chmod +x .husky/pre-commit
 ```
 

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>获取最长子序列</title>
+</head>
+<body>
+<script>
+  const rob = function (nums) {
+    if (nums.length === 0) return 0;
+    if (nums.length === 1) return nums[0];
+    if (nums.length === 2) {
+      return Math.max(nums[0], nums[1]);
+    }
+    let dp = [nums[0], Math.max(nums[0], nums[1])];
+    for (let i = 2; i < nums.length; i++) {
+      dp[i] = Math.max(dp[i - 1], dp[i - 2] + nums[i]);
+    }
+    return dp[nums.length - 1];
+  };
+
+  const nums = [1, 2, 3, 1];
+
+  const res = rob(nums);
+
+  console.log(res, 'res');
+</script>
+</body>
+</html>
