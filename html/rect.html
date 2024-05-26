@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .canvas {
+      border: 1px solid red;
+      background-color: #CCC;
+    }
+  </style>
+</head>
+
+<body>
+  <input type="color" />
+  <canvas class="canvas"></canvas>
+  <script>
+    const colorPicker = document.querySelector('input')
+    const cvs = document.querySelector('canvas')
+    const ctx = cvs.getContext('2d');
+
+    function init() {
+      const w = 500, h = 300;
+      cvs.width = w;
+      cvs.height = h;
+      cvs.style.width = w + 'px';
+      cvs.style.height = h + 'px';
+    }
+
+    init();
+
+    const shapes = [];
+
+    class Rectangle {
+      constructor(color, startX, startY) {
+        this.color = color;
+        this.startX = startX;
+        this.startY = startY;
+        this.endX = startX;
+        this.endY = startY;
+      }
+
+      get minX() {
+        return Math.min(this.startX, this.endX);
+      }
+
+      get minY() {
+        return Math.min(this.startY, this.endY);
+      }
+
+      get maxX() {
+        return Math.max(this.startX, this.endX);
+      }
+
+      get maxY() {
+        return Math.max(this.startY, this.endY);
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.moveTo(this.minX, this.minY);
+        ctx.lineTo(this.maxX, this.minY);
+        ctx.lineTo(this.maxX, this.maxY);
+        ctx.lineTo(this.minX, this.maxY);
+        ctx.lineTo(this.minX, this.minY);
+
+        ctx.fillStyle = 'transparent';
+        ctx.fill();
+        ctx.strokeStyle = 'red';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      }
+    }
+
+    cvs.onmousedown = (e) => {
+      console.log(e.offsetX, e.offsetY)
+      const bounding = cvs.getBoundingClientRect();
+      const rect = new Rectangle(colorPicker.value, e.offsetX, e.offsetY);
+      shapes.push(rect);
+
+      window.onmousemove = (e) => {
+        rect.endX = e.clientX - bounding.left;
+        rect.endY = e.clientY - bounding.top;
+      }
+
+      window.onmouseup = () => {
+        window.onmousemove = null;
+        window.onmouseup = null;
+      }
+    }
+
+    function draw() {
+      requestAnimationFrame(draw);
+      ctx.clearRect(0, 0, cvs.width, cvs.height);
+      for (const shape of shapes) {
+        shape.draw();
+      }
+    }
+
+    draw();
+
+    // const rect = new Rectangle('red', 0, 0);
+    // rect.endX = 300;
+    // rect.endY = 300;
+    // rect.draw();
+
+  </script>
+</body>
+
+</html>
