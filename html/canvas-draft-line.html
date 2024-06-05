@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="400" height="200"></canvas>
+    <script>
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+
+      ctx.strokeStyle = "green"; // 设置线条颜色为绿色
+      ctx.lineWidth = 3; // 设置线条宽度为3个像素
+      ctx.globalAlpha = 0.5; // 设置线条不透明度为0.5
+
+      ctx.beginPath();
+      ctx.moveTo(50, 100); // 将线条移动到起点坐标(50, 100)
+      ctx.quadraticCurveTo(100, 50, 150, 100); // 使用二次贝塞尔曲线绘制线条
+      ctx.quadraticCurveTo(200, 150, 250, 100);
+      ctx.quadraticCurveTo(300, 50, 350, 100);
+      ctx.stroke(); // 绘制线条
+    </script>
+  </body>
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <canvas id="myCanvas" width="800" height="600"></canvas>
+    <script>
+      // 获取Canvas元素和2D绘图上下文
+      var canvas = document.getElementById("myCanvas");
+      var ctx = canvas.getContext("2d");
+
+      // 设置线条样式
+      ctx.lineWidth = 2; // 设置线条宽度
+
+      // 定义起点和终点
+      var startX = 50;
+      var startY = 50;
+      var endX = 200;
+      var endY = 50;
+
+      // 模拟手绘草图风格的线条
+      ctx.beginPath();
+      ctx.moveTo(startX, startY); // 起始点
+
+      // 模拟不规则性笔画和变化的线条粗细
+      for (var i = 0; i < 10; i++) {
+        var randomX = startX + Math.random() * 20 - 10;
+        var randomY = startY + Math.random() * 20 - 10;
+        ctx.lineTo(randomX, randomY);
+      }
+
+      // 随机颜色和不透明度
+      ctx.strokeStyle =
+        "rgba(" +
+        Math.floor(Math.random() * 256) +
+        "," +
+        Math.floor(Math.random() * 256) +
+        "," +
+        Math.floor(Math.random() * 256) +
+        "," +
+        Math.random() +
+        ")";
+      ctx.stroke();
+    </script>
+  </body>
+</html>
