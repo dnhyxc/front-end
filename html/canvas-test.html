@@ -3,47 +3,73 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Infinite Canvas Doodle Board</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
   </head>
   <body>
-    <canvas id="myCanvas" width="800" height="600"></canvas>
+    <canvas id="doodle-canvas"></canvas>
     <script>
-      // 获取Canvas元素和2D绘图上下文
-      var canvas = document.getElementById("myCanvas");
-      var ctx = canvas.getContext("2d");
+      // 记录绘制操作的数组
+      let drawingPaths = [];
 
-      // 设置线条样式
-      ctx.lineWidth = 2; // 设置线条宽度
+      // 初始化 Canvas 元素和上下文
+      const canvas = document.getElementById("doodle-canvas");
+      const ctx = canvas.getContext("2d");
 
-      // 定义起点和终点
-      var startX = 50;
-      var startY = 50;
-      var endX = 200;
-      var endY = 50;
+      // 监听用户绘制操作
+      canvas.addEventListener("mousedown", startDrawing);
 
-      // 模拟手绘草图风格的线条
-      ctx.beginPath();
-      ctx.moveTo(startX, startY); // 起始点
-
-      // 模拟不规则性笔画和变化的线条粗细
-      for (var i = 0; i < 10; i++) {
-        var randomX = startX + Math.random() * 20 - 10;
-        var randomY = startY + Math.random() * 20 - 10;
-        ctx.lineTo(randomX, randomY);
+      // 开始绘制
+      function startDrawing(e) {
+        const path = []; // 创建新的路径
+        path.push({ x: e.clientX, y: e.clientY }); // 记录起始点
+        drawingPaths.push(path); // 将路径添加到数组中
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("mouseup", endDrawing);
       }
 
-      // 随机颜色和不透明度
-      ctx.strokeStyle =
-        "rgba(" +
-        Math.floor(Math.random() * 256) +
-        "," +
-        Math.floor(Math.random() * 256) +
-        "," +
-        Math.floor(Math.random() * 256) +
-        "," +
-        Math.random() +
-        ")";
-      ctx.stroke();
+      // 绘制
+      function draw(e) {
+        if (drawingPaths.length === 0) return;
+
+        const currentPath = drawingPaths[drawingPaths.length - 1];
+        currentPath.push({ x: e.clientX, y: e.clientY }); // 记录当前点
+
+        redraw(); // 重新绘制所有路径
+      }
+
+      // 结束绘制
+      function endDrawing() {
+        // 暂时不需要做任何操作
+        canvas.removeEventListener("mousemove", draw);
+        canvas.removeEventListener("mouseup", endDrawing);
+      }
+
+      // 重新绘制所有路径
+      function redraw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height); // 清空画布
+
+        console.log(drawingPaths, "drawingPaths");
+
+        drawingPaths.forEach((path) => {
+          ctx.beginPath();
+          ctx.moveTo(path[0].x, path[0].y);
+
+          path.forEach((point) => {
+            ctx.lineTo(point.x, point.y);
+          });
+
+          ctx.stroke();
+        });
+      }
     </script>
   </body>
 </html>
