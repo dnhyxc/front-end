@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SVG Bezier Curve Drawing</title>
+    <style>
+      svg {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <svg id="my-svg" width="500" height="500">
+      <path id="my-path" fill="none" stroke="black" d="" />
+    </svg>
+
+    <script>
+      const svg = document.getElementById("my-svg");
+      const path = document.getElementById("my-path");
+      let startPoint = null;
+      let drawing = false;
+
+      function getMousePosition(event) {
+        const rect = svg.getBoundingClientRect();
+        return { x: event.clientX - rect.left, y: event.clientY - rect.top };
+      }
+
+      svg.addEventListener("mousedown", function (event) {
+        startPoint = getMousePosition(event);
+        drawing = true;
+      });
+
+      svg.addEventListener("mousemove", function (event) {
+        if (drawing) {
+          const currentPoint = getMousePosition(event);
+          const controlPoint1 = { x: startPoint.x, y: startPoint.y + 50 };
+          const controlPoint2 = { x: currentPoint.x, y: currentPoint.y - 50 };
+
+          const d = `M ${startPoint.x},${startPoint.y} C ${controlPoint1.x},${controlPoint1.y} ${controlPoint2.x},${controlPoint2.y} ${currentPoint.x},${currentPoint.y}`;
+          path.setAttribute("d", d);
+        }
+      });
+
+      svg.addEventListener("mouseup", function (event) {
+        if (drawing) {
+          const endPoint = getMousePosition(event);
+          const controlPoint1 = { x: startPoint.x, y: startPoint.y + 50 };
+          const controlPoint2 = { x: endPoint.x, y: endPoint.y - 50 };
+
+          const d = `M ${startPoint.x},${startPoint.y} C ${controlPoint1.x},${controlPoint1.y} ${controlPoint2.x},${controlPoint2.y} ${endPoint.x},${endPoint.y}`;
+          path.setAttribute("d", d);
+
+          drawing = false;
+          startPoint = null;
+
+          svg.addEventListener("mousemove", function (event) {});
+          svg.addEventListener("mouseup", function (event) {});
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scroll Position Example</title>
+    <style>
+      body {
+        height: 20000px;
+      } /* 使页面高度足够进行滚动测试 */
+    </style>
+  </head>
+  <body>
+    <script>
+      // 数据数组
+      const sections = [
+        { top: 462, title: "初始化项目" },
+        { top: 1082, title: "配置 pnpm monorepo" },
+        { top: 2085, title: "配置 rollup 打包" },
+        { top: 5055, title: "配置 typescript" },
+        { top: 7709, title: "配置 ESlint" },
+        { top: 9324, title: "配置 prettier" },
+        { top: 10126, title: "配置 husky" },
+        { top: 11323, title: "配置 commitlint 约定式提交" },
+        { top: 14093, title: "配置 vitest 单元测试" },
+        { top: 15728, title: "配置 Changesets" },
+        { top: 17298, title: "根目录 package.json 最终配置" },
+      ];
+
+      // 函数：找到与当前滚动位置匹配的项
+      function findClosestSection() {
+        const scrollPosition = window.scrollY;
+
+        let closestSection;
+
+        for (let i = 0; i < sections.length - 1; i++) {
+          if (
+            scrollPosition >= sections[i].top &&
+            scrollPosition < sections[i + 1].top
+          ) {
+            closestSection = sections[i];
+            break;
+          }
+        }
+
+        if (
+          !closestSection &&
+          scrollPosition >= sections[sections.length - 1].top
+        ) {
+          closestSection = sections[sections.length - 1];
+        }
+
+        if (closestSection) {
+          console.log(`最接近的标题是: ${closestSection.title}`);
+        }
+      }
+
+      // 监听滚动事件
+      window.addEventListener("scroll", findClosestSection);
+
+      // 初始调用一次
+      findClosestSection();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Canvas Drawing Board with Zoom</title>
+    <style>
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      canvas {
+        border: 1px solid black;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="drawingCanvas" width="800" height="600"></canvas>
+
+    <script>
+      const canvas = document.getElementById("drawingCanvas");
+      const ctx = canvas.getContext("2d");
+
+      let isDrawing = false;
+      let scaleFactor = 1.1;
+      let scale = 1;
+      let originX = 0;
+      let originY = 0;
+
+      let drawHistory = [];
+
+      function draw() {
+        ctx.setTransform(scale, 0, 0, scale, originX, originY);
+        ctx.clearRect(
+          -originX / scale,
+          -originY / scale,
+          canvas.width / scale,
+          canvas.height / scale
+        );
+
+        for (let path of drawHistory) {
+          ctx.strokeStyle = path.color;
+          ctx.lineWidth = path.width;
+          ctx.beginPath();
+          ctx.moveTo(path.points[0].x, path.points[0].y);
+          for (let i = 1; i < path.points.length; i++) {
+            ctx.lineTo(path.points[i].x, path.points[i].y);
+          }
+          ctx.stroke();
+        }
+      }
+
+      function addPath(color, width, points) {
+        drawHistory.push({ color, width, points });
+      }
+
+      canvas.addEventListener("mousedown", (e) => {
+        isDrawing = true;
+        const x = (e.offsetX - originX) / scale;
+        const y = (e.offsetY - originY) / scale;
+        currentPath = [{ x, y }];
+      });
+
+      canvas.addEventListener("mousemove", (e) => {
+        if (!isDrawing) return;
+        const x = (e.offsetX - originX) / scale;
+        const y = (e.offsetY - originY) / scale;
+        currentPath.push({ x, y });
+        draw();
+        ctx.beginPath();
+        ctx.moveTo(
+          currentPath[currentPath.length - 2].x,
+          currentPath[currentPath.length - 2].y
+        );
+        ctx.lineTo(
+          currentPath[currentPath.length - 1].x,
+          currentPath[currentPath.length - 1].y
+        );
+        ctx.stroke();
+      });
+
+      canvas.addEventListener("mouseup", () => {
+        if (!isDrawing) return;
+        isDrawing = false;
+        addPath("#000", 2, currentPath); // 假设绘制的是黑色，线条宽度为2
+      });
+
+      canvas.addEventListener("wheel", (e) => {
+        e.preventDefault();
+
+        const mouseX = e.offsetX;
+        const mouseY = e.offsetY;
+
+        const wheel = e.deltaY < 0 ? 1 : -1;
+        const zoom = Math.exp(wheel * 0.1);
+
+        ctx.translate(originX, originY);
+
+        originX -= mouseX / (scale * zoom) - mouseX / scale;
+        originY -= mouseY / (scale * zoom) - mouseY / scale;
+
+        scale *= zoom;
+
+        ctx.scale(zoom, zoom);
+        // ctx.translate(-originX, -originY);
+
+        draw();
+      });
+
+      draw();
+    </script>
+  </body>
+</html>
