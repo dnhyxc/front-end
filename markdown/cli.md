@@ -793,7 +793,7 @@ export const renderTemplate = ({
 
 如果需要扩展新的模版，只需要在 `src/template` 目录下新增一个对应的模版文件夹目录即可。
 
-当然你也可以将模版放到 github 仓库中，然后通过 ![download-git-repo](https://www.npmjs.com/package/download-git-repo) 这个库将仓库中的模版下载到本地即可。
+当然你也可以将模版放到 github 仓库中，然后通过 [download-git-repo](https://www.npmjs.com/package/download-git-repo) 这个库将仓库中的模版下载到本地即可。
 
 ## 项目源码
 
