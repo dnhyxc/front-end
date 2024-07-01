@@ -19,7 +19,7 @@ dnhyxc@dnhyxcdeMacBook-Pro: scp /Users/dnhyxc/Desktop/dnhyxc-mac.zip root@101.43
 
 ```yaml
 #将远程服务器上 /usr/local/server/src/upload.tar 目录下的 upload.tar 文件下载到本地桌面上
-dnhyxc@dnhyxcdeMacBook-Pro: scp root@43.143.27.249:/usr/local/server/src/upload.tar /Users/dnhyxc/Desktop
+dnhyxc@dnhyxcdeMacBook-Pro: scp root@101.43.50.15:/usr/local/server/src/upload.zip /Users/dnhyxc/Desktop
 ```
 
 > 注意：不是在服务器上的终端中输入。
