@@ -36,13 +36,195 @@ WPS 加载项是一套基于 Web 技术用来扩展 WPS 应用程序的解决方
 
 在解压完成 WPS_OA_Assistant-demo 之后，其中会有一个 `server` 文件夹，首先在 `server` 文件目录下运行 `npm i` 安装所需要的包。安装好之后使用 `node StartupServer.js` 启动项目。启动完成之后即可开启 WPS 加载项中的 JS 调试按钮。
 
+### 在正式环境中使用 WPS OA 助手
+
+加载 WPS 加载项资源：
+
+```js
+/**
+ * 启动 WPS 前置
+ *
+ * @param {Function} [callback=() => {}]
+ * @param {boolean} [isCheck=false]
+ */
+function startOutWps(callback = () => {}, isCheck = false) {
+	const openWps = () => {
+		if (detectOS() === "Mac") {
+			message.error("当前操作系统不支持在线编辑！");
+			return;
+		}
+		// if (!isWindow) {
+		//   message.error('当前操作系统不支持在线编辑！')
+		//   return
+		// }
+
+		if (!callback) {
+			console.error("缺少执行函数");
+			return;
+		}
+
+		const checkStatus = (notCheck) => {
+			return new Promise((resolve, reject) => {
+				if (!isCheck || notCheck) {
+					resolve(true);
+					return;
+				}
+
+				if (!getHasMask()) {
+					resolve(true);
+					return;
+				}
+
+				Modal.warning({
+					title: "WPS提醒",
+					content: "当前有文档正在编辑，请结束后再编辑",
+					okText: "知道了",
+					cancelText: "取消",
+				});
+				reject();
+			});
+		};
+
+		getIsRunning().then((res) => {
+			if (res.response === "Client is running.") {
+				checkStatus().then(callback);
+				return;
+			}
+
+			let prefixBase = STATIC_PREFIX;
+			if (/^\/\//.test(prefixBase)) {
+				prefixBase = `${location.protocol}${prefixBase}`;
+			}
+			installWpsAddin(prefixBase, () => {
+				checkStatus(true).then(callback);
+			});
+		});
+	};
+	// 需要优先加载 wps 中的依赖，才能正常唤起 wps 客户端
+	$LAB
+		.script(`${window._APP_CONFIG.apiHost}/wps-oaassist/wwwroot/wpsjsrpcsdk.js`)
+		.wait()
+		.script(`${window._APP_CONFIG.apiHost}/wps-oaassist/wwwroot/wps.js`)
+		.wait()
+		.script(
+			`${window._APP_CONFIG.apiHost}/wps-oaassist/wwwroot/js/loaderbuild.js`
+		)
+		.wait(() => {
+			openWps();
+		});
+}
+```
+
+唤起 WPS 客户端：
+
+```js
+/**
+ * 打开外部 WPS 程序在线编辑
+ *
+ * @export
+ * @param {object} params 在线编辑需要的信息
+ * @param {object[]} params.fileList 文件信息对象数组正文urls
+ * @param {number} params.index 文件所在值中的索引
+ * @param {string|number} params.id 公文ID
+ * @param {boolean} params.isNew 是否是新建公文
+ * @param {object} params.fieldObj 字段对象
+ * @param {string} params.insertFileUrl 红头模板 URL
+ * @param {string} params.bodyTemplateUrl 正文模板 URL
+ * @param {boolean} params.isPrint 是否打印
+ * @param {Function} callback 回调函数，获取编辑后的文件列表
+ */
+export function outWpsEdit(params = {}, callback) {
+	const {
+		fileList = [],
+		index,
+		id,
+		isNew, // 是否是新建公文
+		fieldObj, // 字段对象
+		insertFileUrl = "", // 红头模板 URL
+		bodyTemplateUrl = "", // 正文模板 URL
+		isPrint, // 是否打印
+	} = params || {};
+	const isCreate = index < 0;
+	if (!isCreate && fileList.length === 0) {
+		return;
+	}
+
+	// 兼容存在多个正文的情况，目前只有一个正文
+	const currentFile = fileList[index];
+
+	if (!isCreate && !currentFile) {
+		return;
+	}
+
+	if (!isCreate && !["doc", "docx"].includes(currentFile.type)) {
+		message.error("非 word 文档不可在线编辑");
+		return;
+	}
+
+	startOutWps(() => {
+		const { originalUrl, noRedHeadOriginalUrl, type } = currentFile || {};
+		const newFileName = `${(fieldObj && fieldObj.refNo) || "正文"}.docx`;
+		const operType = isCreate ? OPER_TYPE.CREATE : OPER_TYPE.MODIFY_FILE;
+		const dealDescription = isCreate
+			? `创建【${newFileName}】文件`
+			: `修改【${currentFile.name}】文件`;
+		const editUrl = noRedHeadOriginalUrl || originalUrl;
+		wpsMask.init(true);
+		const key = uuidv4(); // Date.now()
+		openDoc(
+			{
+				key,
+				moduleName: "official",
+				isNew,
+				orgId: getOrgId(),
+				docId: 123456789,
+				userName: getUserName(),
+				filePath: isCreate
+					? undefined
+					: `${editUrl}&contenttype=${mimeTypeMap[type]}`,
+				fileName: newFileName,
+				newFileName,
+				bodyTemplateUrl,
+				insertFileUrl,
+				templateDataUrl: "/access/DocumentMoaSetting/getBodyFileList",
+				// templateDataUrl: '/access/DocumentMoa/getDocumentBodyFileList',
+				uploadPath: "/sfs/webUpload/file",
+				params: {
+					id,
+					orgId: getOrgId(),
+					file: isCreate ? undefined : currentFile,
+					index,
+					list: fileList || [],
+					operType,
+					dealDescription,
+					isNew,
+					fieldObj,
+				},
+				isPrint,
+			},
+			{
+				// wps 保存时会调用这个方法
+				save: (res) => {
+					if (res.moduleName !== "official" || key !== res.key) {
+						return false;
+					}
+					const { id: gId, list } = res;
+					callback(gId, list);
+					wpsMask.remove();
+				},
+			}
+		);
+	}, true);
+}
+```
+
 ### 使用加载项套红
 
 WPS 套红指的是使用 WPS 给文档套用指定的红头模板。当前 demo 的实现方式是在文档编辑完成保存时自动为文档套用红头。
 
 ![红头模板](http://101.43.50.15:9216/image/91a49816f3f19c5e901eb11dab6be416_66055fcdcfd5e134cd001cef.png)
 
-要给文档套红，用户只需在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下属性：
+要给文档套红，用户只需在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下属性：
 
 ```js
 const bookMarksStart = "正文内容B";
@@ -285,7 +467,7 @@ function pInsertRInedFieldAsOneBk(doc) {
 
 ![bookmark.png](http://101.43.50.15:9216/image/d14b6493d6ef34951c494f1d87cd05db_66055fcdcfd5e134cd001cef.png)
 
-当需要插入新的标签属性时，用户只需要找到 `WpsOAAssist/js/commom/enum.js` 文件，添加需要新插入的标签值、并且需要在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中在传入套红属性的基础上添加 **fieldObj** 属性：
+当需要插入新的标签属性时，用户只需要找到 `WpsOAAssist/js/commom/enum.js` 文件，添加需要新插入的标签值、并且需要在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中在传入套红属性的基础上添加 **fieldObj** 属性：
 
 - WpsOAAssist/js/commom/enum.js 内容：
 
@@ -526,9 +708,9 @@ function OpenFile(params) {
 
 ### 进入 WPS 编辑自动开启修订
 
-只需在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
+只需在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
 
-- _WpsInvoke 和 OpenDoc 是 WPS 源码暴露出来的方法，开发者无需关心。
+- \_WpsInvoke 和 OpenDoc 是 WPS 源码暴露出来的方法，开发者无需关心。
 
 ```js
 _WpsInvoke(
@@ -603,7 +785,7 @@ function pDoOpenOADocProcess(params, TempLocalFile) {
 
 ### 禁用加载项中的按钮
 
-只需要在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
+只需要在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
 
 - disabledBtns：该字段用于设置哪些加载项按钮需要被禁用。如果不传则所有按钮都不禁用。
 
@@ -626,7 +808,7 @@ _WpsInvoke(
 
 ### 隐藏加载项按钮
 
-只需要在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
+只需要在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数即可：
 
 - buttonGroups：该字段用于设置哪些加载项按钮需要被隐藏。如果不传则所有按钮都显示。
 
@@ -684,7 +866,7 @@ _WpsInvoke(
 
 使用 WPS 可以保存后可以一次性输出多个不同格式的文件，比如我们可以保存出 pdf、doc、html 等文件格式。同时可以输出套过红的和没套过红得到文件。而要使 WPS 能保存出对应的文件格式就需要设置如下属性：
 
-- 保存输出 pdf 及 doc 时，只需要在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数：
+- 保存输出 pdf 及 doc 时，只需要在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入如下参数：
 
 ```js
 _WpsInvoke(
@@ -700,7 +882,7 @@ _WpsInvoke(
 ); // OpenDoc方法对应于OA助手dispatcher支持的方法名
 ```
 
-- 保存输出 html 时，相对比较麻烦，需要将 `handleFileAndUpload()` 方法中的 `doc.SaveAs2()` 方法的第二个参数设置为 **8**，同时也需要在 **_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入 `suffix: ".html"` 参数。
+- 保存输出 html 时，相对比较麻烦，需要将 `handleFileAndUpload()` 方法中的 `doc.SaveAs2()` 方法的第二个参数设置为 **8**，同时也需要在 **\_WpsInvoke()** 方法下的 **OpenDoc** 属性中传入 `suffix: ".html"` 参数。
 
 ```js
 _WpsInvoke(
@@ -1146,7 +1328,7 @@ app.post("/getTemplateData", function (request, response) {
 });
 ```
 
-在 resource/wps.js 中的 **_WpsInvoke** 方法中需要传入 **templateDataUrl** 参数：
+在 resource/wps.js 中的 **\_WpsInvoke** 方法中需要传入 **templateDataUrl** 参数：
 
 ```js
 function insertRedHead() {
