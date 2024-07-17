@@ -10,7 +10,6 @@ worker_processes  1;
 
 #pid        logs/nginx.pid;
 
-
 events {
     worker_connections  1024;
 }
@@ -34,9 +33,15 @@ http {
     #keepalive_timeout  0;
 
     gzip  on;
+    gzip_min_length 1k;
+    gzip_buffers 4 16k;
+    gzip_http_version 1.0;
+    gzip_comp_level 5;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+    gzip_vary on;
 
     server {
-        listen       80;
+        listen       9216;
         server_name  wwww.dnhyxc.cn;
 
         #charset koi8-r;
@@ -47,8 +52,13 @@ http {
        	root  /usr/local/nginx/dnhyxc/dist; #设置前端资源包的路径
       index   index.html  index.htm;  #设置前端资源入口html文件
       try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
-       
-        }
+          add_header Cache-Control "must-revalidate";
+	  add_header Expires 0;
+	# add_header Cross-Origin-Opener-Policy same-origin;
+   # add_header Cross-Origin-Embedder-Policy require-corp;
+   add_header Cross-Origin-Opener-Policy same-origin-allow-popups;
+add_header Cross-Origin-Embedder-Policy unsafe-none;       
+ }
 
 location /api/ {
       proxy_set_header  Host  $http_host;
@@ -119,7 +129,7 @@ location /files/ {
     }
 
 server {
-    listen  9216;
+    listen  80;
     server_name  www.dnhyxc.cn;
 
     location / {
@@ -159,7 +169,7 @@ server {
     server_name  www.dnhyxc.cn;
 
     location / {
-      root  /usr/local/nginx/html_web/dist;
+      root  /usr/local/nginx/dnhyxc-app/dist;
       index   index.html  index.htm;
       try_files   $uri  $uri/ /index.html;
     }
@@ -169,6 +179,21 @@ server {
       proxy_set_header  X-Real-IP $remote_addr;
       proxy_set_header  REMOTE-HOST $remote_addr;
       proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_pass  http://localhost:9112;
+    }
+
+   
+    location /admin/ {
+      proxy_set_header  Host  $http_host;
+      proxy_set_header  X-Real-IP $remote_addr;
+      proxy_set_header  REMOTE-HOST $remote_addr;
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_pass  http://localhost:9112;
+    }
+
+    location /atlas/ {
+      root  /usr/local/server/src/upload/atlas;
+      rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
       proxy_pass  http://localhost:9112;
     }
 
