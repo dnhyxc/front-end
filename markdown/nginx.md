@@ -9,6 +9,7 @@ worker_processes  1;
 #error_log  logs/error.log  info;
 
 #pid        logs/nginx.pid;
+#717new
 
 events {
     worker_connections  1024;
@@ -44,6 +45,15 @@ http {
         listen       9216;
         server_name  wwww.dnhyxc.cn;
 
+        #SSL 默认访问端口号为 443
+        #listen 9216 ssl;
+        #请填写绑定证书的域名
+        #server_name dnhyxc.cn;
+        #请填写证书文件的相对路径或绝对路径 cloud.tencent.com_bundle.crt;
+        #ssl_certificate /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn_bundle.crt;
+        #请填写私钥文件的相对路径或绝对路径
+        #ssl_certificate_key /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn.key;
+
         #charset koi8-r;
 
         #access_log  logs/host.access.log  main;
@@ -54,10 +64,12 @@ http {
       try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
           add_header Cache-Control "must-revalidate";
 	  add_header Expires 0;
-	# add_header Cross-Origin-Opener-Policy same-origin;
-   # add_header Cross-Origin-Embedder-Policy require-corp;
-   add_header Cross-Origin-Opener-Policy same-origin-allow-popups;
-add_header Cross-Origin-Embedder-Policy unsafe-none;       
+	  # add_header Cross-Origin-Opener-Policy same-origin;
+    # add_header Cross-Origin-Embedder-Policy require-corp;
+    # Cross-Origin-Opener-Policy 确保页面在使用 window.open() 打开其他页面时，只能与同一站点的页面共享 opener 对象，从而增强安全性。具体来说，same-origin-allow-popups 指示浏览器只允许来自相同源（同一站点）的页面使用 window.open() 方法创建的弹出窗口（popups）。这个设置有助于增强安全性，防止恶意网站或跨站点攻击利用弹出窗口功能进行欺诈或攻击行为。
+    add_header Cross-Origin-Opener-Policy same-origin-allow-popups;
+    # Cross-Origin-Embedder-Policy 控制页面在被其他站点嵌入时的安全行为，unsafe-none 设置允许在任何上下文中嵌入页面，但这也带来了潜在的安全风险。
+    add_header Cross-Origin-Embedder-Policy unsafe-none;
  }
 
 location /api/ {
@@ -129,8 +141,17 @@ location /files/ {
     }
 
 server {
-    listen  80;
-    server_name  www.dnhyxc.cn;
+    # listen  80;
+    # server_name  www.dnhyxc.cn;
+
+    #SSL 默认访问端口号为 443
+    listen 443 ssl;
+    #请填写绑定证书的域名
+    server_name dnhyxc.cn;
+    #请填写证书文件的相对路径或绝对路径 cloud.tencent.com_bundle.crt;
+    ssl_certificate /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn_bundle.crt;
+    #请填写私钥文件的相对路径或绝对路径
+    ssl_certificate_key /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn.key;
 
     location / {
       root  /usr/local/nginx/html/dist;
@@ -182,7 +203,7 @@ server {
       proxy_pass  http://localhost:9112;
     }
 
-   
+
     location /admin/ {
       proxy_set_header  Host  $http_host;
       proxy_set_header  X-Real-IP $remote_addr;
@@ -223,16 +244,16 @@ server {
       root  /usr/local/nginx/web/dist;
       index   index.html  index.htm;
       try_files   $uri  $uri/ /index.html;
-    } 
-      
+    }
+
     location /api/ {
       proxy_set_header  Host  $http_host;
       proxy_set_header  X-Real-IP $remote_addr;
       proxy_set_header  REMOTE-HOST $remote_addr;
       proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_pass  http://localhost:9112;
-    } 
-      
+    }
+
     location /image/ {
       root  /usr/local/server/src/upload/image;
       rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
@@ -256,8 +277,17 @@ server {
 
 
 server {
-    listen  8090;
-    server_name  wwww.dnhyxc.cn;
+    # listen  8099;
+    # server_name  wwww.dnhyxc.cn;
+
+    #SSL 默认访问端口号为 443
+    listen 8090 ssl;
+    #请填写绑定证书的域名
+    server_name dnhyxc.cn;
+    #请填写证书文件的相对路径或绝对路径 cloud.tencent.com_bundle.crt;
+    ssl_certificate /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn_bundle.crt;
+    #请填写私钥文件的相对路径或绝对路径
+    ssl_certificate_key /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn.key;
 
     location / {
       root  /usr/local/nginx/html_admin/dist;
@@ -272,6 +302,24 @@ server {
       proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
       proxy_pass  http://localhost:9112;
     }
+  }
+
+  # server {
+  #   listen 9216;
+  #   server_name dnhyxc.cn;
+  #   return 301 https://$host$request_uri;
+  # }
+
+  server {
+    listen 80;
+    server_name dnhyxc.cn;
+    return 301 https://$host$request_uri;
+  }
+
+  server {
+    listen 8090;
+    server_name dnhyxc.cn;
+    return 301 https://$host$request_uri;
   }
 
 
