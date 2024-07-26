@@ -104,9 +104,9 @@ ssh
 
 ## 实现自动化部署具体流程
 
-### 具体实现流程图
+### 自动化部署实现流程图
 
-![部署流程图](http://101.43.50.15:9216/image/fec5aa7e580055cb0b8b4f5eee288ad8_66055fcdcfd5e134cd001cef.png)
+![自动部署实现流程图.png](https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/20b4860440534ae2a1914d1196fe2f08~tplv-73owjymdk6-watermark.image?policy=eyJ2bSI6MywidWlkIjoiNDI2NTc2MDg0ODg4NTM2OCJ9&rk3s=f64ab15b&x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&x-orig-expires=1722569275&x-orig-sign=8U6FLATq8x1tHbfBJDqIOfpjWDI%3D)
 
 ### 收集服务器及项目相关信息
 
@@ -148,18 +148,33 @@ program
 	.option("-p, --port [port]", "输入端口号")
 	.option("-u, --username [username]", "输入用户名")
 	.option("-m, --password [password]", "输入密码")
-	.option("-l, --lcalFilePath [lcalFilePath]", "输入本地文件路径")
-	.option("-r, --remoteFilePath [remoteFilePath]", "输入服务器目标文件路径")
-	.option("-s, --isServer", "是否是 node 服务端项目")
+	.option(
+		"-l, --localFilePath [localFilePath]",
+		"输入本地文件路径，必须以 / 开头"
+	)
+	.option(
+		"-r, --remoteFilePath [remoteFilePath]",
+		"输入服务器目标文件路径，必须以 / 开头"
+	)
+	.option(
+		"-s, --isServer [isServer]",
+		"是否是 node 服务端项目，只允许输入 true 或 false"
+	)
 	.option("-i, --install", "是否需要安装依赖")
 	.action((name, option) => {
-		if (option?.lcalFilePath && !isValidFilePath(option?.lcalFilePath)) {
+		if (option?.localFilePath && !isValidFilePath(option?.localFilePath)) {
 			console.log(`\n${chalk.redBright("Error: 本地文件路径必须以 / 开头")}\n`);
 			process.exit(1);
 		}
 		if (option?.remoteFilePath && !isValidFilePath(option?.remoteFilePath)) {
 			console.log(
 				`\n${chalk.redBright("Error: 服务器目标文件路径必须以 / 开头")}\n`
+			);
+			process.exit(1);
+		}
+		if (option?.isServer && !["true", "false"].includes(option.isServer)) {
+			console.log(
+				`\n${chalk.redBright("Error: -s 只能携带 true 或 false，如 -s true")}\n`
 			);
 			process.exit(1);
 		}
@@ -173,18 +188,15 @@ program.parse(process.argv);
 通过 `require` 导入用户需要发布的项目根目录下的 `publish.config.js` 中的发布配置，如果没有配置，那么就需要用户手动输入配置信息，这样可能会增加用户的操作复杂度，同时容错率也会降低，因此建议提前在项目根目录下配置好：
 
 ```js
-const getPublishConfig = () => {
+export const getPublishConfig = () => {
 	try {
 		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const config = require(`${process.cwd()}/publish.config.js`);
+		const config = require(`${ompatiblePath(
+			process.cwd(),
+			"publish.config.js"
+		)}`);
 		return config;
 	} catch (error) {
-		console.log(
-			beautyLog.warning,
-			chalk.yellowBright(
-				"当前项目根目录下未配置 publish.config.js 文件，需要手动输入配置信息"
-			)
-		);
 		return null;
 	}
 };
@@ -205,13 +217,13 @@ module.exports = {
 	},
 	// nginx 配置
 	nginxInfo: {
-    remoteFilePath: '/usr/local/nginx/conf/nginx.conf',
-    restartPath: '/usr/local/nginx/sbin'
-  },
+		remoteFilePath: "/usr/local/nginx/conf",
+		restartPath: "/usr/local/nginx/sbin",
+	},
 	// node 服务端配置
-  serviceInfo: {
-    restartPath: '/usr/local/server'
-  },
+	serviceInfo: {
+		restartPath: "/usr/local/server",
+	},
 	// 前台项目1配置
 	dnhyxc: {
 		name: "dnhyxc",
@@ -264,7 +276,7 @@ import prompts from "prompts";
 import chalk from "chalk";
 import { beautyLog } from "./utils";
 
-export const publish = async (projectName: string, options: Options) => {
+export const publish = async (projectName: string, options: Omit<Options, 'isServer'> & { isServer: string }) => {
   const {
     host: _host,
     port: _port,
@@ -283,16 +295,36 @@ export const publish = async (projectName: string, options: Options) => {
 
   const isService = getPublishConfigInfo(publishConfig, projectName, 'isServer');
 
+  const localPath =
+    _localFilePath ||
+    (getPublishConfigInfo(publishConfig, projectName, 'localFilePath') as string) ||
+    `${process.cwd()}`;
+
+  // 发布配置中 isServer 配置存在时，直接校验
+  if (localPath && (isService !== undefined || _isServer !== undefined)) {
+    onVerifyFile(localPath, _isServer === 'true' || !!isService);
+    isVerified = true;
+  }
+
   try {
     const verifyIsServer = (options: Options) => {
       /**
-       * 判断是否携带 -s 参数，或者入了 isServer 选项，并且 isServer 选项的值为 true 时，则显示安装依赖选项
+       * 判断是否输入了 isServer 选项，并且 isServer 选项的值为 true 时，则显示安装依赖选项
        * 判断是否携带 -i 参数，如果未携带，则显示安装依赖选项
        * 如果 publish.config.json 中配置了 isServer 为 true 时，则显示安装依赖选项
        */
-      const hideInstall = (_isServer || options.isServer || isService) && _install === undefined;
+      const needInstall = (_isServer === 'true' || options.isServer || isService) && _install === undefined;
 
-      return hideInstall;
+      !isVerified &&
+        onVerifyFile(
+          _localFilePath ||
+            options.localFilePath ||
+            (getPublishConfigInfo(publishConfig, projectName, 'localFilePath') as string) ||
+            process.cwd(),
+          _isServer === 'true' || options.isServer || !!isService
+        );
+
+      return needInstall;
     };
 
     result = await prompts(
@@ -330,7 +362,9 @@ export const publish = async (projectName: string, options: Options) => {
         {
           name: 'isServer',
           type:
-            _isServer || _install || getPublishConfigInfo(publishConfig, projectName, 'isServer', true) !== undefined
+            _isServer !== undefined ||
+            _install ||
+            getPublishConfigInfo(publishConfig, projectName, 'isServer', true) !== undefined
               ? null
               : 'toggle',
           message: '是否是后台服务:',
@@ -393,7 +427,7 @@ export const publish = async (projectName: string, options: Options) => {
       _remoteFilePath ||
       (getPublishConfigInfo(publishConfig, projectName, 'remoteFilePath') as string),
     install: install || _install,
-    isServer: isServer || _isServer || !!isService
+    isServer: _isServer ? _isServer === 'true' : isServer || !!isService
   });
 };
 ```
@@ -446,7 +480,9 @@ const onCompressFile = async (localFilePath: string) => {
 	return new Promise((resolve, reject) => {
 		const spinner = ora({
 			text: chalk.yellowBright(
-				`正在压缩本地文件: ${chalk.cyan(`${localFilePath}/dist`)}`
+				`正在压缩本地文件: ${chalk.cyan(
+					ompatiblePath(localFilePath, "dist")
+				)} ...`
 			),
 		}).start();
 		const archive = archiver("zip", {
@@ -454,12 +490,14 @@ const onCompressFile = async (localFilePath: string) => {
 		}).on("error", (err: Error) => {
 			console.log(beautyLog.error, chalk.red(`压缩本地文件失败: ${err}`));
 		});
-		const output = fs.createWriteStream(`${localFilePath}/dist.zip`);
+		const output = fs.createWriteStream(
+			ompatiblePath(localFilePath, "dist.zip")
+		);
 		output.on("close", (err: Error) => {
 			if (err) {
 				spinner.fail(
 					chalk.redBright(
-						`压缩文件: ${chalk.cyan(`${localFilePath}/dist`)} 失败`
+						`压缩文件: ${chalk.cyan(ompatiblePath(localFilePath, "dist"))} 失败`
 					)
 				);
 				console.log(beautyLog.error, chalk.red(`压缩本地文件失败: ${err}`));
@@ -468,14 +506,16 @@ const onCompressFile = async (localFilePath: string) => {
 			}
 			spinner.succeed(
 				chalk.greenBright(
-					`压缩本地文件: ${chalk.cyan(`${localFilePath}/dist`)} 成功`
+					`压缩本地文件: ${chalk.cyan(
+						ompatiblePath(localFilePath, "dist")
+					)} 成功`
 				)
 			);
 			resolve(1);
 		});
 		archive.pipe(output);
 		// 第二参数表示在压缩包中创建 dist 目录，将压缩内容放在 dist 目录下，而不是散列到压缩包的根目录
-		archive.directory(`${localFilePath}/dist`, "/dist");
+		archive.directory(ompatiblePath(localFilePath, "dist"), "/dist");
 		archive.finalize();
 	});
 };
@@ -485,51 +525,32 @@ const onCompressFile = async (localFilePath: string) => {
 
 ```js
 // localFilePath：本地项目的文件路径 /Users/dnhyxc/Documents/code/blog-client-web
-const onCompressServiceFile = async (localFilePath: string) => {
-	return new Promise((resolve, reject) => {
-		const spinner = ora({
-			text: chalk.yellowBright(
-				`正在压缩本地文件: ${chalk.cyan(`${localFilePath}/dist`)}`
-			),
-		}).start();
-		const srcPath = `${localFilePath}/src`;
-		const uploadPath = `${srcPath}/upload`;
-		const tempUploadPath = `${localFilePath}/upload`;
-		fs.moveSync(uploadPath, tempUploadPath, { overwrite: true });
-		const archive = archiver("zip", {
-			zlib: { level: 9 },
-		}).on("error", (err: Error) => {
-			console.log(beautyLog.error, chalk.red(`压缩本地文件失败: ${err}`));
+const onPutFile = async (localFilePath: string, remoteFilePath: string) => {
+	try {
+		const progressBar = new cliProgress.SingleBar({
+			format:
+				"文件上传中: {bar} | {percentage}% | ETA: {eta}s | {value}MB / {total}MB",
+			barCompleteChar: "\u2588",
+			barIncompleteChar: "\u2591",
+			hideCursor: true,
 		});
-		const output = fs.createWriteStream(`${localFilePath}/dist.zip`);
-		output.on("close", (err: Error) => {
-			if (!err) {
-				fs.moveSync(tempUploadPath, uploadPath, { overwrite: true });
-				spinner.succeed(
-					chalk.greenBright(
-						`压缩本地文件: ${chalk.cyan(`${localFilePath}/src`)} 等文件成功`
-					)
-				);
-				resolve(1);
-			} else {
-				spinner.fail(
-					chalk.redBright(
-						`压缩本地文件: ${chalk.cyan(`${localFilePath}/src`)} 等文件失败`
-					)
-				);
-				console.log(beautyLog.error, chalk.red(`压缩本地文件失败: ${err}`));
-				reject(err);
-				process.exit(1);
-			}
+		const localFile = path.resolve(__dirname, `${localFilePath}/dist.zip`);
+		const remotePath = path.join(remoteFilePath, path.basename(localFile));
+		const stats = fs.statSync(localFile);
+		const fileSize = stats.size;
+		progressBar.start(Math.ceil(fileSize / 1024 / 1024), 0);
+		await ssh.putFile(localFile, remotePath, null, {
+			concurrency: 10, // 控制上传的并发数
+			chunkSize: 16384, // 指定每个数据块的大小，适应慢速连接 16kb
+			step: (totalTransferred: number) => {
+				progressBar.update(Math.ceil(totalTransferred / 1024 / 1024));
+			},
 		});
-		archive.pipe(output);
-		archive.directory(`${localFilePath}/src`, "/src");
-		archive.file(path.join(localFilePath, "package.json"), {
-			name: "package.json",
-		});
-		archive.file(path.join(localFilePath, "yarn.lock"), { name: "yarn.lock" });
-		archive.finalize();
-	});
+		progressBar.stop();
+	} catch (error) {
+		console.log(beautyLog.error, chalk.red(`上传文件失败: ${error}`));
+		process.exit(1);
+	}
 };
 ```
 
@@ -582,7 +603,7 @@ const onDeleteFile = async (localFile: string) => {
 	try {
 		await ssh.execCommand(`rm -rf ${localFile}`);
 		spinner.succeed(
-			chalk.greenBright(`删除服务器文件: ${chalk.cyan(`${localFile}`)} 成功`)
+			chalk.greenBright(`删除服务器文件:${chalk.cyan(`${localFile}`)} 成功`)
 		);
 	} catch (err) {
 		spinner.fail(
@@ -602,9 +623,10 @@ const onDeleteFile = async (localFile: string) => {
 ```js
 // remotePath：远程服务器上的项目路径 /usr/local/server
 const onUnzipZip = async (remotePath: string, isServer: boolean) => {
+	remotePath = ompatiblePath(remotePath);
 	const spinner = ora({
 		text: chalk.yellowBright(
-			`正在解压服务器文件: ${chalk.cyan(`${remotePath}/dist.zip`)}`
+			`正在解压服务器文件: ${chalk.cyan(`${remotePath}/dist.zip`)} ...`
 		),
 	}).start();
 	try {
@@ -616,7 +638,7 @@ const onUnzipZip = async (remotePath: string, isServer: boolean) => {
 				`解压服务器文件: ${chalk.cyan(`${remotePath}/dist.zip`)} 成功`
 			)
 		);
-		await onDeleteFile(`${remotePath}/dist.zip`);
+		await onRemoveServerFile(`${remotePath}/dist.zip`, ssh);
 		!isServer &&
 			console.log(
 				`\n${beautyLog.success}`,
@@ -645,27 +667,26 @@ const onUnzipZip = async (remotePath: string, isServer: boolean) => {
 当文件解压成功之后，删除本地的 `dist.zip` 文件，当然也可以不删除，看个人意愿。
 
 ```js
-const onRemoveFile = async (localFile: string) => {
+export const onRemoveFile = async (localFile: string) => {
+	const fullPath = ompatiblePath(localFile);
 	const spinner = ora({
-		text: chalk.yellowBright(`正在删除本地文件: ${chalk.cyan(localFile)}`),
+		text: chalk.yellowBright(`正在删除本地文件: ${chalk.cyan(fullPath)} ...`),
 	}).start();
-	return new Promise((resolve, reject) => {
+	return new Promise((resolve) => {
 		try {
-			const fullPath = path.resolve(localFile);
 			// 删除文件
 			fs.unlink(fullPath, (err) => {
 				if (err === null) {
 					spinner.succeed(
-						chalk.greenBright(`删除本地文件: ${chalk.cyan(localFile)} 成功`)
+						chalk.greenBright(`删除本地文件: ${chalk.cyan(fullPath)} 成功`)
 					);
 					resolve(1);
 				}
 			});
 		} catch (err) {
 			spinner.fail(
-				chalk.redBright(`删除本地文件: ${chalk.cyan(localFile)} 失败，${err}`)
+				chalk.redBright(`删除本地文件: ${chalk.cyan(fullPath)} 失败，${err}`)
 			);
-			reject(err);
 			process.exit(1);
 		}
 	});
@@ -678,6 +699,7 @@ const onRemoveFile = async (localFile: string) => {
 
 ```js
 const onInstall = async (remotePath: string) => {
+	remotePath = ompatiblePath(remotePath);
 	const spinner = ora({
 		text: chalk.yellowBright(chalk.cyan("正在安装依赖...")),
 	}).start();
@@ -704,6 +726,7 @@ const onInstall = async (remotePath: string) => {
 
 ```js
 export const onRestartServer = async (remotePath: string, ssh: NodeSSH) => {
+	remotePath = ompatiblePath(remotePath);
 	const spinner = ora({
 		text: chalk.yellowBright(chalk.cyan("正在重启服务...")),
 	}).start();
@@ -770,7 +793,7 @@ program
 	.option("-m, --password [password]", "输入密码")
 	.option(
 		"-ncp, --nginxRemoteFilePath [nginxRemoteFilePath]",
-		"输入服务器 nginx.conf 文件路径"
+		"输入服务器 nginx.conf 文件路径，必须以 / 开头"
 	)
 	.action((configName, option) => {
 		if (
@@ -972,9 +995,11 @@ export const onCollectServerInfo = async ({
 
 ```js
 const onReadNginxConfig = async (remotePath: string, localFileName: string) => {
+	remotePath = ompatiblePath(remotePath);
+	localFileName = ompatiblePath(localFileName);
 	const spinner = ora({
 		text: chalk.yellowBright(
-			`正在读取远程文件: ${chalk.cyan(`${remotePath}`)}`
+			`正在读取远程 ${chalk.cyan(`${remotePath}`)} 文件...`
 		),
 	}).start();
 	try {
@@ -1017,16 +1042,17 @@ const onPutNginxConfig = async (
 	localFilePath: string,
 	remoteFilePath: string
 ) => {
+	localFilePath = ompatiblePath(localFilePath);
+	remoteFilePath = ompatiblePath(remoteFilePath);
 	const spinner = ora({
-		text: chalk.yellowBright("正在推送 nginx.conf 文件到远程服务器"),
+		text: chalk.yellowBright("正在推送 nginx.conf 文件到远程服务器..."),
 	}).start();
 	try {
+		// 推送本地文件到远程服务器
 		await ssh.putFile(localFilePath, remoteFilePath);
 		spinner.succeed(
 			chalk.greenBright(
-				`成功推送 nginx.conf 文件到服务器 ${chalk.cyan(
-					`${remoteFilePath}`
-				)} 目录下`
+				`服务器 ${chalk.cyan(`${remoteFilePath}`)} 内容更新成功`
 			)
 		);
 	} catch (error) {
@@ -1048,18 +1074,24 @@ export const onRestartNginx = async (
 ) => {
 	await onCheckNginxConfig(remoteFilePath, restartPath, ssh);
 	const spinner = ora({
-		text: chalk.yellowBright("正在重启 nginx 服务"),
+		text: chalk.yellowBright("正在重启 nginx 服务..."),
 	}).start();
 	try {
-		await ssh.execCommand(`cd ${restartPath} && ./nginx -s reload`);
-		spinner.succeed(chalk.greenBright(`nginx 服务已重启: ${restartPath}`));
+		await ssh.execCommand(
+			`cd ${ompatiblePath(restartPath)} && ./nginx -s reload`
+		);
+		spinner.succeed(
+			chalk.greenBright(`nginx 服务已重启: ${ompatiblePath(restartPath)}`)
+		);
 		if (verifyFile(`${process.cwd()}/nginx.conf`)) {
 			await onRemoveFile(`${process.cwd()}/nginx.conf`);
 		}
 		console.log(
 			`\n${beautyLog.success}`,
 			chalk.greenBright(
-				`${chalk.bold(`🎉 🎉 🎉 nginx 服务重启成功 ${restartPath} 🎉 🎉 🎉`)}\n`
+				`${chalk.bold(
+					`🎉 🎉 🎉 nginx 服务重启成功 ${ompatiblePath(restartPath)} 🎉 🎉 🎉`
+				)}\n`
 			)
 		);
 	} catch (error) {
@@ -1097,18 +1129,17 @@ program
 	.option("-m, --password [password]", "输入密码")
 	.option(
 		"-ncp, --nginxRemoteFilePath [nginxRemoteFilePath]",
-		"输入服务器 nginx.conf 文件路径"
+		"输入服务器 nginx.conf 文件路径，必须以 / 开头"
 	)
 	.option(
 		"-nrp, --nginxRestartPath [nginxRestartPath]",
-		"输入服务器 nginx 重启路径"
+		"输入服务器 nginx 重启路径，必须以 / 开头"
 	)
 	.option(
 		"-srp, --serviceRestartPath [serviceRestartPath]",
-		"输入服务器 node 重启路径"
+		"输入服务器 node 重启路径，必须以 / 开头"
 	)
 	.action((serviceName, option) => {
-		// 校验服务名称，只能输入 nginx 或 node
 		const validatedServiceName = validateServiceName(serviceName);
 		if (
 			option?.nginxRemoteFilePath &&
@@ -1146,7 +1177,7 @@ program.parse(process.argv);
 
 ### 通过 prompts 收集用户输入信息
 
-如果用户在需要发布的项目根目录下的 `publish.config.js` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成服务的重启操作，否则需要输入服务的重启操作 host、端口、用户名、密码、远程 nginx 配置文件路径、远程 nginx 重启路径、远程 node 服务重启路径等相关信息，至于 prompts 具体收集方式在上述 `onCollectServerInfo` 方法中已经实现，这里不再赘述。
+如果用户在需要发布的项目根目录下的 `publish.config.js` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成服务的重启操作，否则需要输入服务器 host、端口、用户名、密码、远程 nginx 配置文件路径、远程 nginx 重启路径、远程 node 服务重启路径等相关信息。至于 prompts 具体收集方式在上述 `onCollectServerInfo` 方法中已经实现，这里不再赘述。
 
 ### 重启 nginx 服务
 
