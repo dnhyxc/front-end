@@ -185,91 +185,72 @@ program
 program.parse(process.argv);
 ```
 
-通过 `require` 导入用户需要发布的项目根目录下的 `publish.config.js` 中的发布配置，如果没有配置，那么就需要用户手动输入配置信息，这样可能会增加用户的操作复杂度，同时容错率也会降低，因此建议提前在项目根目录下配置好：
+通过 `require` 导入用户需要发布的项目根目录下的 `publish.config.json` 中的发布配置，如果没有配置，那么就需要用户手动输入配置信息，这样可能会增加用户的操作复杂度，同时容错率也会降低，因此建议提前在项目根目录下配置好：
 
 ```js
 export const getPublishConfig = () => {
-	try {
-		// eslint-disable-next-line @typescript-eslint/no-var-requires
-		const config = require(`${ompatiblePath(
-			process.cwd(),
-			"publish.config.js"
-		)}`);
-		return config;
-	} catch (error) {
-		return null;
-	}
+  try {
+    const config = JSON.parse(fs.readFileSync(`${ompatiblePath(process.cwd(), 'publish.config.json')}`, 'utf8'));
+    return config;
+  } catch (error) {
+    console.log(beautyLog.warning, chalk.redBright(`未找到 ${chalk.cyan('publish.config.json')} 相关发布配置`));
+    return null;
+  }
 };
 ```
 
-`publish.config.js` 发布配置示例：
+`publish.config.json` 发布配置示例：
 
 ```js
-module.exports = {
-	// 服务器配置
-	serverInfo: {
-		// 目标服务器IP
-		host: "106.69.29.11",
-		// 目标服务器用户名
-		username: "root",
-		// 端口号
-		port: 22,
-	},
-	// nginx 配置
-	nginxInfo: {
-		remoteFilePath: "/usr/local/nginx/conf",
-		restartPath: "/usr/local/nginx/sbin",
-	},
-	// node 服务端配置
-	serviceInfo: {
-		restartPath: "/usr/local/server",
-	},
-	// 前台项目1配置
-	dnhyxc: {
-		name: "dnhyxc",
-		// 本地项目路径
-		localFilePath: "/Users/dnhyxc/Documents/code/dnhyxc",
-		// 目标服务器项目文件路径
-		remoteFilePath: "/usr/local/nginx/dnhyxc",
-		// 标识是否是服务端项目
-		isServer: false,
-	},
-	// 前台项目2配置
-	blogClientWeb: {
-		name: "html",
-		// 本地项目路径
-		localFilePath: "/Users/dnhyxc/Documents/code/blog-client-web",
-		// 目标服务器项目文件路径
-		remoteFilePath: "/usr/local/nginx/html",
-		// 标识是否是服务端项目
-		isServer: false,
-	},
-	// 前台项目3配置
-	blogAdminWeb: {
-		name: "admin_html",
-		// 本地项目路径
-		localFilePath: "/Users/dnhyxc/Documents/code/blog-admin-web",
-		// 目标服务器项目文件路径
-		remoteFilePath: "/usr/local/nginx/html_admin",
-		// 标识是否是服务端项目
-		isServer: false,
-	},
-	// 后台node服务端项目配置
-	blogServerWeb: {
-		name: "server",
-		// 本地项目路径
-		localFilePath: "/Users/dnhyxc/Documents/code/blog-server-web",
-		// 目标服务器项目文件路径
-		remoteFilePath: "/usr/local/server",
-		// 标识是否是服务端项目
-		isServer: true,
-	},
-};
+{
+  "serverInfo": {
+    "host": "106.69.29.11",
+    "username": "root",
+    "port": "22"
+  },
+  "nginxInfo": {
+    "remoteFilePath": "/usr/local/nginx/conf",
+    "restartPath": "/usr/local/nginx/sbin"
+  },
+  "serviceInfo": {
+    "restartPath": "/usr/local/server"
+  },
+  "dnhyxc": {
+    "name": "dnhyxc",
+    "localFilePath": "/Users/dnhyxc/Documents/code/dnhyxc",
+    "remoteFilePath": "/usr/local/nginx/dnhyxc",
+    "isServer": false
+  },
+  "example": {
+    "name": "dnhyxc",
+    "localFilePath": "/Users/dnhyxc/Documents/code/dnhyxc",
+    "remoteFilePath": "/usr/local/nginx/dnhyxc",
+    "isServer": false
+  },
+  "blogClientWeb": {
+    "name": "html",
+    "localFilePath": "/Users/dnhyxc/Documents/code/blog-client-web",
+    "remoteFilePath": "/usr/local/nginx/html",
+    "isServer": false
+  },
+  "blogAdminWeb": {
+    "name": "admin_html",
+    "localFilePath": "/Users/dnhyxc/Documents/code/blog-admin-web",
+    "remoteFilePath": "/usr/local/nginx/html_admin",
+    "isServer": false
+  },
+  "blogServerWeb": {
+    "name": "server",
+    "localFilePath": "/Users/dnhyxc/Documents/code/blog-server-web",
+    "remoteFilePath": "/usr/local/server",
+    "isServer": true
+  }
+}
 ```
 
 #### 通过 prompts 收集用户输入的服务器地址、用户名、密码等信息
 
-当用户在需要发布的项目根目录下配置了 `publish.config.js` 文件时，用户只需要输入密码连接服务器后，就能直接发布项目了，如果没有配置，或者携带相关的的参数，那么对应的参数就需要用户通过 prompts 手动输入，在收集到用户输入的信息之后，才能完成发布，这种方式相对繁琐，因此，建议提前在项目根目录下配置好发布项目相关的配置。
+当用户在需要发布的项目根目录下配置了 `publish.config.json` 文件时，用户只需要输入密码连接服务器后，就能直接发布项目了，如果没有配置，或者携带相关的的参数，那么对应的参数就需要用户通过 prompts 手动输入，在收集到用户输入的信息之后，才能完成发布，这种方式相对繁琐，因此，建议提前在项目根目录下配置好发布项目相关的配置。
 
 ```js
 import prompts from "prompts";
@@ -814,7 +795,7 @@ program.parse(process.argv);
 
 ### 通过 prompts 收集用户输入信息
 
-如果用户在需要发布的项目根目录下的 `publish.config.js` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成 nginx.conf 文件的拉取操作，否则需要输入 host、端口、用户名、密码、远程 nginx 配置文件路径等相关信息。
+如果用户在需要发布的项目根目录下的 `publish.config.json` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成 nginx.conf 文件的拉取操作，否则需要输入 host、端口、用户名、密码、远程 nginx 配置文件路径等相关信息。
 
 ```js
 export const onCollectServerInfo = async ({
@@ -1177,7 +1158,7 @@ program.parse(process.argv);
 
 ### 通过 prompts 收集用户输入信息
 
-如果用户在需要发布的项目根目录下的 `publish.config.js` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成服务的重启操作，否则需要输入服务器 host、端口、用户名、密码、远程 nginx 配置文件路径、远程 nginx 重启路径、远程 node 服务重启路径等相关信息。至于 prompts 具体收集方式在上述 `onCollectServerInfo` 方法中已经实现，这里不再赘述。
+如果用户在需要发布的项目根目录下的 `publish.config.json` 文件中配置了项目发布的相关信息，则只需要输入密码后就可完成服务的重启操作，否则需要输入服务器 host、端口、用户名、密码、远程 nginx 配置文件路径、远程 nginx 重启路径、远程 node 服务重启路径等相关信息。至于 prompts 具体收集方式在上述 `onCollectServerInfo` 方法中已经实现，这里不再赘述。
 
 ### 重启 nginx 服务
 
