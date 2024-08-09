@@ -707,40 +707,27 @@ const onInstall = async (remotePath: string) => {
 
 ```js
 export const onRestartServer = async (remotePath: string, ssh: NodeSSH) => {
-	remotePath = ompatiblePath(remotePath);
-	const spinner = ora({
-		text: chalk.yellowBright(chalk.cyan("正在重启服务...")),
-	}).start();
-	try {
-		const { code: deleteCode, stderr: deleteStderr } = await ssh.execCommand(
-			"pm2 delete 0"
-		);
-		const { code: startCode, stderr: startStderr } = await ssh.execCommand(
-			`pm2 start ${remotePath}/src/main.js`
-		);
-		const { code: listCode, stdout } = await ssh.execCommand("pm2 list");
-		if (deleteCode === 0 && startCode === 0 && listCode === 0) {
-			spinner.succeed(chalk.greenBright(`服务启动成功: \n${stdout}`));
-			console.log(
-				`\n${beautyLog.success}`,
-				chalk.greenBright(
-					`${chalk.bold(
-						`🎉 🎉 🎉 node 服务重启成功: ${chalk.cyan(
-							`${remotePath}`
-						)}!!! 🎉 🎉 🎉 \n`
-					)}`
-				)
-			);
-		} else {
-			spinner.fail(
-				chalk.redBright(`服务启动失败: ${deleteStderr || startStderr}`)
-			);
-			process.exit(1);
-		}
-	} catch (error) {
-		spinner.fail(chalk.redBright(`服务启动失败: ${error}`));
-		process.exit(1);
-	}
+  remotePath = ompatiblePath(remotePath);
+  const spinner = ora({
+    text: chalk.yellowBright(chalk.cyan('正在重启服务...'))
+  }).start();
+  try {
+    const { code: restartCode, stderr: restartStderr } = await ssh.execCommand('pm2 restart 0');
+    const { code: listCode, stdout } = await ssh.execCommand('pm2 list');
+    if (restartCode === 0 && listCode === 0) {
+      spinner.succeed(chalk.greenBright(`服务启动成功: \n${stdout}`));
+      console.log(
+        `\n${beautyLog.success}`,
+        chalk.greenBright(`${chalk.bold(`🎉 🎉 🎉 node 服务重启成功: ${chalk.cyan(`${remotePath}`)}!!! 🎉 🎉 🎉 \n`)}`)
+      );
+    } else {
+      spinner.fail(chalk.redBright(`服务启动失败: ${restartStderr}`));
+      process.exit(1);
+    }
+  } catch (error) {
+    spinner.fail(chalk.redBright(`服务启动失败: ${error}`));
+    process.exit(1);
+  }
 };
 ```
 
