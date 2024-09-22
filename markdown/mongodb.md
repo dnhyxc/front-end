@@ -32,6 +32,8 @@ show collections
 db.adminusers.find()
 
 db.adminusers.update({ "username": "super" }, { $set: { auth: 1 } })
+
+db.articles.updateMany({ authorName: 'dnhyxc' }, { $set: { userId: '66efe5c8d80d0da837a3e600' } })
 ```
 
 ### 停止启动端口
