@@ -178,6 +178,41 @@ const onOpenCodesandboxWithReact = (e: Event) => {
 	const code = getParameters({
 		template: "create-react-app-typescript",
 		files: {
+			"src": {
+				children: {
+					"App.tsx": {
+						content: codeContent.value,
+						isBinary: false,
+					},
+					"index.tsx": {
+						content: `
+        		  import React from "react";
+        		  import ReactDOM from "react-dom/client";
+        		  import App from "./App";
+
+        		  const rootElement = document.getElementById("root")!;
+        		  const root = ReactDOM.createRoot(rootElement);
+
+        		  root.render(
+        		    <React.StrictMode>
+        		      <App />
+        		    </React.StrictMode>
+        		  );
+        		`,
+						isBinary: false,
+					},
+					"styles.css": {
+						content: `
+      		    .App {
+      		      font-family: sans-serif;
+      		      text-align: center;
+      		      color: red;
+      		    }
+      		  `,
+						isBinary: false,
+					},
+				}
+			},
 			"App.tsx": {
 				content: codeContent.value,
 				isBinary: false,

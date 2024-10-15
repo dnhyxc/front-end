@@ -1,3 +1,21 @@
+### nginx 常用命令
+
+启动 Nginx：nginx
+
+停止 Nginx：nginx -s stop
+
+重新加载 Nginx：nginx -s reload
+
+检查 Nginx 配置文件：nginx -t（检查配置文件的正确性）
+
+查看 Nginx 版本：nginx -v
+
+### 其他常用的配合脚本命令
+
+查看进程命令：ps -ef | grep nginx
+
+查看日志，在 logs 目录下输入指令：more access.log
+
 ### new conf
 
 ```yaml
