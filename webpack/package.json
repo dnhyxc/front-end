@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "dev": "webpack serve --config webpack.config.js",
     "build": "USE_SUB=false webpack",
     "release": "cross-env USE_SUB=true webpack"
   },
@@ -15,6 +16,13 @@
     "webpack-cli": "^5.1.4"
   },
   "devDependencies": {
-    "cross-env": "^7.0.3"
+    "@babel/core": "^7.25.8",
+    "@babel/generator": "^7.25.7",
+    "@babel/parser": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "@babel/traverse": "^7.25.7",
+    "cross-env": "^7.0.3",
+    "html-webpack-plugin": "^5.6.0",
+    "webpack-dev-server": "^5.1.0"
   }
 }
