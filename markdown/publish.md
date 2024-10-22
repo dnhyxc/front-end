@@ -367,6 +367,110 @@ http {
 }
 ```
 
+### nginx 配置 https
+
+首先去腾讯云申请免费证书，申请通过之后，下载 nginx 类型的证书文件文件，之后将证书文件上传到服务器的某个目录中，本人将证书放在服务器 `/usr/local/nginx/certs` 目录下。 之后通过 `unzip xxx.zip` 解压上传的证书 zip 压缩包。
+
+证书解压完成后，会得到四个文件，分别是：
+
+1. dnhyxc.cn_bundle.crt
+
+2. dnhyxc.cn_bundle.pem
+
+3. dnhyxc.cn.key
+
+4. dnhyxc.cn.csr
+
+上述四个文件中，我们实际用到的是 `dnhyxc.cn_bundle.crt` 和 `dnhyxc.cn.key` 这两个文件。
+
+具体用法为：修改 nginx.conf 配置文件，需要把 `listen 80` 改为默认的 443 端口 `listen 443 ssl`，或者自己制定端口 `listen 8090 ssl`，并在 `server` 块中增加如下内容：
+
+- 443 默认端口配置：
+
+```conf
+server {
+  # listen  80;
+  # server_name  www.dnhyxc.cn;
+
+  #https配置修改内容开始
+  #SSL 默认访问端口号为 443
+  listen 443 ssl;
+  #请填写绑定证书的域名
+  server_name dnhyxc.cn;
+
+  #请填写证书文件的相对路径或绝对路径 cloud.tencent.com_bundle.crt;
+  ssl_certificate /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn_bundle.crt;
+  #请填写私钥文件的相对路径或绝对路径
+  ssl_certificate_key /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn.key;
+  #https配置修改内容结束
+
+  location / {
+    root  /usr/local/nginx/html/dist;
+    index   index.html  index.htm;
+    try_files   $uri  $uri/ /index.html;
+  }
+
+  location /api/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /image/ {
+    root  /usr/local/server/src/upload/image;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  location /files/ {
+    root  /usr/local/server/src/upload/files;
+    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+    proxy_pass  http://localhost:9112;
+  }
+
+  error_page  500 502 503 504 /50x.html;
+
+  location = /50x.html {
+    root  html;
+  }
+}
+```
+
+- 自定义端口配置：
+
+```conf
+server {
+  # listen  8099;
+  # server_name  wwww.dnhyxc.cn;
+
+  #https配置修改内容开始
+  listen 8090 ssl;
+  #请填写绑定证书的域名
+  server_name dnhyxc.cn;
+  #请填写证书文件的相对路径或绝对路径 cloud.tencent.com_bundle.crt;
+  ssl_certificate /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn_bundle.crt;
+  #请填写私钥文件的相对路径或绝对路径
+  ssl_certificate_key /usr/local/nginx/certs/dnhyxc.cn_nginx/dnhyxc.cn.key;
+  #https配置修改内容结束
+
+  location / {
+    root  /usr/local/nginx/html_admin/dist;
+    index   index.html  index.htm;
+    try_files   $uri  $uri/ /index.html;
+  }
+
+  location /admin/ {
+    proxy_set_header  Host  $http_host;
+    proxy_set_header  X-Real-IP $remote_addr;
+    proxy_set_header  REMOTE-HOST $remote_addr;
+    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_pass  http://localhost:9112;
+  }
+}
+```
+
 ### nginx 报错处理
 
 解决 nginx: [error] open() ＂/usr/local/nginx/logs/nginx.pid＂ failed 错误，具体操作如下：
