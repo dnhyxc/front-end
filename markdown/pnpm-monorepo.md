@@ -628,10 +628,10 @@ export default defineConfig(config);
 
 [Changesets](https://github.com/atlassian/changesets) 是一个用于 Monorepo 项目下版本以及 Changelog 文件管理的工具。目前一些比较火的 Monorepo 仓库都在使用该工具进行项目的发包例如 pnpm、mobx 等。
 
-在根目录下安装 `@changeset/cli`：
+在根目录下安装 `@changesets/cli`：
 
 ```yaml
-pnpm install @changeset/cli -Dw
+pnpm install @changesets/cli -Dw
 ```
 
 安装完毕之后在根目录下运行 `npx changeset init` 在根目录下生成 `.changeset` 文件夹，其中 `config.json` 文件内容如下：
