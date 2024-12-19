@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<script src="">
+			console.log("Hello World");
+		</script>
+		<script>
+			// /**
+			//  * @param {number[]} nums
+			//  * @return {number}
+			//  */
+			// var removeDuplicates = function (nums) {
+			// 	const n = nums.length;
+			// 	if (n === 0) {
+			// 		return 0;
+			// 	}
+			// 	let fast = 1,
+			// 		slow = 1;
+			// 	while (fast < n) {
+			// 		if (nums[fast] !== nums[fast - 1]) {
+			// 			nums[slow] = nums[fast];
+			// 			++slow;
+			// 		}
+			// 		++fast;
+			// 	}
+			// 	return slow;
+			// };
+
+			// // var nums = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4];
+			// // const res = removeDuplicates(nums);
+			// // console.log(res); // 5
+
+			// var nums = [1, 1, 2];
+			// const res = removeDuplicates(nums);
+			// console.log(res); // 2
+
+			// // 删除数组中指定元素
+			// var removeElement = function (nums, val) {
+			// 	const n = nums.length;
+			// 	let left = 0;
+			// 	for (let right = 0; right < n; right++) {
+			// 		if (nums[right] !== val) {
+			// 			nums[left] = nums[right];
+			// 			left++;
+			// 		}
+			// 	}
+			// 	return left;
+			// };
+
+			// var nums = [3, 2, 2, 3], val = 3
+			var arrs = [0, 1, 2, 2, 3, 0, 4, 2],
+				count = 2;
+
+			var arrs2 = [3, 2, 2, 3],
+				count2 = 3;
+
+			// var data = removeElement(nums, count);
+
+			// console.log(data, arrs);
+
+			const arr = [];
+			const removeCount = function (nums, val) {
+				var n = nums.length;
+				for (let i = 0; i < n; i++) {
+					if (nums[i] !== val) {
+						arr.push(nums[i]);
+					}
+				}
+				arrs2 = arr;
+				return arr.length;
+			};
+
+			const num = removeCount(arrs2, count2);
+			console.log(num, "num----removeCount", arrs2); // 5
+
+			// var removeElement = function (nums, val) {
+			// 	const n = nums.length;
+			// 	let left = 0;
+			// 	for (let right = 0; right < n; right++) {
+			// 		if (nums[right] !== val) {
+			// 			nums[left] = nums[right];
+			// 			left++;
+			// 		}
+			// 	}
+			// 	return left;
+			// };
+
+			// var nums = [3, 2, 2, 3], val = 3
+			// // var nums = [0, 1, 2, 2, 3, 0, 4, 2],
+			// // 	val = 2;
+
+			// var res = removeElement(nums, 3);
+
+			// console.log(res, nums);
+
+			var removeDuplicates = function (nums) {
+				const n = nums.length;
+				if (n === 0) return 0;
+				let fast = 1,
+					slow = 1;
+				while (fast < n) {
+					if (nums[fast] !== nums[fast - 1]) {
+						nums[slow] = nums[fast];
+						++slow;
+					}
+					++fast;
+				}
+				return slow;
+			};
+
+			var nums = [0, 0, 1, 1, 1, 2, 2, 3, 3, 4];
+			const res = removeDuplicates(nums);
+			console.log(res, nums); // 5 [0,1,2,3,4,2,2,3,3,4]
+
+			// var nums = [1, 1, 2];
+			// const res = removeDuplicates(nums);
+			// console.log(res, nums); // 2 [1, 2, 2]
+		</script>
+	</body>
+</html>

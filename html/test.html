@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>run code</title>
+	</head>
+
+	<body>
+		<script>
+			/**
+			 * 删除有序数组中的重复项 II
+			 * @param {number[]} nums
+			 * @return {number}
+			 */
+			var removeDuplicates = function (nums) {
+				const n = nums.length;
+				if (n <= 2) {
+					return n;
+				}
+				let slow = 2,
+					fast = 2;
+				while (fast < n) {
+					if (nums[slow - 2] !== nums[fast]) {
+						nums[slow] = nums[fast];
+						++slow;
+					}
+					++fast;
+				}
+				return slow;
+			};
+
+			// 输入：nums = [1,1,1,2,2,3]
+			// 输出：5, nums = [1,1,2,2,3]
+
+			const nums = [1, 1, 1, 2, 2, 3];
+			const res = removeDuplicates(nums, 5);
+			console.log(res, nums); // 5 [1, 1, 2, 2, 3, 3]
+
+			// 输入：nums = [0,0,1,1,1,1,2,3,3]
+			// 输出：7, nums = [0,0,1,1,2,3,3]
+
+			const nums1 = [0, 0, 1, 1, 1, 1, 2, 3, 3];
+			const res1 = removeDuplicates(nums, 5);
+			console.log(res1, nums1); // 5 [0, 0, 1, 1, 1, 1, 2, 3, 3]
+
+			var solution = function (cards) {
+				// 初始化结果变量为 0
+				let result = 0;
+
+				// 遍历数组中的每一个数字，并将 result 与当前数字进行异或运算
+				cards.forEach((card) => {
+					// 进行异或运算
+					result ^= card; // 这里使用了异或运算符 (^) 对 result 和 card 进行操作。异或运算符的结果为1当且仅当两个操作数的值不同时。
+				});
+
+				// 返回结果
+				return result;
+			};
+
+			console.log(solution([1, 1, 2, 2, 3, 3, 4, 5, 5]));
+			// console.log(solution([0, 1, 0, 1, 2]));
+
+			function findUniqueCard(cards) {
+				const totalSum = cards.reduce((sum, num) => sum + num, 0);
+				// 将 Set 转换为数组后再调用 reduce
+				const uniqueSum = Array.from(new Set(cards)).reduce(
+					(sum, num) => sum + num,
+					0
+				);
+				return 2 * uniqueSum - totalSum;
+			}
+
+			// 示例
+			const cards = [2, 3, 5, 3, 2, 7, 5];
+			console.log(findUniqueCard(cards)); // 输出 7
+
+			function findUniqueCard1(cards) {
+				const countMap = new Map();
+
+				// 统计每个数字出现的次数
+				for (let card of cards) {
+					countMap.set(card, (countMap.get(card) || 0) + 1);
+				}
+
+				// 找到只出现一次的数字
+				for (let [key, value] of countMap) {
+					if (value === 1) {
+						return key;
+					}
+				}
+			}
+
+			// 示例
+			const cards1 = [2, 3, 5, 3, 2, 7, 5];
+			console.log(findUniqueCard(cards)); // 输出 7
+		</script>
+	</body>
+</html>
+
+1+1+2+2+3+3+4+5+5 = 26 1+2+3+4+5 = 15 * 2 - 26 = 4 2+3+5+3+2+7+5 = 27 2+3+5+7 =
+17 * 2 - 27 = 7

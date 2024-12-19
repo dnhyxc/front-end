@@ -476,3 +476,43 @@ pm2 update
 `pm2 reloadLogs`：重载所有日志。
 
 `pm2 startup`：产生 init 脚本，保持进程活着。
+
+#### 为服务器安装 python3
+
+```yaml
+# 安装 python3
+$ sudo yum install -y epel-release
+$ sudo yum install -y python3
+
+# 升级 pip 为最新版本
+$ sudo pip3 install pip -U
+```
+
+参考：[https://cloud.tencent.com/developer/article/1835880](https://cloud.tencent.com/developer/article/1835880)
+
+#### 为服务器安装 gcc c 语言编译环境
+
+前提条件：想要在你的 CentOS 系统上添加新的软件源，安装软件包，你必须以 root 或者有 sudo 权限的用户身份登录系统。
+
+在 CentOS 上安装 GCC 时，默认的 CentOS 软件源上包含一个名称为 `Development Tools` 的软件包组，这个组合包含了 GCC 编译器以及一系列库文件，还有其他编译软件需要用到的工具。
+
+想要安装 Development Tools 包含 GCC 编译器，运行：
+
+```yaml
+sudo yum group install "Development Tools"
+```
+
+这个命令安装了一组新的软件包，包括 gcc，g++，和 make。
+
+安装完成之后，使用 `gcc -version` 来验证是否安装成功。
+
+在 CentOS 7 软件源上，默认 GCC 可用版本是 4.8.5，如果出现如下提示，说明安装成功：
+
+```
+gcc (GCC) 4.8.5 20150623 (Red Hat 4.8.5-36)
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+```
+
+参考：[https://cloud.tencent.com/developer/article/1626791](https://cloud.tencent.com/developer/article/1626791)

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+			body,
+			html {
+				background-color: #272a32;
+				height: 100vh;
+			}
+		</style>
+	</head>
+	<body>
+		<script>
+			function createOverload() {
+				const fnMap = new Map();
+				function overload(...args) {
+					const key = args.map((it) => typeof it).join(",");
+					const fn = fnMap.get(key);
+					if (!fn) {
+						throw new Error(`No overload found for ${key}`);
+					}
+					return fn.apply(this, args);
+				}
+				overload.addTmpl = function (...args) {
+					const fn = args.pop();
+					if (typeof fn !== "function") {
+						throw new Error("Last argument must be a function");
+					}
+					const key = args.join(",");
+					fnMap.set(key, fn);
+				};
+				return overload;
+			}
+
+			const getUsers = createOverload();
+
+			const searchPage = (page, size = 20) => {
+				console.log(`search page ${page} with size ${size}`);
+			};
+
+			getUsers.addTmpl(() => {
+				console.log("search all users");
+			});
+
+			getUsers.addTmpl("number", searchPage);
+
+			getUsers.addTmpl("number", "number", searchPage);
+
+			getUsers.addTmpl("string", (name = "dnhyxc") => {
+				console.log(`search user ${name}`);
+			});
+
+			getUsers.addTmpl("string", "string", () => {
+				console.log("search users by gender");
+			});
+
+			getUsers("dnhyxc", 'sss');
+			getUsers("dnhyxc", 'sss');
+			getUsers("dnhyxc", 'sss');
+			getUsers("dnhyxc", 'sss');
+			getUsers("dnhyxc", 'sss');
+		</script>
+	</body>
+</html>
