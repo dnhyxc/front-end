@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Developer Tools</title>
+		<style>
+			.cotntet {
+				display: flex;
+				justify-content: space-between;
+			}
+
+			.left,
+			.right {
+				flex: 1;
+			}
+
+			.title {
+				margin-bottom: 20px;
+			}
+
+			#inputRef,
+			#outputRef {
+				width: 100%;
+			}
+
+			.right {
+				margin-left: 50px;
+			}
+		</style>
+		<script src="index.js" type="module"></script>
+	</head>
+	<body>
+		<h1>Developer Tools</h1>
+		<div class="cotntet">
+			<div class="left">
+				<div>
+					<div class="title">
+						<button id="runBtn">运行</button>
+					</div>
+					<textarea id="inputRef" rows="20" placeholder="输入代码"></textarea>
+				</div>
+				<div id="iframeRef"></div>
+			</div>
+			<div class="right">
+				<div class="title">运行结果</div>
+				<textarea
+					id="outputRef"
+					readonly
+					rows="20"
+					style="resize: none"
+				></textarea>
+			</div>
+		</div>
+	</body>
+</html>
