@@ -1,6 +1,6 @@
 ## 如何实现一个多种语言的代码执行输出工具
 
-### 背景
+## 背景
 
 有时候我们通常需要写一些 demo 或者代码片段进行测试，但是又并不想打开 vscode 或者其他 IDE，这时候我们就需要一个工具来帮助我们快速执行代码并查看输出结果。
 
@@ -8,7 +8,7 @@
 
 因此，为了方便快速执行代码并查看输出结果，就想着自己实现一个代码执行输出工具。
 
-## 实现 JS 代码执行输出工具
+## 实现 JS 执行并获取执行结果
 
 ### 执行 JS 代码的方式
 
@@ -398,9 +398,15 @@ export const codeTemplate = (value: string) => {
 			<div class="left">
 				<div>
 					<div class="title">
+						<button id="initBtn">生成HTML</button>
 						<button id="runBtn">运行</button>
 					</div>
-					<textarea id="inputRef" rows="20" placeholder="输入代码"></textarea>
+					<textarea
+						id="inputRef"
+						rows="20"
+						style="resize: none"
+						placeholder="输入代码"
+					></textarea>
 				</div>
 				<div id="iframeRef"></div>
 			</div>
@@ -425,6 +431,7 @@ let iframeNode = null;
 let codeResults = "";
 const inputRef = document.getElementById("inputRef");
 const runBtn = document.getElementById("runBtn");
+const initBtn = document.getElementById("initBtn");
 const iframeRef = document.getElementById("iframeRef");
 const outputRef = document.getElementById("outputRef");
 
@@ -581,27 +588,69 @@ runBtn.addEventListener("click", () => {
 	createIframe({ code: codeTemplate(inputRef.value), display: "none" });
 });
 
-const createIframe = ({ code, display, id }) => {
+initBtn.addEventListener("click", () => {
+	inputRef.value = `
+    let obj1 = { name: 'obj1' };
+    let obj2 = { a: obj1 };
+    obj1.obj1 = window.location.reload;
+    obj2.obj2 = obj2;
+    console.log(obj1);
+    console.log(obj2.obj2, 'obj2');
+
+    console.log(Error, 'null', new Error());
+
+    console.log(undefined, null, 'null', 'undefined');
+
+    console.log(window.location.reload);
+
+    const fun = () => {
+      console.log(111);
+    };
+    function fun1() {
+      return 111;
+    }
+    const fun2 = function () {
+      return 'fun2';
+    };
+    console.log(fun);
+    console.log(fun());
+    console.log(fun1);
+    console.log(fun2);
+
+    const data = {
+      title: 'coderun 实现逻辑',
+      content: '首先你要这样，再这样，最后再这样，就好了',
+      author: 'dnhyxc',
+      like: 999,
+    };
+    console.log(data, 11, '这是一个对象');
+
+    const arr = [1, 2, 3, 4, 5, 6, 7, '888'];
+    console.log(arr, 'arr');
+
+    const div = document.createElement('div');
+    div.id = 'dnhyxc';
+    div.innerHTML = 'dnhyxc';
+    console.log(div, 'div');
+
+    console.log(new Date().valueOf(), new Date());
+    
+    console.log(new RegExp(/__ERROR__$/));
+    window.a = new RegExp(/a/g);
+    console.log(window.a);
+  `;
+});
+
+const createIframe = ({ code, display }) => {
 	iframeNode && iframeRef.removeChild(iframeNode);
 	const iframe = document.createElement("iframe");
 	iframeNode = iframe;
 	iframe.src = "about:blank";
 	iframe.style.display = display;
-	id && (iframe.id = id);
 	iframeRef.appendChild(iframe);
 	const frameDocument = iframe.contentWindow.document;
 	frameDocument.open();
-	if (id) {
-		if (timer) {
-			clearTimeout(timer);
-			timer = null;
-		}
-		timer = setTimeout(() => {
-			frameDocument.write(code);
-		}, 10);
-	} else {
-		frameDocument.write(code);
-	}
+	frameDocument.write(code);
 	frameDocument.close();
 };
 
@@ -672,3 +721,777 @@ const scriptCode = `
 	... // 省略其他代码
 `;
 ```
+
+## 实现 HTML 的执行并查看效果
+
+有时候，我们还可能需要测试一些 HTML 代码的执行后的样式效果，为了达到这种目的，也可以在页面上嵌入一个 iframe，并将 HTML 代码写入到这个 iframe 中，然后执行这个 iframe 中的代码，并将执行结果展示在页面上。
+
+### 具体的实现方式
+
+通上述执行 JS 代码的实现方式差不多，即：首先需要创建一个 `iframe`，然后将 html 代码写入到这个 iframe 中的 `body` 里面，这样就天然达到了执行 html 的效果。
+
+创建 `iframe` 并写入 html 代码，具体实现与上述 JS 代码执行的实现方式一致：
+
+```js
+const createIframe = ({ code, display, id }) => {
+	iframeNode && iframeRef.removeChild(iframeNode);
+	const iframe = document.createElement("iframe");
+	iframeNode = iframe;
+	iframe.src = "about:blank";
+	iframe.style.display = display;
+	id && (iframe.id = id);
+	iframeRef.appendChild(iframe);
+	const frameDocument = iframe.contentWindow.document;
+	frameDocument.open();
+	if (id) {
+		if (timer) {
+			clearTimeout(timer);
+			timer = null;
+		}
+		timer = setTimeout(() => {
+			frameDocument.write(code);
+		}, 10);
+	} else {
+		frameDocument.write(code);
+	}
+	frameDocument.close();
+};
+```
+
+之后，我们还要对需要执行的 html 代码进行一些处理，即完善一些默认的 html 标签代码，因为用户在输入时，可能只输入一个 `<div>xxx</div>` 标签，而这个标签可能并不是一个完整的 html 代码，所以我们需要将其补全，将输入的代码包裹在 `<body></body>` 标签中。同时，我们还能从外部传入一些参数，用于控制 html 代码的执行效果，比如：修改背景颜色，修改滚动条样式等等。
+
+```js
+export const htmlTemplate = (
+	code: string,
+	{ background, color }: { background: string, color: string }
+) => {
+	return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+          }
+          ::-webkit-scrollbar-track {
+            height: 6px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background-color: #424242;
+          }
+          body,html {
+            padding: 0;
+            margin: 0;
+            background: ${background};
+            color: ${color};
+          }
+        </style>
+      </head>
+      <body>${code}</body>
+    </html>`;
+};
+```
+
+### 运行 HTML 最终实现
+
+最终的实现代码如下：
+
+- html:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Developer Tools</title>
+		<style>
+			body,
+			html {
+				height: 100%;
+			}
+
+			.header {
+				height: 50px;
+				font-size: 28px;
+				font-weight: 700;
+			}
+
+			.cotntet {
+				display: flex;
+				justify-content: space-between;
+				height: calc(100% - 50px);
+			}
+
+			.left,
+			.right {
+				flex: 1;
+			}
+
+			.input-wrap {
+				height: 300px;
+			}
+
+			.title {
+				margin-bottom: 20px;
+			}
+
+			#inputRef,
+			#outputRef {
+				width: 100%;
+				height: 100%;
+			}
+
+			.right {
+				margin-left: 50px;
+			}
+
+			#iframeRef {
+				border: 1px solid #ccc;
+				height: 307px;
+			}
+
+			iframe {
+				width: 100%;
+				height: 100%;
+				border: none;
+			}
+		</style>
+		<script src="run-html.js" type="module"></script>
+	</head>
+	<body>
+		<div class="header">Developer Tools</div>
+		<div class="cotntet">
+			<div class="left">
+				<div class="input-wrap">
+					<div class="title">
+						<button id="runBtn">运行</button>
+					</div>
+					<textarea
+						id="inputRef"
+						rows="20"
+						style="resize: none"
+						placeholder="输入代码"
+					></textarea>
+				</div>
+			</div>
+			<div class="right">
+				<div class="title">运行结果</div>
+				<div id="iframeRef"></div>
+			</div>
+		</div>
+	</body>
+</html>
+```
+
+- index.js:
+
+```js
+let iframeNode = null;
+let codeResults = "";
+let timer = null;
+const inputRef = document.getElementById("inputRef");
+const runBtn = document.getElementById("runBtn");
+const iframeRef = document.getElementById("iframeRef");
+
+// 加工处理需要执行的html代码
+const htmlTemplate = (code, { background, color }) => {
+	return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+          }
+          ::-webkit-scrollbar-track {
+            height: 6px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background-color: #424242;
+          }
+          body,html {
+            padding: 0;
+            margin: 0;
+            background: ${background};
+            color: ${color};
+          }
+        </style>
+      </head>
+      <body>${code}</body>
+    </html>`;
+};
+
+// 创建运行 code 的 iframe，并将需要运行的代码写入
+const createIframe = ({ code, display, id }) => {
+	iframeNode && iframeRef.removeChild(iframeNode);
+	const iframe = document.createElement("iframe");
+	iframeNode = iframe;
+	iframe.src = "about:blank";
+	iframe.style.display = display;
+	id && (iframe.id = id);
+	iframeRef.appendChild(iframe);
+	const frameDocument = iframe.contentWindow.document;
+	frameDocument.open();
+	if (id) {
+		if (timer) {
+			clearTimeout(timer);
+			timer = null;
+		}
+		timer = setTimeout(() => {
+			frameDocument.write(code);
+		}, 10);
+	} else {
+		frameDocument.write(code);
+	}
+	frameDocument.close();
+};
+
+// 执行代码
+runBtn.addEventListener("click", () => {
+	const htmlCode = htmlTemplate(inputRef.value, {
+		background: "#fff",
+		color: "#000",
+	});
+	createIframe({
+		code: htmlCode,
+		display: "block",
+		id: "__HTML_RESULT__",
+	});
+});
+```
+
+通过上面的代码，我们已经可以执行 html 代码，并在页面上呈现效果了，但是，如果我们输入了 `<script>` 标签，并在里面写了一些 `console.log()`，按照上述的实现，是无法获取到这些打印输出的，只能将元素渲染到页面上。
+
+为了能够获取到这些打印输出，我们还需要对 `htmlTemplate` 方法进行改造。即需要向执行 js 代码一样，对浏览器原先的 `console` 进行改造。这里与执行 js 代码不同的一点是 js 代码的执行以及执行错误的捕获。因为 js 代码是用户写入到 `<script>` 标签中的，同时可能在多个 `<script>` 标签中。
+
+因此为了不去查询获取 html 中所有的 `script` 标签及其内容，我们可以直接在 `htmlTemplate` 方法中将上述执行 js 代码的 `scriptCode` 嵌入到 `htmlTemplate` 方法中的 `script` 标签中。
+
+同时为了捕获到代码执行的错误，还需要通过监听 `error` 事件，并将错误信息发送到父页面。
+
+最终的 `htmlTemplate` 方法如下：
+
+```js
+const htmlTemplate = (code: string, { background, color }) => {
+	return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+          }
+          ::-webkit-scrollbar-track {
+            height: 6px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background-color: #424242;
+          }
+          body,html {
+            padding: 0;
+            margin: 0;
+            background: ${background};
+            color: ${color};
+          }
+        </style>
+        <script>
+        	${scriptCode}
+
+          window.addEventListener('error', e => {
+            window.parent.postMessage({ from: 'codeRunner', type: 'error', data: e.message }, '*')
+          });
+        </script>
+      </head>
+      <body>${code}</body>
+    </html>`;
+};
+```
+
+这样，我们即实现了执行渲染 html 代码的效果，同时也实现了 html 代码中 `console.log()` 输出的捕获。
+
+### 最终实现代码
+
+最终的实现代码如下：
+
+- index.html:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>RUN HTML</title>
+		<style>
+			body,
+			html {
+				height: 100vh;
+				width: 100%;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+			}
+
+			.header {
+				height: 50px;
+				font-size: 28px;
+				font-weight: 700;
+				padding: 0 10px;
+			}
+
+			.cotntet {
+				display: flex;
+				justify-content: space-between;
+				padding: 0 10px;
+			}
+
+			.left,
+			.right {
+				flex: 1;
+			}
+
+			.input-wrap {
+				height: 300px;
+			}
+
+			.title {
+				margin-bottom: 15px;
+			}
+
+			#inputRef,
+			#outputRef {
+				width: 100%;
+				height: 100%;
+			}
+
+			.right {
+				margin-left: 20px;
+			}
+
+			#iframeRef {
+				border: 1px solid #ccc;
+				height: 307px;
+			}
+
+			iframe {
+				width: 100%;
+				height: 100%;
+				border: none;
+			}
+
+			.bottom {
+				margin-top: 20px;
+				padding: 0 10px 10px;
+			}
+
+			#outputRef {
+				width: 100%;
+				height: 240px;
+				box-sizing: border-box;
+			}
+		</style>
+		<script src="run-html.js" type="module"></script>
+	</head>
+	<body>
+		<div class="header">RUN HTML</div>
+		<div class="cotntet">
+			<div class="left">
+				<div class="input-wrap">
+					<div class="title">
+						<button id="runBtn">运行</button>
+						<button id="initBtn">生成HTML</button>
+					</div>
+					<textarea
+						id="inputRef"
+						rows="20"
+						style="resize: none"
+						placeholder="输入代码"
+					></textarea>
+				</div>
+			</div>
+			<div class="right">
+				<div class="title">运行结果</div>
+				<div id="iframeRef"></div>
+			</div>
+		</div>
+		<div class="bottom">
+			<div class="title">运行日志</div>
+			<textarea id="outputRef" readonly style="resize: none"></textarea>
+		</div>
+	</body>
+</html>
+```
+
+- index.js:
+
+```js
+let iframeNode = null;
+let codeResults = "";
+let timer = null;
+const inputRef = document.getElementById("inputRef");
+const runBtn = document.getElementById("runBtn");
+const initBtn = document.getElementById("initBtn");
+const iframeRef = document.getElementById("iframeRef");
+const outputRef = document.getElementById("outputRef");
+
+const scriptCode = `
+  const consoleMethods = ['log', 'info', 'debug', 'warn', 'error', 'table', 'time', 'timeEnd'];
+  
+  let seen = new WeakSet();
+
+  // 添加深度限制和大小限制的序列化函数
+  function safeStringify(obj, depth = 5, maxSize = 1024 * 10) {
+    const stack = [];
+
+    function serialize(value, currentDepth = 0) {
+      // 检查深度限制
+      if (currentDepth > depth) return '[Max Depth Reached]';
+
+      // 检查对象大小限制
+      if (stack.length > maxSize) return '[Max Size Reached]';
+
+      // 处理基本类型
+      if (['string', 'number', 'boolean'].includes(typeof value)) return value;
+
+      // 处理函数
+      if (typeof value === 'function') return String(value);
+
+      // 处理undefined
+      if (typeof value === 'undefined') return 'undefined';
+
+      // 处理null
+      if (value === null) return value;
+
+      // 处理循环引用
+      if (typeof value === 'object') {
+        if (seen.has(value)) return '[Circular]';
+
+        seen.add(value);
+
+        // 处理window.Error
+        if (value === Error) return String(value);
+
+        // 处理自定义new Error()
+        if (value instanceof Error) return String(value);
+
+        // 处理localStorage
+        if (value instanceof Storage) return {}
+
+        // 处理DOM元素
+        if (value instanceof HTMLElement) return value.outerHTML;
+
+        // 处理Map
+        if (value instanceof Map) {
+          const mapObj = {};
+          value.forEach((v, k) => {
+            mapObj[k] = serialize(v, currentDepth + 1);
+          });
+          return { type: 'Map', data: mapObj };
+        }
+
+        // 处理Set
+        if (value instanceof Set) {
+          const setArray = [];
+          value.forEach(v => {
+            setArray.push(serialize(v, currentDepth + 1));
+          });
+          return { type: 'Set', data: setArray };
+        }
+
+        // 处理WeakMap
+        if (value instanceof WeakMap) {
+          return '[WeakMap]';
+        }
+          
+        // 处理正则
+        if (value instanceof RegExp) {
+          return value.toString();
+        }
+
+        // 处理日期
+        if (value instanceof Date) {
+          return value.toString();
+        }
+
+        // 处理数组和对象
+        const isArray = Array.isArray(value);
+
+        const result = isArray ? [] : {};
+
+        for (const key in value) {
+          if (Object.prototype.hasOwnProperty.call(value, key)) {
+            result[key] = serialize(value[key], currentDepth + 1);
+          }
+        }
+
+        return result;
+      }
+
+      return String(value);
+    }
+
+    try {
+      return JSON.stringify(serialize(obj), null, 2);
+    } catch (e) {
+      return '[Serialization Error]';
+    }
+  }
+
+  consoleMethods.forEach(method => {
+    const origin = console[method];
+    console[method] = (...args) => {
+      try {
+        window.parent.postMessage({ 
+          from: 'codeRunner', 
+          type: method, 
+          data: safeStringify(args)
+        }, '*');
+      } catch (e) {
+        // 如果序列化失败，发送错误信息
+        window.parent.postMessage({ 
+          from: 'codeRunner', 
+          type: 'error', 
+          data: 'Serialization failed: ' + e.message 
+        }, '*');
+      }
+      // 调用原始方法
+      origin.apply(console, args);
+      // 执行完成后，重置seen，防止无法多次正确的打印同一个数据
+      seen = new WeakSet();
+    };
+
+    // 确保方法正确绑定
+    console[method] = console[method].bind(console);
+  });
+`;
+
+// 加工处理需要执行的html代码
+const htmlTemplate = (code, { background, color }) => {
+	return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+          }
+          ::-webkit-scrollbar-track {
+            height: 6px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background-color: #424242;
+          }
+          body,html {
+            padding: 0;
+            margin: 0;
+            background: ${background};
+            color: ${color};
+          }
+        </style>
+        <script>
+          ${scriptCode}
+
+          window.addEventListener('error', e => {
+            window.parent.postMessage({ from: 'codeRunner', type: 'error', data: e.message }, '*')
+          });
+        </script>
+      </head>
+      <body>${code}</body>
+    </html>`;
+};
+
+// 创建运行 code 的 iframe，并将需要运行的代码写入
+const createIframe = ({ code, display, id }) => {
+	iframeNode && iframeRef.removeChild(iframeNode);
+	const iframe = document.createElement("iframe");
+	iframeNode = iframe;
+	iframe.src = "about:blank";
+	iframe.style.display = display;
+	id && (iframe.id = id);
+	iframeRef.appendChild(iframe);
+	const frameDocument = iframe.contentWindow.document;
+	frameDocument.open();
+	if (id) {
+		if (timer) {
+			clearTimeout(timer);
+			timer = null;
+		}
+		timer = setTimeout(() => {
+			frameDocument.write(code);
+		}, 10);
+	} else {
+		frameDocument.write(code);
+	}
+	frameDocument.close();
+};
+
+// 执行代码
+runBtn.addEventListener("click", () => {
+	const htmlCode = htmlTemplate(inputRef.value, {
+		background: "#fff",
+		color: "#000",
+	});
+	createIframe({
+		code: htmlCode,
+		display: "block",
+		id: "__HTML_RESULT__",
+	});
+});
+
+initBtn.addEventListener("click", () => {
+	inputRef.value = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          body,
+          html {
+            display: flex;
+            justify-content: center;
+          }
+
+          .box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            width: 100px;
+            height: 100px;
+            background: skyblue;
+            border-radius: 5px;
+          }
+        </style>
+      </head>
+
+      <body>
+        <div class="box">预览</div>
+        <script>
+          let obj1 = { name: 'obj1' };
+          let obj2 = { a: obj1 };
+          obj1.obj1 = window.location.reload;
+          obj2.obj2 = obj2;
+          console.log(obj1);
+          console.log(obj2.obj2, 'obj2');
+
+          console.log(Error, 'null', new Error());
+
+          console.log(undefined, null, 'null', 'undefined');
+
+          console.log(window.location.reload);
+
+          const fun = () => {
+            console.log(111);
+          };
+          function fun1() {
+            return 111;
+          }
+          const fun2 = function () {
+            return 'fun2';
+          };
+          console.log(fun);
+          console.log(fun());
+          console.log(fun1);
+          console.log(fun2);
+
+          console.log({
+            date: '20210902',
+            name: 'dnhyxc',
+            age: 18,
+          });
+
+          const data = {
+            title: 'coderun 实现逻辑',
+            content: '首先你要这样，再这样，最后再这样，就好了',
+            author: 'dnhyxc',
+            like: 999,
+          };
+
+          console.log(data, 11, '这是一个对象');
+
+          const arr = [1, 2, 3, 4, 5, 6, 7, '888'];
+          console.log(arr, 'arr');
+
+          const div = document.createElement('div');
+          div.id = 'dnhyxc';
+          div.innerHTML = 'dnhyxc';
+          console.log(div, 'div');
+
+          console.log(new Date().valueOf(), new Date());
+
+          console.log(new RegExp(/__ERROR__$/));
+          window.a = new RegExp(/a/g);
+          console.log(window.a);
+        </script>
+      </body>
+    </html>
+  `;
+});
+
+// 格式化解析数据
+const JSONParse = (objStr) => {
+	return JSON.parse(objStr, (k, v) => {
+		if (
+			typeof v === "string" &&
+			v.indexOf &&
+			(v.indexOf("function") > -1 || v.indexOf("=>") > -1)
+		) {
+			try {
+				if (v.startsWith("function") || v.includes("=>")) {
+					return new Function(`return ${v}`)();
+				}
+			} catch (error) {
+				return v;
+			}
+		}
+		return v;
+	});
+};
+
+// 监听 iframe 中运行 code 后发送的消息
+window.addEventListener("message", (e) => {
+	if (e.data.from === "codeRunner") {
+		const { data, type } = e.data;
+		if (type === "error") {
+			// 处理运行时错误信息
+			console.log(data, "error");
+			outputRef.innerHTML = data;
+		} else {
+			const parseData = JSONParse(data);
+			// 运行结果信息
+			let code = parseData
+				.map((item) => (typeof item === "object" ? JSON.stringify(item) : item))
+				.join("\n")
+				.replace(/"([^"]+)":/g, "$1: ");
+			codeResults += `${code}\n\n`;
+			outputRef.innerHTML = codeResults;
+		}
+	}
+});
+```
+
+### 在项目中最终呈现的效果
+
+![html 代码运行效果](devtools-html.png)

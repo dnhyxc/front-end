@@ -1,5 +1,6 @@
 let iframeNode = null;
 let codeResults = '';
+let timer = null;
 const inputRef = document.getElementById("inputRef");
 const runBtn = document.getElementById("runBtn");
 const initBtn = document.getElementById("initBtn");
@@ -137,93 +138,166 @@ const scriptCode = `
   });
 `;
 
-const codeTemplate = (value) => {
-  const template = `
-    <body>
-      <script>
-        ${scriptCode}
+// 加工处理需要执行的html代码
+const htmlTemplate = (code, { background, color }) => {
+  return `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+            background-color: transparent;
+          }
+          ::-webkit-scrollbar-track {
+            height: 6px;
+          }
+          ::-webkit-scrollbar-thumb {
+            background-color: #424242;
+          }
+          body,html {
+            padding: 0;
+            margin: 0;
+            background: ${background};
+            color: ${color};
+          }
+        </style>
+        <script>
+          ${scriptCode}
 
-        try {
-          // 这里使用eval是为了提前捕获在代码解析阶段抛出的错误，比如：重复定义变量
-          eval(\`${value}\`);
-        } catch(e) {
-          window.parent.postMessage({ from: 'codeRunner', type: 'error', data: e }, '*')
-        }
-      </script>
-    </body>
-  `;
-  return template;
+          window.addEventListener('error', e => {
+            window.parent.postMessage({ from: 'codeRunner', type: 'error', data: e.message }, '*')
+          });
+        </script>
+      </head>
+      <body>${code}</body>
+    </html>`;
 };
 
-runBtn.addEventListener("click", () => {
-  createIframe({ code: codeTemplate(inputRef.value), display: 'none' });
-});
-
-initBtn.addEventListener("click", () => {
-  inputRef.value = `
-    let obj1 = { name: 'obj1' };
-    let obj2 = { a: obj1 };
-    obj1.obj1 = window.location.reload;
-    obj2.obj2 = obj2;
-    console.log(obj1);
-    console.log(obj2.obj2, 'obj2');
-
-    console.log(Error, 'null', new Error());
-
-    console.log(undefined, null, 'null', 'undefined');
-
-    console.log(window.location.reload);
-
-    const fun = () => {
-      console.log(111);
-    };
-    function fun1() {
-      return 111;
-    }
-    const fun2 = function () {
-      return 'fun2';
-    };
-    console.log(fun);
-    console.log(fun());
-    console.log(fun1);
-    console.log(fun2);
-
-    const data = {
-      title: 'coderun 实现逻辑',
-      content: '首先你要这样，再这样，最后再这样，就好了',
-      author: 'dnhyxc',
-      like: 999,
-    };
-    console.log(data, 11, '这是一个对象');
-
-    const arr = [1, 2, 3, 4, 5, 6, 7, '888'];
-    console.log(arr, 'arr');
-
-    const div = document.createElement('div');
-    div.id = 'dnhyxc';
-    div.innerHTML = 'dnhyxc';
-    console.log(div, 'div');
-
-    console.log(new Date().valueOf(), new Date());
-    
-    console.log(new RegExp(/__ERROR__$/));
-    window.a = new RegExp(/a/g);
-    console.log(window.a);
-  `
-});
-
-const createIframe = ({ code, display }) => {
+// 创建运行 code 的 iframe，并将需要运行的代码写入
+const createIframe = ({ code, display, id }) => {
   iframeNode && iframeRef.removeChild(iframeNode);
   const iframe = document.createElement("iframe");
   iframeNode = iframe;
   iframe.src = "about:blank";
   iframe.style.display = display;
+  id && (iframe.id = id);
   iframeRef.appendChild(iframe);
   const frameDocument = iframe.contentWindow.document;
   frameDocument.open();
-  frameDocument.write(code);
+  if (id) {
+    if (timer) {
+      clearTimeout(timer);
+      timer = null;
+    }
+    timer = setTimeout(() => {
+      frameDocument.write(code);
+    }, 10);
+  } else {
+    frameDocument.write(code);
+  }
   frameDocument.close();
 };
+
+// 执行代码
+runBtn.addEventListener("click", () => {
+  const htmlCode = htmlTemplate(inputRef.value, { background: '#fff', color: '#000' });
+  createIframe({
+    code: htmlCode,
+    display: 'block',
+    id: '__HTML_RESULT__',
+  });
+});
+
+initBtn.addEventListener("click", () => {
+  inputRef.value = `
+    <!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>run code</title>
+        <style>
+          body,
+          html {
+            display: flex;
+            justify-content: center;
+          }
+
+          .box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 30px;
+            width: 100px;
+            height: 100px;
+            background: skyblue;
+            border-radius: 5px;
+          }
+        </style>
+      </head>
+
+      <body>
+        <div class="box">HTML 预览</div>
+        <script>
+          let obj1 = { name: 'obj1' };
+          let obj2 = { a: obj1 };
+          obj1.obj1 = window.location.reload;
+          obj2.obj2 = obj2;
+          console.log(obj1);
+          console.log(obj2.obj2, 'obj2');
+
+          console.log(Error, 'null', new Error());
+
+          console.log(undefined, null, 'null', 'undefined');
+
+          console.log(window.location.reload);
+
+          const fun = () => {
+            console.log(111);
+          };
+          function fun1() {
+            return 111;
+          }
+          const fun2 = function () {
+            return 'fun2';
+          };
+          console.log(fun);
+          console.log(fun());
+          console.log(fun1);
+          console.log(fun2);
+
+          const data = {
+            title: 'coderun 实现逻辑',
+            content: '首先你要这样，再这样，最后再这样，就好了',
+            author: 'dnhyxc',
+            like: 999,
+          };
+
+          console.log(data, 11, '这是一个对象');
+
+          const arr = [1, 2, 3, 4, 5, 6, 7, '888'];
+          console.log(arr, 'arr');
+
+          const div = document.createElement('div');
+          div.id = 'dnhyxc';
+          div.innerHTML = 'dnhyxc';
+          console.log(div, 'div');
+
+          console.log(new Date().valueOf(), new Date());
+
+          console.log(new RegExp(/__ERROR__$/));
+          window.a = new RegExp(/a/g);
+          console.log(window.a);
+        </script>
+      </body>
+    </html>
+  `;
+});
 
 // 格式化解析数据
 const JSONParse = (objStr) => {
