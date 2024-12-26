@@ -1551,87 +1551,89 @@ gcc [选项] 文件名 ... [-o 输出文件名]
 ```js
 const { exec } = require("child_process");
 
-  async compileCCodeCtr(ctx, next) {
-    const { code, option = "-lm" } = ctx.request.body;
+async compileCCodeCtr(ctx, next) {
+  const { code, option = "-lm" } = ctx.request.body;
 
-    const getResult = (success, message, data) => {
-      return {
-        code: 200,
-        success,
-        message,
-        data,
-      };
+  const getResult = (success, message, data) => {
+    return {
+      code: 200,
+      success,
+      message,
+      data,
     };
+  };
 
-    const runCode = ({ filePath, compiled }) => {
-      /**
-       * 编译并执行代码
-       * 命令：gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}
-       *  - -std=c99: 指定编译为 C99 标准，否则可能出现语法错误
-       *  - filePath: 需要编译的文件路径
-       *  - compiled: 编译后的文件路径
-       *  - option: 编译选项
-       *  - 编译成功后，运行 compiled 文件，并返回执行结果
-       */
-      return new Promise((resolve, reject) => {
-        exec(
-          `gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}`,
-          (error, stdout, stderr) => {
-            if (error) {
-							// 这里加上 RunError__，是为了让前端能更好的识别是错误，用于实现不同的样式展示
-              resolve(getResult(false, "执行错误", `RunError__${stderr}`));
-              return;
-            }
-            // 编译出错
-            if (stderr) {
-              resolve(getResult(false, "编译错误", `RunError__${stderr}`));
-              return;
-            }
-            const res = stdout.split('\n').map(line => line.trim());
-            resolve(getResult(true, "执行成功", res));
+  const runCode = ({ filePath, compiled }) => {
+    /**
+     * 编译并执行代码
+     * 命令：gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}
+     *  - -std=c99: 指定编译为 C99 标准，否则可能出现语法错误
+     *  - filePath: 需要编译的文件路径
+     *  - compiled: 编译后的文件路径
+     *  - option: 编译选项
+     *  - 编译成功后，运行 compiled 文件，并返回执行结果
+     */
+    return new Promise((resolve, reject) => {
+      exec(
+        `gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}`,
+        (error, stdout, stderr) => {
+          if (error) {
+						// 这里加上 RunError__，是为了让前端能更好的识别是错误，用于实现不同的样式展示
+            resolve(getResult(false, "执行错误", `RunError__${stderr}`));
+            return;
           }
-        );
-      });
-    };
-
-    try {
-      // 保存需要运行代码文件的文件夹
-      const folderPath = path.join(__dirname, "../../compile");
-      // 编译前的文件路径
-      const filePath = path.join(folderPath, "compile.c");
-      // 编译后的文件路径
-      const compiled = `${folderPath}/compiled`;
-
-      // 检查文件夹是否存在
-      if (!fs.existsSync(folderPath)) {
-        // 如果文件夹不存在，则创建文件夹
-        fs.mkdirSync(folderPath);
-        // 写入代码到 compile.c 文件中
-        fs.writeFileSync(filePath, code);
-      } else {
-        fs.writeFileSync(filePath, code);
-      }
-
-      const res = await runCode({ filePath, compiled });
-
-      ctx.body = res;
-
-      // 运行完成之后，检查目录是否存在，存在则删除
-      if (fs.existsSync(folderPath)) {
-        // 删除目录及其下所有文件和子目录
-        fs.rmdirSync(folderPath, { recursive: true });
-      }
-    } catch (error) {
-      console.error("compileCCodeCtr", error);
-      ctx.app.emit(
-        "error",
-        {
-          code: "10000",
-          success: false,
-          message: "程序执行出错",
-        },
-        ctx
+          // 编译出错
+          if (stderr) {
+            resolve(getResult(false, "编译错误", `RunError__${stderr}`));
+            return;
+          }
+          const res = stdout.split('\n').map(line => line.trim());
+          resolve(getResult(true, "执行成功", res));
+        }
       );
+    });
+  };
+
+  try {
+    // 保存需要运行代码文件的文件夹
+    const folderPath = path.join(__dirname, "../../compile");
+    // 编译前的文件路径
+    const filePath = path.join(folderPath, "compile.c");
+    // 编译后的文件路径
+    const compiled = `${folderPath}/compiled`;
+    // 检查文件夹是否存在
+    if (!fs.existsSync(folderPath)) {
+      // 如果文件夹不存在，则创建文件夹
+      fs.mkdirSync(folderPath);
+      // 写入代码到 compile.c 文件中
+      fs.writeFileSync(filePath, code);
+    } else {
+      fs.writeFileSync(filePath, code);
     }
+
+    const res = await runCode({ filePath, compiled });
+    ctx.body = res;
+
+    // 运行完成之后，检查目录是否存在，存在则删除
+    if (fs.existsSync(folderPath)) {
+      // 删除目录及其下所有文件和子目录
+      fs.rmdirSync(folderPath, { recursive: true });
+    }
+  } catch (error) {
+    console.error("compileCCodeCtr", error);
+    ctx.app.emit(
+      "error",
+      {
+        code: "10000",
+        success: false,
+        message: "程序执行出错",
+      },
+      ctx
+    );
   }
+}
 ```
+
+### 在项目中最终呈现的效果
+
+![c 语言运行效果](devtools-c.png)
