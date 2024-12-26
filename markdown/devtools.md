@@ -1495,3 +1495,143 @@ window.addEventListener("message", (e) => {
 ### 在项目中最终呈现的效果
 
 ![html 代码运行效果](devtools-html.png)
+
+## 执行 C 语言
+
+### C 语言的编译
+
+要运行 C 语言代码，首先需要将 C 语言代码编译成可执行文件，然后执行该可执行文件。那么代码的编译就需要借助 `GCC` 编译器来完成。那什么是 `GCC` 呢？
+
+GCC（GNU Compiler Collection） 是一个由 GNU 项目开发的编译器集合，支持多种编程语言。它是开源的，并且广泛用于各种平台上，特别是在类 Unix 操作系统（如 Linux）上。
+
+同时 GCC 支持多种语言的编译，如：C、C++、Fortran、Java、Objective-C 等。
+
+要使用 GCC，首先需要在电脑上安装 GCC 编译器。安装完成后，我们就可以使用命令行来编译 C 语言代码了。至于各个操作系统的安装方法，网上有很多教程，可以自行查看，这里就不过多说明了。
+
+### GCC 的使用
+
+基本语法：
+
+```
+gcc [选项] 文件名 ... [-o 输出文件名]
+```
+
+常用选项：
+
+- `-std=c99`、`-std=c11`、`-std=c17`：指定编译的语言标准。
+
+- `-o`：指定输出文件名。
+
+- `-c`：只编译，不链接。
+
+- `-lm`：链接 math 库，确保数学函数在编译时能够正确解析和链接。
+
+- `-g`：生成调试信息。
+
+- `-O`：优化编译，`-O0`、`-O1`、`-O2`、`-O3`，其中`-O0` 表示不优化，`-O3` 表示最高优化级别。
+
+- `-Wall`：显示所有警告信息。
+
+上述常用的选项，我们主要用到 `-std=c99`、`-o`、`-lm` 选项。
+
+### 实现思路
+
+要使用 GCC 来编译代码，我们需要通过 node.js 来完成，因此需要使用 `express` 或者 `koa` 等框架来搭建一个简单的 web 服务。这个过程大家应该不陌生了吧，这里就不赘述了。
+
+由于 GCC 需要指定一个需要编译的文件路径，所以我们需要将用户输入的代码写入到一个临时文件中，然后再编译。
+
+同时在代码编译完成后，还需要将编译后的代码也保存到一个临时文件中，之后用来执行。
+
+上述步骤执行完毕之后，就可以通过 node.js 内置的 `child_process` 模块中的 `exec` 来运行 GCC 命令编译代码并执行代码了。
+
+### 具体实现
+
+由于我的项目是通过 `koa` 搭建的，因此这里就以 `koa` 为例，其他框架的实现思路应该类似。
+
+```js
+const { exec } = require("child_process");
+
+  async compileCCodeCtr(ctx, next) {
+    const { code, option = "-lm" } = ctx.request.body;
+
+    const getResult = (success, message, data) => {
+      return {
+        code: 200,
+        success,
+        message,
+        data,
+      };
+    };
+
+    const runCode = ({ filePath, compiled }) => {
+      /**
+       * 编译并执行代码
+       * 命令：gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}
+       *  - -std=c99: 指定编译为 C99 标准，否则可能出现语法错误
+       *  - filePath: 需要编译的文件路径
+       *  - compiled: 编译后的文件路径
+       *  - option: 编译选项
+       *  - 编译成功后，运行 compiled 文件，并返回执行结果
+       */
+      return new Promise((resolve, reject) => {
+        exec(
+          `gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}`,
+          (error, stdout, stderr) => {
+            if (error) {
+							// 这里加上 RunError__，是为了让前端能更好的识别是错误，用于实现不同的样式展示
+              resolve(getResult(false, "执行错误", `RunError__${stderr}`));
+              return;
+            }
+            // 编译出错
+            if (stderr) {
+              resolve(getResult(false, "编译错误", `RunError__${stderr}`));
+              return;
+            }
+            const res = stdout.split('\n').map(line => line.trim());
+            resolve(getResult(true, "执行成功", res));
+          }
+        );
+      });
+    };
+
+    try {
+      // 保存需要运行代码文件的文件夹
+      const folderPath = path.join(__dirname, "../../compile");
+      // 编译前的文件路径
+      const filePath = path.join(folderPath, "compile.c");
+      // 编译后的文件路径
+      const compiled = `${folderPath}/compiled`;
+
+      // 检查文件夹是否存在
+      if (!fs.existsSync(folderPath)) {
+        // 如果文件夹不存在，则创建文件夹
+        fs.mkdirSync(folderPath);
+        // 写入代码到 compile.c 文件中
+        fs.writeFileSync(filePath, code);
+      } else {
+        fs.writeFileSync(filePath, code);
+      }
+
+      const res = await runCode({ filePath, compiled });
+
+      ctx.body = res;
+
+      // 运行完成之后，检查目录是否存在，存在则删除
+      if (fs.existsSync(folderPath)) {
+        // 删除目录及其下所有文件和子目录
+        fs.rmdirSync(folderPath, { recursive: true });
+      }
+    } catch (error) {
+      console.error("compileCCodeCtr", error);
+      ctx.app.emit(
+        "error",
+        {
+          code: "10000",
+          success: false,
+          message: "程序执行出错",
+        },
+        ctx
+      );
+    }
+  }
+```
