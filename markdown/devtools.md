@@ -695,11 +695,11 @@ window.addEventListener("message", (e) => {
 });
 ```
 
-### 在项目中最终呈现的效果
+### 在项目中运行 JS 最终呈现的效果
 
 在最终的项目呈现上，你可以自定义处理运行结果的展示方式，比如呈现这种效果：
 
-![打印输出效果呈现](devtools.png)
+![打印输出 JS 效果呈现](devtools.png)
 
 显示效果的呈现，你可以根据自己的喜好进行调整。比如判断输出的数据类型，然后进行不同的展示方式。其中有些无法区分的，可以在上述 `scriptCode` 中添加相应的标识，比如标识是否 DOM 元素：
 
@@ -1492,7 +1492,7 @@ window.addEventListener("message", (e) => {
 });
 ```
 
-### 在项目中最终呈现的效果
+### 在项目中运行 HTML 最终呈现的效果
 
 ![html 代码运行效果](devtools-html.png)
 
@@ -1551,89 +1551,256 @@ gcc [选项] 文件名 ... [-o 输出文件名]
 ```js
 const { exec } = require("child_process");
 
-async compileCCodeCtr(ctx, next) {
-  const { code, option = "-lm" } = ctx.request.body;
+class codesController {
+	async compileCCodeCtr(ctx, next) {
+		const { code, option = "-lm" } = ctx.request.body;
 
-  const getResult = (success, message, data) => {
-    return {
-      code: 200,
-      success,
-      message,
-      data,
+		const getResult = (success, message, data) => {
+			return {
+				code: 200,
+				success,
+				message,
+				data,
+			};
+		};
+
+		const runCode = ({ filePath, compiled }) => {
+			/**
+			 * 编译并执行代码
+			 * 命令：gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}
+			 *  - -std=c99: 指定编译为 C99 标准，否则可能出现语法错误
+			 *  - filePath: 需要编译的文件路径
+			 *  - compiled: 编译后的文件路径
+			 *  - option: 编译选项
+			 *  - 编译成功后，运行 compiled 文件，并返回执行结果
+			 */
+			return new Promise((resolve, reject) => {
+				exec(
+					`gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}`,
+					(error, stdout, stderr) => {
+						if (error) {
+							// 这里加上 RunError__，是为了让前端能更好的识别是错误，用于实现不同的样式展示
+							resolve(getResult(false, "执行错误", `RunError__${stderr}`));
+							return;
+						}
+						// 编译出错
+						if (stderr) {
+							resolve(getResult(false, "编译错误", `RunError__${stderr}`));
+							return;
+						}
+						const res = stdout.split("\n").map((line) => line.trim());
+						resolve(getResult(true, "执行成功", res));
+					}
+				);
+			});
+		};
+
+		try {
+			// 保存需要运行代码文件的文件夹
+			const folderPath = path.join(__dirname, "../../compile");
+			// 编译前的文件路径
+			const filePath = path.join(folderPath, "compile.c");
+			// 编译后的文件路径
+			const compiled = `${folderPath}/compiled`;
+			// 检查文件夹是否存在
+			if (!fs.existsSync(folderPath)) {
+				// 如果文件夹不存在，则创建文件夹
+				fs.mkdirSync(folderPath);
+				// 写入代码到 compile.c 文件中
+				fs.writeFileSync(filePath, code);
+			} else {
+				fs.writeFileSync(filePath, code);
+			}
+
+			const res = await runCode({ filePath, compiled });
+			ctx.body = res;
+
+			// 运行完成之后，检查目录是否存在，存在则删除
+			if (fs.existsSync(folderPath)) {
+				// 删除目录及其下所有文件和子目录
+				fs.rmdirSync(folderPath, { recursive: true });
+			}
+		} catch (error) {
+			console.error("compileCCodeCtr", error);
+			ctx.app.emit(
+				"error",
+				{
+					code: "10000",
+					success: false,
+					message: "程序执行出错",
+				},
+				ctx
+			);
+		}
+	}
+}
+```
+
+### 在项目中运行 C 语言最终呈现的效果
+
+![devtools-c](devtools-c.png)
+
+## 执行 Python 语言
+
+### python 的执行
+
+执行 Python 语言代码，我们需要借助 `python` 或者 `python3` 来完成。因此需要在电脑上安装 `python` 或者 `python3`。如果自己的电脑中已经安装过了 `python`，可以使用 `python --version` 来查看版本号。如果不是 `python3`，建议升级到 `python3`，这样可以避免在执行代码是，出现一些潜在的兼容性问题。
+
+### 实现思路
+
+执行 Python 代码，这里同样需要借助 node.js 来完成。与上述执行 C 语言一样，通过 `koa` 搭建一个简单的 web 服务。
+
+之后通过 node.js 内置的 `child_process` 模块中的 `spawn` 来运行 `python3` 命令来执行代码。
+
+### 具体实现
+
+这里依然使用 `koa` 的实现来说明，具体代码如下：
+
+```js
+class codesController {
+	async compilePyCodeCtr(ctx, next) {
+		const { code } = ctx.request.body;
+
+		const runCode = () => {
+			return new Promise((resolve, reject) => {
+				// 启动 Python 子进程并执行代码
+				const pythonProcess = spawn("python3", ["-c", code]);
+
+				let output = [];
+				let errorOutput = [];
+
+				// 捕获输出
+				pythonProcess.stdout.on("data", (data) => {
+					output = data
+						.toString()
+						.split("\n")
+						.map((line) => line.trim());
+				});
+
+				// 捕获错误输出
+				pythonProcess.stderr.on("data", (data) => {
+					errorOutput.push(`RunError__${data.toString()}`);
+				});
+
+				// 监听子进程关闭事件，最终将收集的结果返回
+				pythonProcess.on("close", (code) => {
+					resolve([...output, ...errorOutput]);
+				});
+			});
+		};
+
+		try {
+			const data = await runCode();
+			ctx.body = {
+				code: 200,
+				success: true,
+				message: "执行成功",
+				data,
+			};
+		} catch (error) {
+			ctx.body = {
+				code: 200,
+				success: false,
+				message: "执行失败",
+				data: error.message,
+			};
+		}
+	}
+}
+```
+
+### 在项目中运行 Python 最终呈现的效果
+
+![devtools-python](devtools-python.png)
+
+## 运行 JS 的其他方式
+
+除了上述在 iframe 通过 `eval`、`new Function` 等方式执行 JS 代码外，还有可以借助 `vm2` 或者 `isolated-vm` 等第三方库来执行 JS 代码。
+
+### vm2 & isolated-vm
+
+[vm2](https://github.com/patriksimek/vm2) 是一个高性能、沙箱（sandbox）虚拟机，专门用于在 JavaScript vm2 允许你在 Node.js 中执行 JavaScript 代码，并提供强大的控制力和安全性，防止恶意代码或不受信任的脚本对系统产生影响。
+
+[isolated-vm](https://github.com/laverdet/isolated-vm) 是一个用于在 Node.js 环境中创建隔离沙箱的库，它通过 V8 引擎（Google Chrome 和 Node.js 使用的 JavaScript 引擎）实现了高效且安全的沙箱环境。与传统的沙箱方案（如 vm 模块）相比，isolated-vm 提供了更强的隔离性、性能优势和更严格的资源控制，特别适合用于需要执行不受信任的代码的场景。
+
+isolated-vm 的核心优势在于它能有效隔离执行环境并提供高效的内存和资源管理，因此非常适用于处理来自不信任来源的代码执行，如插件系统、用户提交的代码、代码评测、甚至是防止 DoS 攻击等。
+
+基于上述两种方案，下文中会主要介绍通过 `vm2` 的方案来实现 JS 代码的执行。至于 `isolated-vm`，实现方式与 `vm2` 类似。有兴趣可以自行研究。
+
+### 使用 vm2 执行 JS 代码
+
+要使用 `vm2`，同样需要借助 node.js 来完成。同时还需要安装 `vm2` 库。
+
+```yaml
+npm install vm2
+```
+
+具体实现代码如下：
+
+```js
+const { VM } = require("vm2");
+
+class codesController {
+	  async compileJSCodeCtr(ctx, next) {
+    const { code } = ctx.request.body;
+
+    let logs = [];
+
+    const codeRun = () => {
+      const vm = new VM({
+        compiler: "javascript",
+        sandbox: {
+          name: "dnhyxc",
+          console: {
+            log: (...args) => {
+              logs.push(args);
+            },
+            info: (...args) => {
+              logs.push(args);
+            },
+            warn: (...args) => {
+              logs.push(args);
+            },
+            error: (...args) => {
+              logs.push(args);
+            },
+            table: (...args) => {
+              logs.push(args);
+            },
+            time: (...args) => {
+              logs.push(args);
+            },
+            timeEnd: (...args) => {
+              logs.push(args);
+            },
+            debug: (...args) => {
+              logs.push(args);
+            },
+          },
+        },
+      });
+      const result = vm.run(code);
+      return { result, logs };
     };
-  };
 
-  const runCode = ({ filePath, compiled }) => {
-    /**
-     * 编译并执行代码
-     * 命令：gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}
-     *  - -std=c99: 指定编译为 C99 标准，否则可能出现语法错误
-     *  - filePath: 需要编译的文件路径
-     *  - compiled: 编译后的文件路径
-     *  - option: 编译选项
-     *  - 编译成功后，运行 compiled 文件，并返回执行结果
-     */
-    return new Promise((resolve, reject) => {
-      exec(
-        `gcc -std=c99 ${filePath} -o ${compiled} ${option} && ${compiled}`,
-        (error, stdout, stderr) => {
-          if (error) {
-						// 这里加上 RunError__，是为了让前端能更好的识别是错误，用于实现不同的样式展示
-            resolve(getResult(false, "执行错误", `RunError__${stderr}`));
-            return;
-          }
-          // 编译出错
-          if (stderr) {
-            resolve(getResult(false, "编译错误", `RunError__${stderr}`));
-            return;
-          }
-          const res = stdout.split('\n').map(line => line.trim());
-          resolve(getResult(true, "执行成功", res));
-        }
-      );
-    });
-  };
-
-  try {
-    // 保存需要运行代码文件的文件夹
-    const folderPath = path.join(__dirname, "../../compile");
-    // 编译前的文件路径
-    const filePath = path.join(folderPath, "compile.c");
-    // 编译后的文件路径
-    const compiled = `${folderPath}/compiled`;
-    // 检查文件夹是否存在
-    if (!fs.existsSync(folderPath)) {
-      // 如果文件夹不存在，则创建文件夹
-      fs.mkdirSync(folderPath);
-      // 写入代码到 compile.c 文件中
-      fs.writeFileSync(filePath, code);
-    } else {
-      fs.writeFileSync(filePath, code);
-    }
-
-    const res = await runCode({ filePath, compiled });
-    ctx.body = res;
-
-    // 运行完成之后，检查目录是否存在，存在则删除
-    if (fs.existsSync(folderPath)) {
-      // 删除目录及其下所有文件和子目录
-      fs.rmdirSync(folderPath, { recursive: true });
-    }
-  } catch (error) {
-    console.error("compileCCodeCtr", error);
-    ctx.app.emit(
-      "error",
-      {
-        code: "10000",
+    try {
+      const result = codeRun();
+      ctx.body = {
+        code: 200,
+        success: true,
+        message: "执行成功",
+        data: JSON.stringify(result) || JSON.stringify(logs),
+      };
+    } catch (error) {
+      ctx.body = {
+        code: 200,
         success: false,
-        message: "程序执行出错",
-      },
-      ctx
-    );
+        message: "执行出错",
+        data: error.message,
+      };
+    }
   }
 }
 ```
 
-### 在项目中最终呈现的效果
-
-![c 语言运行效果](devtools-c.png)
+上述代码是一个基本的实现思路，具体的实现还需要结合 `console.log` 输出的内容进行调整。
