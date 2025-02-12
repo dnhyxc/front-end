@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Optimized Editable Virtual Table with Canvas</title>
+		<style>
+			#canvas-container {
+				width: 800px;
+				height: 600px;
+				overflow: auto;
+				position: relative;
+			}
+			#table-canvas {
+				position: absolute;
+			}
+			.edit-input {
+				position: absolute;
+				border: none;
+				padding: 0;
+				margin: 0;
+				font-size: 14px;
+				font-family: Arial, sans-serif;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="canvas-container">
+			<canvas id="table-canvas"></canvas>
+		</div>
+		<script>
+			const numRows = 1000; // 总行数
+			const numCols = 50; // 总列数
+			const cellWidth = 100; // 单元格宽度
+			const cellHeight = 30; // 单元格高度
+
+			const canvas = document.getElementById("table-canvas");
+			const container = document.getElementById("canvas-container");
+			const ctx = canvas.getContext("2d");
+
+			// 设置 canvas 的大小
+			canvas.width = numCols * cellWidth;
+			canvas.height = numRows * cellHeight;
+
+			// 生成随机数据
+			const data = Array.from({ length: numRows }, () =>
+				Array.from({ length: numCols }, () => Math.floor(Math.random() * 1000))
+			);
+
+			// 绘制表格
+			function drawTable() {
+				const scrollTop = container.scrollTop;
+				const scrollLeft = container.scrollLeft;
+
+				const startRow = Math.floor(scrollTop / cellHeight);
+				const endRow = Math.min(
+					numRows,
+					startRow + Math.ceil(container.clientHeight / cellHeight)
+				);
+				const startCol = Math.floor(scrollLeft / cellWidth);
+				const endCol = Math.min(
+					numCols,
+					startCol + Math.ceil(container.clientWidth / cellWidth)
+				);
+
+				ctx.clearRect(
+					scrollLeft,
+					scrollTop,
+					container.clientWidth,
+					container.clientHeight
+				);
+
+				for (let row = startRow; row < endRow; row++) {
+					for (let col = startCol; col < endCol; col++) {
+						const x = col * cellWidth;
+						const y = row * cellHeight;
+						ctx.strokeRect(x, y, cellWidth, cellHeight);
+						ctx.fillText(data[row][col], x + cellWidth / 2, y + cellHeight / 2);
+					}
+				}
+			}
+
+			// 使用 requestAnimationFrame 进行优化
+			let isDrawing = false;
+			function onScroll() {
+				if (!isDrawing) {
+					isDrawing = true;
+					requestAnimationFrame(() => {
+						drawTable();
+						isDrawing = false;
+					});
+				}
+			}
+
+			// 监听滚动事件
+			container.addEventListener("scroll", onScroll);
+
+			// 初始绘制
+			drawTable();
+
+			// 单元格点击事件
+			canvas.addEventListener("click", (e) => {
+				const rect = canvas.getBoundingClientRect();
+				const x = e.clientX - rect.left + container.scrollLeft;
+				const y = e.clientY - rect.top + container.scrollTop;
+
+				const col = Math.floor(x / cellWidth);
+				const row = Math.floor(y / cellHeight);
+
+				if (col >= numCols || row >= numRows) return;
+
+				const input = document.createElement("input");
+				input.type = "text";
+				input.className = "edit-input";
+				input.style.width = `${cellWidth - 2}px`;
+				input.style.height = `${cellHeight - 2}px`;
+				input.style.left = `${col * cellWidth - container.scrollLeft}px`;
+				input.style.top = `${row * cellHeight - container.scrollTop}px`;
+				input.value = data[row][col];
+
+				container.appendChild(input);
+				input.focus();
+
+				input.addEventListener("blur", () => {
+					data[row][col] = input.value;
+					container.removeChild(input);
+					drawTable();
+				});
+
+				input.addEventListener("keydown", (event) => {
+					if (event.key === "Enter") {
+						input.blur();
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
