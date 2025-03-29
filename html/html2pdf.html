@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+	<head>
+		<meta charset="UTF-8" />
+		<title>智能简历分页预览</title>
+		<style>
+			/* 基础样式 */
+			body {
+				background: #f0f2f5;
+				font-family: "Segoe UI", sans-serif;
+				margin: 0;
+				padding: 20px;
+			}
+
+			/* A4纸样式 */
+			.a4-page {
+				--page-width: 794px; /* A4宽度 */
+				--page-height: 1123px; /* A4高度 */
+				--page-padding: 60px 70px; /* 内边距 */
+				width: 794px; /* 210mm */
+				min-height: 1123px; /* 297mm */
+				padding: 60px 70px; /* 页边距 */
+				background: white;
+				margin: 20px auto;
+				box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+				box-sizing: border-box;
+				page-break-after: always;
+			}
+
+			/* 编辑区域 */
+			#editor {
+				width: 794px;
+				margin: 20px auto;
+				border: 2px solid #e4e6eb;
+				padding: 60px 70px;
+				background: white;
+				border-radius: 8px;
+				outline: none;
+				line-height: 1.6;
+			}
+
+			/* 测量容器 */
+			#measurement {
+				width: 794px;
+				visibility: hidden;
+				position: absolute;
+				top: -9999px;
+				left: -9999px;
+				padding: 60px 70px;
+				box-sizing: border-box;
+				white-space: pre-wrap;
+			}
+
+			/* 打印优化 */
+			@media print {
+				#editor,
+				#measurement {
+					display: none !important;
+				}
+				.a4-page {
+					box-shadow: none;
+					margin: 0;
+				}
+			}
+
+			/* 预览容器 */
+			#preview {
+				position: relative;
+				background: #f8f9fa;
+				padding: 20px 0;
+			}
+
+			/* 分页指示器 */
+			.page-indicator {
+				position: absolute;
+				right: -40px;
+				top: 20px;
+				color: #666;
+				font-size: 14px;
+			}
+		</style>
+	</head>
+	<body>
+		<!-- 编辑区域 -->
+		<div id="editor" contenteditable="true">
+			<h1>张三</h1>
+			<h3>高级前端工程师</h3>
+			<h2>工作经历</h2>
+			<p>2019-至今 | ABC科技有限公司</p>
+			<ul>
+				<li>主导公司核心项目开发</li>
+				<li>优化前端构建流程</li>
+			</ul>
+		</div>
+
+		<!-- 预览区域 -->
+		<div id="preview"></div>
+
+		<!-- 测量容器 -->
+		<div id="measurement"></div>
+
+		<script>
+			class ResumePager {
+				constructor() {
+					this.editor = document.getElementById("editor");
+					this.preview = document.getElementById("preview");
+					this.measurement = document.getElementById("measurement");
+					this.pageHeight = 1123 - 120; // 总高度减去padding
+					this.init();
+				}
+
+				init() {
+					this.setupEventListeners();
+					this.updatePreview();
+				}
+
+				createPage() {
+					const page = document.createElement("div");
+					page.className = "a4-page";
+					return page;
+				}
+
+				calculateElementHeight(element) {
+					const style = getComputedStyle(element);
+					return (
+						element.offsetHeight +
+						parseInt(style.marginTop) +
+						parseInt(style.marginBottom)
+					);
+				}
+
+				splitContent() {
+					this.measurement.innerHTML = this.editor.innerHTML;
+					const pages = [];
+					let currentPage = this.createPage();
+					let currentHeight = 0;
+
+					Array.from(this.measurement.children).forEach((element) => {
+						const elementHeight = this.calculateElementHeight(element);
+
+						// 处理超长元素
+						if (elementHeight > this.pageHeight) {
+							const cloned = this.splitLongElement(
+								element,
+								this.pageHeight - currentHeight
+							);
+							currentPage.appendChild(cloned);
+							pages.push(currentPage);
+							currentPage = this.createPage();
+							currentHeight = 0;
+							return;
+						}
+
+						if (currentHeight + elementHeight > this.pageHeight) {
+							pages.push(currentPage);
+							currentPage = this.createPage();
+							currentHeight = 0;
+						}
+
+						currentHeight += elementHeight;
+						currentPage.appendChild(element.cloneNode(true));
+					});
+
+					pages.push(currentPage);
+					return pages;
+				}
+
+				splitLongElement(element, remainingSpace) {
+					const clone = element.cloneNode();
+					let accumulatedHeight = 0;
+
+					Array.from(element.childNodes).forEach((child) => {
+						if (accumulatedHeight >= remainingSpace) return;
+
+						const childHeight = child.offsetHeight || 0;
+						if (childHeight > remainingSpace - accumulatedHeight) {
+							if (child.nodeType === Node.TEXT_NODE) {
+								const text = child.textContent;
+								const maxChars = Math.floor(
+									(remainingSpace - accumulatedHeight) /
+										(element.offsetHeight / text.length)
+								);
+								clone.appendChild(
+									document.createTextNode(text.slice(0, maxChars))
+								);
+								child.textContent = text.slice(maxChars);
+							}
+							return;
+						}
+
+						clone.appendChild(child.cloneNode(true));
+						accumulatedHeight += childHeight;
+					});
+
+					return clone;
+				}
+
+				updatePreview() {
+					this.preview.innerHTML = "";
+					const pages = this.splitContent();
+
+					pages.forEach((page, index) => {
+						const indicator = document.createElement("div");
+						indicator.className = "page-indicator";
+						indicator.textContent = `第 ${index + 1} 页`;
+						page.appendChild(indicator);
+						this.preview.appendChild(page);
+					});
+				}
+
+				setupEventListeners() {
+					let timeout;
+					const handler = () => {
+						clearTimeout(timeout);
+						timeout = setTimeout(() => this.updatePreview(), 300);
+					};
+
+					this.editor.addEventListener("input", handler);
+					window.addEventListener("resize", handler);
+				}
+			}
+
+			// 初始化分页器
+			new ResumePager();
+		</script>
+	</body>
+</html>
