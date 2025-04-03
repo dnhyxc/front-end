@@ -482,7 +482,13 @@ server {
 解决 nginx: [error] open() ＂/usr/local/nginx/logs/nginx.pid＂ failed 错误，具体操作如下：
 
 ```
-cd/usr/local/nginx /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf;
+cd/usr/local/nginx /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
+```
+
+nginx 重启错误解决: nginx: [alert] kill(8767, 1) failed (3: No such process)
+
+```
+/usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf
 ```
 
 ### 复制 upload 资源
