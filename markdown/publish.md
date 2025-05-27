@@ -369,7 +369,7 @@ http {
 
 ### nginx 配置 https
 
-首先去腾讯云申请免费证书，申请通过之后，下载 nginx 类型的证书文件文件，之后将证书文件上传到服务器的某个目录中，本人将证书放在服务器 `/usr/local/nginx/certs` 目录下。 之后通过 `unzip xxx.zip` 解压上传的证书 zip 压缩包。
+首先去腾讯云申请免费证书，申请通过之后，下载 `nginx` 类型的证书文件文件，之后将证书文件上传到服务器的某个目录中，本人将证书放在服务器 `/usr/local/nginx/certs` 目录下。 之后通过 `unzip xxx.zip` 解压上传的证书 zip 压缩包。
 
 在命令行未连接服务器的情况下运行 `scp /Users/dnhyxc/Desktop/dnhyxc.cn_nginx.zip  root@101.43.50.15:/usr/local/nginx/certs`
 
