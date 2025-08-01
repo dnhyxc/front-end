@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>图片懒加载</title>
+	</head>
+	<body>
+		<script>
+			const imgs = [
+				"1.png",
+				"2.png",
+				"3.png",
+				"4.png",
+				"5.png",
+				"6.png",
+				"7.png",
+				"8.png",
+				"9.png",
+				"10.png",
+			];
+
+			/**
+			 * 如何做到并发 max 个请求？
+			 * 启动阶段 ：通过 for 循环瞬间启动 max 个 _loadImage 实例，从而发出 max 个并发请求。
+			 * 维持阶段 ：通过 Promise.finally 和递归调用形成一个“完成一个，补充一个”的机制。
+			 *          每当一个请求（无论成败）结束时，如果任务队列中还有任务，就会立即启动一个新的请求。
+			 *          这确保了正在进行的请求数量始终维持在 max 左右，直到所有图片都处理完毕。
+			 */
+			const preloadImages = (images, max = 3) => {
+				const _images = [...images];
+				function loadImage() {
+					const src = _images.shift();
+					return new Promise((resolve, reject) => {
+						const link = document.createElement("link");
+						link.rel = "preload";
+						link.href = src;
+						link.as = "image";
+						document.head.appendChild(link);
+						link.onload = resolve;
+						link.onerror = reject;
+						setTimeout(() => reject(), 10000);
+					});
+				}
+
+				function _loadImage() {
+					loadImage().finally(() => {
+						if (images.length) {
+							_loadImage();
+						}
+					});
+				}
+
+				for (let i = 0; i < max; i++) {
+					_loadImage();
+				}
+			};
+		</script>
+	</body>
+</html>
