@@ -17,7 +17,6 @@ nginx 安装包下载：[nginx-1.22.1 pgp](https://nginx.org/en/download.html)�
 输入命令 `cd /usr/local` 进入到 local 文件夹中。进入到 local 文件夹中后，输入命令 `mkdir node` 创建一个 node 文件夹。之后 `cd node` 到 node 目录下，在 node 目录下输入命令 `rz` 将下载的 node 包上传到 `/usr/local/node` 文件夹中，紧接着在当前 node 目录下输入如下命令：
 
 - `tar -vxf node-v14.9.0-linux-x64.tar.xz` 命令将 node 进行解压。解压完成之后，`cd node-v14.9.0-linux-x64/bin` 到 node-v14.9.0-linux-x64 下的 bin 目录下，接着输入命令：
-
   - `ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/node /usr/local/bin/node` 设置 node 环境变量。
 
   - `ln -s /usr/local/node/node-v14.9.0-linux-x64/bin/npm /usr/local/bin/npm` 设置 node 环境变量。
@@ -128,6 +127,22 @@ make install  #将编译好的软件安装到系统中
 /usr/local/nginx/sbin/nginx -c /usr/local/nginx/conf/nginx.conf  #指定其配置文件的路径
 ```
 
+如果执行 `./configure` 报错：
+
+```
+./configure: error: the HTTP rewrite module requires the PCRE library.
+You can either disable the module by using --without-http_rewrite_module
+option, or install the PCRE library into the system, or build the PCRE library
+statically from the source with nginx by using --with-pcre=<path> option.
+```
+
+需要安装：
+
+```bash
+sudo apt-get update
+sudo apt-get install -y libpcre3 libpcre3-dev zlib1g-dev libssl-dev
+```
+
 #### nginx.conf 配置
 
 ```yaml
@@ -172,53 +187,53 @@ http {
     #charset koi8-r;
     #access_log  logs/host.access.log  main;
     location / {
-    root  /usr/local/nginx/dnhyxc/dist; #设置前端资源包的路径
-    index   index.html  index.htm;  #设置前端资源入口html文件
-    try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
-  }
+      root  /usr/local/nginx/dnhyxc/dist; #设置前端资源包的路径
+      index   index.html  index.htm;  #设置前端资源入口html文件
+      try_files   $uri  $uri/ /index.html;  #解决 browserRouter 页面刷新后出现404
+    }
 
-  location /api/ {
-    proxy_set_header  Host  $http_host;
-    proxy_set_header  X-Real-IP $remote_addr;
-    proxy_set_header  REMOTE-HOST $remote_addr;
-    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_pass  http://localhost:9112;
-  }
+    location /api/ {
+      proxy_set_header  Host  $http_host;
+      proxy_set_header  X-Real-IP $remote_addr;
+      proxy_set_header  REMOTE-HOST $remote_addr;
+      proxy_set_header  X-Forwarded-For   $proxy_add_x_forwarded_for;
+      proxy_pass  http://localhost:9112;
+    }
 
-  location /admin/ {
-    proxy_set_header  Host  $http_host;
-    proxy_set_header  X-Real-IP $remote_addr;
-    proxy_set_header  REMOTE-HOST $remote_addr;
-    proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_pass  http://localhost:9112;
-  }
+    location /admin/ {
+      proxy_set_header  Host  $http_host;
+      proxy_set_header  X-Real-IP $remote_addr;
+      proxy_set_header  REMOTE-HOST $remote_addr;
+      proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_pass  http://localhost:9112;
+    }
 
-  location /image/ {
-    root  /usr/local/server/src/upload/image;
-    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
-    proxy_pass  http://localhost:9112;
-  }
+    location /image/ {
+      root  /usr/local/server/src/upload/image;
+      rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+      proxy_pass  http://localhost:9112;
+    }
 
 
-  location /atlas/ {
-    root  /usr/local/server/src/upload/atlas;
-    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
-    proxy_pass  http://localhost:9112;
-  }
+    location /atlas/ {
+      root  /usr/local/server/src/upload/atlas;
+      rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+      proxy_pass  http://localhost:9112;
+    }
 
-  location /files/ {
-    root  /usr/local/server/src/upload/files;
-    rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
-    proxy_pass  http://localhost:9112;
-  }
+    location /files/ {
+      root  /usr/local/server/src/upload/files;
+      rewrite  ^/usr/local/server/src/upload/(.*) /$1 break;
+      proxy_pass  http://localhost:9112;
+    }
 
-  #error_page  404  /404.html;
-  # redirect server error pages to the static page /50x.html
-  #
-  error_page   500 502 503 504  /50x.html;
-  location = /50x.html {
+    #error_page  404  /404.html;
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
       root   html;
-  }
+    }
   # proxy the PHP scripts to Apache listening on 127.0.0.1:80
   #
   #location ~ \.php$ {
